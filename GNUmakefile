@@ -216,8 +216,9 @@ git-handin: handin-check
 
 WEBSUB = https://ccutler.scripts.mit.edu/6.828/handin.py
 
-handin: tarball-pref myapi.key
-	@curl -f -F file=@lab$(LAB)-handin.tar.gz -F key=\<myapi.key $(WEBSUB)/upload \
+# MW commenting out for now 
+#handin: tarball-pref myapi.key
+#	@curl -f -F file=@lab$(LAB)-handin.tar.gz -F key=\<myapi.key $(WEBSUB)/upload \
 	    > /dev/null || { \
 		echo ; \
 		echo Submit seems to have failed.; \
