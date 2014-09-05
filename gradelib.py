@@ -430,7 +430,7 @@ class Runner():
 #                    print ("""\
 #Lost connection to QEMU. Did it crash?
 #""")
-                    sys.exit(1)
+#                    sys.exit(1) 
 
                 self.gdb.close()
                 self.qemu.wait()
