@@ -424,12 +424,12 @@ class Runner():
                     sys.exit(1)
                 self.qemu.kill()
                 self.__react(self.reactors, 5)
-                if self.gdb.sock is None:
-                    # If this happens, then we had a connection to QEMU, but lost it,
-                    # probably because it crashed somehow.
-                    print """\
-Lost connection to QEMU. Did it crash?
-"""
+#                if self.gdb.sock is None:
+#                    # If this happens, then we had a connection to QEMU, but lost it,
+#                    # probably because it crashed somehow.
+#                    print ("""\
+#Lost connection to QEMU. Did it crash?
+#""")
                     sys.exit(1)
 
                 self.gdb.close()
