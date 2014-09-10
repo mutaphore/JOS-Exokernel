@@ -59,8 +59,8 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-   uint32_t ebp, eip, args[5] = {0}; 
-   struct Eipdebuginfo *info;
+   uint32_t ebp, eip, args[5] = {0};
+   struct Eipdebuginfo info;
    
    cprintf("Stack backtrace:\n");
 
@@ -74,9 +74,13 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
       __asm__ __volatile__ ("movl 24(%1), %0" : "=r" (args[4]) : "r" (ebp));
       
       __asm__ __volatile__ ("movl 4(%1), %0" : "=r" (eip) : "r" (ebp)); // Read in return EIP
+      debuginfo_eip(eip, &info); // Get eip debug info
 
-      cprintf("  ebp %x  eip %x  args %08x %08x %08x %08x %08x\n", ebp, eip, args[0], args[1], args[2], args[3], args[4]); 
-
+      cprintf("  ebp %x  eip %x  args %08x %08x %08x %08x %08x\n",
+       ebp, eip, args[0], args[1], args[2], args[3], args[4]); 
+      cprintf("       %s:%d: %.*s+%d\n", info.eip_file, info.eip_line, 
+       info.eip_fn_namelen, info.eip_fn_name, (eip - info.eip_fn_addr)); 
+      
       __asm__ __volatile__ ("movl (%0), %0" : "=r" (ebp) : "0" (ebp));  // Step down stack to find the next ebp
    }	
 
