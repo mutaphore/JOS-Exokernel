@@ -214,15 +214,14 @@ git-handin: handin-check
 		false; \
 	fi
 
-WEBSUB = https://ccutler.scripts.mit.edu/6.828/handin.py
+URL = http://geeker-1.news.cs.nyu.edu:3000/submit?lab=$(LAB)
+TB = lab$(LAB)-handin.tgz
 
-# MW commenting out for now 
-#handin: tarball-pref myapi.key
-#	@curl -f -F file=@lab$(LAB)-handin.tar.gz -F key=\<myapi.key $(WEBSUB)/upload \
-	    > /dev/null || { \
-		echo ; \
-		echo Submit seems to have failed.; \
-		echo Please go to $(WEBSUB) and upload the tarball manually.; }
+handin: tarball
+	echo Please visit $(URL), and submit lab$(LAB)-handin.tar.gz
+
+handin-part%: 
+	$(MAKE) handin "LAB=$(LAB)`echo '$*' | tr \[A-Z\] \[a-z\]`"
 
 handin-check:
 	@if ! test -d .git; then \
@@ -247,29 +246,10 @@ handin-check:
 	fi
 
 tarball: handin-check
-	tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tar.gz
-#	git archive --format=tar HEAD | gzip > lab$(LAB)-handin.tar.gz
+	tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tgz
 
 tarball-pref: handin-check
 	git archive --prefix=lab$(LAB)/ --format=tar HEAD | gzip > lab$(LAB)-handin.tar.gz
-
-myapi.key:
-	@echo Get an API key for yourself by visiting $(WEBSUB)
-	@read -p "Please enter your API key: " k; \
-	if test `echo -n "$$k" |wc -c` = 32 ; then \
-		TF=`mktemp -t tmp.XXXXXX`; \
-		if test "x$$TF" != "x" ; then \
-			echo -n "$$k" > $$TF; \
-			mv -f $$TF $@; \
-		else \
-			echo mktemp failed; \
-			false; \
-		fi; \
-	else \
-		echo Bad API key: $$k; \
-		echo An API key should be 32 characters long.; \
-		false; \
-	fi;
 
 handin-prep:
 	@./handin-prep
