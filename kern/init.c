@@ -10,7 +10,7 @@
 // Test the stack backtrace function (lab 1 only)
 void
 test_backtrace(int x)
-{
+{ 
 	cprintf("entering test_backtrace %d\n", x);
 	if (x > 0)
 		test_backtrace(x-1);

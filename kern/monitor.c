@@ -24,6 +24,7 @@ struct Command {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+   { "backtrace", "Display backtrace info", mon_backtrace }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -58,8 +59,28 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-	// Your code here.
-	return 0;
+   uint32_t ebp, eip, args[5] = {0}; 
+   struct Eipdebuginfo *info;
+   
+   cprintf("Stack backtrace:\n");
+
+   ebp = read_ebp();   // Get the current ebp
+   while (ebp != 0x0) {
+      // Read in arguments wrt ebp pointer
+      __asm__ __volatile__ ("movl 8(%1), %0" : "=r" (args[0]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 12(%1), %0" : "=r" (args[1]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 16(%1), %0" : "=r" (args[2]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 20(%1), %0" : "=r" (args[3]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 24(%1), %0" : "=r" (args[4]) : "r" (ebp));
+      
+      __asm__ __volatile__ ("movl 4(%1), %0" : "=r" (eip) : "r" (ebp)); // Read in return EIP
+
+      cprintf("  ebp %x  eip %x  args %08x %08x %08x %08x %08x\n", ebp, eip, args[0], args[1], args[2], args[3], args[4]); 
+
+      __asm__ __volatile__ ("movl (%0), %0" : "=r" (ebp) : "0" (ebp));  // Step down stack to find the next ebp
+   }	
+
+   return 0;
 }
 
 
