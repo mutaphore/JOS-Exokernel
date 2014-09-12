@@ -257,15 +257,21 @@ page_init(void)
 	// Change the code to reflect this.
 	// NB: DO NOT actually touch the physical memory corresponding to
 	// free pages!
+   
+   // Page indices of in use memory boundaries
+   size_t usedStart, usedEnd;
+   usedStart = IOPHYSMEM >> PGSHIFT;
+   usedEnd = PADDR(boot_alloc(0)) >> PGSHIFT;
 
 	size_t i;
-   // Page 0 is in use, so we don't add it to the free list!
+   // Page 0 is in use per (1), so we start from there
 	for (i = 1; i < npages; i++) {
-		pages[i].pp_ref = 0;
-		pages[i].pp_link = page_free_list;
-		page_free_list = &pages[i];
+      if (i < usedStart || i >= usedEnd) {
+		   pages[i].pp_ref = 0;
+		   pages[i].pp_link = page_free_list;
+		   page_free_list = &pages[i];
+      }
 	}
-   
 }
 
 //
@@ -283,7 +289,10 @@ page_init(void)
 struct PageInfo *
 page_alloc(int alloc_flags)
 {
-	// Fill this function in
+
+   if (alloc_flags & ALLOC_ZERO) {
+      
+   }
 	return 0;
 }
 
