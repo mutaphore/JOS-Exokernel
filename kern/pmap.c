@@ -264,7 +264,7 @@ page_init(void)
    usedEnd = PADDR(boot_alloc(0)) >> PGSHIFT;
 
 	size_t i;
-   // Page 0 is in use per (1), so we start from there
+   // Page 0 is in use per (1), so we start at page 1
 	for (i = 1; i < npages; i++) {
       if (i < usedStart || i >= usedEnd) {
 		   pages[i].pp_ref = 0;
@@ -289,11 +289,17 @@ page_init(void)
 struct PageInfo *
 page_alloc(int alloc_flags)
 {
+   struct PageInfo *page;
 
-   if (alloc_flags & ALLOC_ZERO) {
-      
-   }
-	return 0;
+   // Remove a PageInfo from the beginning of the list
+   page = page_free_list;
+   page_free_list = page->pp_link;
+   page->pp_link = NULL;
+
+   if (alloc_flags & ALLOC_ZERO)
+      memset(page2kva(page), 0, PGSIZE); 
+
+	return page;
 }
 
 //
