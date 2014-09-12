@@ -101,7 +101,7 @@ boot_alloc(uint32_t n)
    if (n <= 0)
       return nextfree;
 
-   if (nextfree + n > 0xffffffff)  // Greater than vspace?
+   if (nextfree + n < nextfree)  // We overflowed?
       panic("Boot alloc ran out of memory\n");
    result = nextfree;
    nextfree = ROUNDUP(nextfree + n, PGSIZE);
@@ -128,7 +128,7 @@ mem_init(void)
 	i386_detect_memory();
 
 	// Remove this line when you're ready to test this function.
-//	panic("mem_init: This function is not finished\n");
+	//panic("mem_init: This function is not finished\n");
 
 	//////////////////////////////////////////////////////////////////////
 	// create initial page directory.
@@ -151,11 +151,11 @@ mem_init(void)
 	// array.  'npages' is the number of physical pages in memory.  Use memset
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
-   
-   pages = UPAGES;
-   for (n = 0; n < npages; n++)
-      memset(&pages[n], 0, sizeof(struct PageInfo));
 
+   pages = boot_alloc(npages * sizeof(struct PageInfo));
+   for (n = 0; n < npages; n++)
+      memset(pages + n, 0, sizeof(struct PageInfo));
+   
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
 	// up the list of free physical pages. Once we've done so, all further
@@ -257,12 +257,15 @@ page_init(void)
 	// Change the code to reflect this.
 	// NB: DO NOT actually touch the physical memory corresponding to
 	// free pages!
+
 	size_t i;
-	for (i = 0; i < npages; i++) {
+   // Page 0 is in use, so we don't add it to the free list!
+	for (i = 1; i < npages; i++) {
 		pages[i].pp_ref = 0;
 		pages[i].pp_link = page_free_list;
 		page_free_list = &pages[i];
 	}
+   
 }
 
 //
