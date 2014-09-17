@@ -359,7 +359,21 @@ page_decref(struct PageInfo* pp)
 pte_t *
 pgdir_walk(pde_t *pgdir, const void *va, int create)
 {
-	// Fill this function in
+   size_t dirNdx, tableNdx;
+   pde_t *dEntry;
+   pte_t *tEntry;
+   struct PageInfo *newPage;
+
+   dirNdx = (uint32_t)va >> PDXSHIFT & 0x000003FF;
+   tableNdx = (uint32_t)va >> PTXSHIFT & 0x000003FF;
+   
+   dEntry = pgdir + dirNdx;
+   if (!(*dEntry & PTE_P)) {  // Page table page is not present
+      if (create == false || !(newPage = page_alloc(ALLOC_ZERO)))
+         return NULL;
+   }
+
+   newPage->pp_ref++;   
 	return NULL;
 }
 
