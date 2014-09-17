@@ -368,28 +368,25 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
    pdIndex = PDX(va);
    ptIndex = PTX(va);
    
-   pdEntry = pgdir + pdIndex;       // Walk to pd entry
-   pa = PTE_ADDR(pdEntry);          // Get pt pa from pd entry 
-   ptEntry = KADDR(pa) + ptIndex;   // Walk to pt entry 
+   pdEntry = pgdir + pdIndex; // Walk to pd entry
    
    // Check if page table page is present 
-   if (!(*ptEntry & PTE_P)) {
+   if (!(*pdEntry & PTE_P)) {
       if (create == false)
          return NULL;
       if (!(pp = page_alloc(ALLOC_ZERO)))
          return NULL;
       
-      // Set pa and present bit in table entry
-      *ptEntry = page2pa(pp) | PTE_P;
+      // Increment reference count
+      pp->pp_ref++;
+      // Set pa and present bit in pd entry
+      pa = page2pa(pp);
+      *pdEntry = pa | PTE_P;
    }
-   else {
-      // Page exists, get the page struct
-      pa = PTE_ADDR(ptEntry);
-      pp = pa2page(pa);
-   }
-   
-   // Increment reference count
-   pp->pp_ref++;
+   else
+      pa = PTE_ADDR(pdEntry);
+
+   ptEntry = KADDR(pa) + ptIndex;   // Walk to pt entry 
    
 	return ptEntry;
 }
@@ -408,8 +405,17 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)
 {
-	// Fill this function in
+   pte_t *ptEntry;
+   PageInfo *page;
+   uintptr_t cur_va = va;
+   physaddr_t cur_pa = pa;
    
+   while (cur_va < va + size) {
+      ptEntry = pgdir_walk(pgdir, cur_va, 1);
+      *ptEntry = cur_pa | perm | PTE_P;
+      cur_va += PGSIZE;
+      cur_pa += PGSIZE;
+   }
 }
 
 //
@@ -440,8 +446,36 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {
-	// Fill this function in
-	return 0;
+   size_t pdIndex;
+   struct PageInfo *newPt;
+   physaddr_t pa;
+   pde_t *pdEntry;
+   pte_t *ptEntry;
+   
+   // Check if pt entry exists in pd
+   pdIndex = PDX(va);
+   pdEntry = pgdir + pdIndex;
+   if (!(*pdEntry & PTE_P)) {   
+      // Allocate page table
+      if(!(newPt = page_alloc(ALLOC_ZERO)))
+         return E_NO_MEM;
+
+      *pdEntry = page2pa(newPt) | PTE_P;  // other perms?
+      ptEntry = pgdir_walk(pgdir, va, 1); 
+   }
+   else
+      ptEntry = pgdir_walk(pgdir, va, 0);
+
+   // Check if there is a page already mapped in pt entry
+   pa = page2pa(pp);
+   if ((*ptEntry & ~0xFFF) != pa && *ptEntry & PTE_P) {
+      // page_remove
+      tlb_invalidate(pgdir, va); // Invalidate TLB
+   }
+
+   *ptEntry = pa | perm | PTE_P;
+	
+   return 0;
 }
 
 //
