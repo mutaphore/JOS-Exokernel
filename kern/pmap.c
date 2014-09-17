@@ -359,22 +359,39 @@ page_decref(struct PageInfo* pp)
 pte_t *
 pgdir_walk(pde_t *pgdir, const void *va, int create)
 {
-   size_t dirNdx, tableNdx;
-   pde_t *dEntry;
-   pte_t *tEntry;
-   struct PageInfo *newPage;
+   size_t pdIndex, ptIndex;
+   physaddr_t pa;
+   pde_t *pdEntry;
+   pte_t *ptEntry;
+   struct PageInfo *pp;
 
-   dirNdx = (uint32_t)va >> PDXSHIFT & 0x000003FF;
-   tableNdx = (uint32_t)va >> PTXSHIFT & 0x000003FF;
+   pdIndex = PDX(va);
+   ptIndex = PTX(va);
    
-   dEntry = pgdir + dirNdx;
-   if (!(*dEntry & PTE_P)) {  // Page table page is not present
-      if (create == false || !(newPage = page_alloc(ALLOC_ZERO)))
+   pdEntry = pgdir + pdIndex;       // Walk to pd entry
+   pa = PTE_ADDR(pdEntry);          // Get pt pa from pd entry 
+   ptEntry = KADDR(pa) + ptIndex;   // Walk to pt entry 
+   
+   // Check if page table page is present 
+   if (!(*ptEntry & PTE_P)) {
+      if (create == false)
          return NULL;
+      if (!(pp = page_alloc(ALLOC_ZERO)))
+         return NULL;
+      
+      // Set pa and present bit in table entry
+      *ptEntry = page2pa(pp) | PTE_P;
    }
-
-   newPage->pp_ref++;   
-	return NULL;
+   else {
+      // Page exists, get the page struct
+      pa = PTE_ADDR(ptEntry);
+      pp = pa2page(pa);
+   }
+   
+   // Increment reference count
+   pp->pp_ref++;
+   
+	return ptEntry;
 }
 
 //
@@ -392,6 +409,7 @@ static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)
 {
 	// Fill this function in
+   
 }
 
 //

@@ -1,0 +1,3 @@
+Question 1:
+Variable x should have uintptr_t because variable "value" holds a virtual address.
+
