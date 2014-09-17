@@ -216,7 +216,7 @@ git-handin: handin-check
 		false; \
 	fi
 
-URL = http://geeker-1.news.cs.nyu.edu:3000/submit?lab=$(LAB)
+URL = http://beaker-2.news.cs.nyu.edu:4000/submit?lab=$(LAB)
 TB = lab$(LAB)-handin.tgz
 
 handin: tarball
