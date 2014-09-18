@@ -384,7 +384,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
       *pdEntry = pa | PTE_P;
    }
    else
-      pa = PTE_ADDR(pdEntry);
+      pa = PTE_ADDR(*pdEntry);
 
    ptEntry = KADDR(pa) + ptIndex;   // Walk to pt entry 
    
@@ -479,8 +479,21 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 struct PageInfo *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
-	// Fill this function in
-	return NULL;
+   pte_t *ptEntry;
+   physaddr_t pa;
+   struct PageInfo *page;
+
+   ptEntry = pgdir_walk(pgdir, va, 1);
+   if (!(*ptEntry & PTE_P))
+      return NULL;   // va is not mapped yet
+   
+   pa = PTE_ADDR(*ptEntry);
+   page = pa2page(pa);
+
+   if (pte_store)
+      *pte_store = ptEntry;
+
+	return page;
 }
 
 //
