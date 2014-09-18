@@ -406,12 +406,12 @@ static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)
 {
    pte_t *ptEntry;
-   PageInfo *page;
+   struct PageInfo *page;
    uintptr_t cur_va = va;
    physaddr_t cur_pa = pa;
    
    while (cur_va < va + size) {
-      ptEntry = pgdir_walk(pgdir, cur_va, 1);
+      ptEntry = pgdir_walk(pgdir, (void *)cur_va, 1);
       *ptEntry = cur_pa | perm | PTE_P;
       cur_va += PGSIZE;
       cur_pa += PGSIZE;
