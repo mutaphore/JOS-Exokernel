@@ -375,7 +375,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
       if (create == false)
          return NULL;
       if (!(pp = page_alloc(ALLOC_ZERO)))
-         return NULL;
+         return NULL;   // Out of mem, cannot alloc pt
       
       // Increment reference count
       pp->pp_ref++;
@@ -446,34 +446,21 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {
-   size_t pdIndex;
-   struct PageInfo *newPt;
    physaddr_t pa;
-   pde_t *pdEntry;
    pte_t *ptEntry;
    
-   // Check if pt entry exists in pd
-   pdIndex = PDX(va);
-   pdEntry = pgdir + pdIndex;
-   if (!(*pdEntry & PTE_P)) {   
-      // Allocate page table
-      if(!(newPt = page_alloc(ALLOC_ZERO)))
-         return E_NO_MEM;
-
-      *pdEntry = page2pa(newPt) | PTE_P;  // other perms?
-      ptEntry = pgdir_walk(pgdir, va, 1); 
-   }
-   else
-      ptEntry = pgdir_walk(pgdir, va, 0);
-
+   if (!(ptEntry = pgdir_walk(pgdir, va, 1)))
+      return E_NO_MEM;  
+   
    // Check if there is a page already mapped in pt entry
    pa = page2pa(pp);
-   if ((*ptEntry & ~0xFFF) != pa && *ptEntry & PTE_P) {
-      // page_remove
+   if (*ptEntry & PTE_P) { 
+      // page_remove()
       tlb_invalidate(pgdir, va); // Invalidate TLB
    }
-
    *ptEntry = pa | perm | PTE_P;
+
+   pp->pp_ref++;
 	
    return 0;
 }
