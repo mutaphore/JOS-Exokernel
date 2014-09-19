@@ -164,8 +164,8 @@ mem_init(void)
 	// or page_insert
 	page_init();
 
-//	check_page_free_list(1);
-//	check_page_alloc();
+	check_page_free_list(1);
+	check_page_alloc();
 	check_page();
 
 	//////////////////////////////////////////////////////////////////////
@@ -456,8 +456,8 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
    // Check if there is a page already mapped in pt entry
    pa = page2pa(pp);
    if (*ptEntry & PTE_P) { 
-      // page_remove()
-      tlb_invalidate(pgdir, va); // Invalidate TLB
+      page_remove(pgdir, va);
+      tlb_invalidate(pgdir, va);
    }
    *ptEntry = pa | perm | PTE_P;
 
@@ -484,13 +484,12 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
    physaddr_t pa;
    struct PageInfo *page;
 
-   ptEntry = pgdir_walk(pgdir, va, 0);
+   ptEntry = pgdir_walk(pgdir, va, 0); // Not creating pages
 
    if (!ptEntry || !(*ptEntry & PTE_P))
       return NULL;   // va is not mapped yet
 
    pa = PTE_ADDR(*ptEntry);
-   cprintf("pa: %x\n", pa);
    page = pa2page(pa);
 
    if (pte_store)
