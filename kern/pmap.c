@@ -183,7 +183,7 @@ mem_init(void)
    boot_map_region(kern_pgdir, UPAGES,
     ROUNDUP(npages * sizeof(struct PageInfo), PGSIZE),
     PADDR(pages), PTE_U | PTE_P);
-   cprintf("Done mapping pages\n"); 
+   
 //////////////////////////////////////////////////////////////////////
 	// Use the physical memory that 'bootstack' refers to as the kernel
 	// stack.  The kernel stack grows down from virtual address KSTACKTOP.
@@ -198,7 +198,7 @@ mem_init(void)
 
    boot_map_region(kern_pgdir, KSTACKTOP - KSTKSIZE,
     KSTKSIZE, PADDR(bootstack), PTE_W | PTE_P);
-   cprintf("Done mapping stack\n"); 
+
 // Map all of physical memory at KERNBASE.
 	// Ie.  the VA range [KERNBASE, 2^32) should map to
 	//      the PA range [0, 2^32 - KERNBASE)
@@ -209,7 +209,10 @@ mem_init(void)
 
    boot_map_region(kern_pgdir, KERNBASE, 
     npages * PGSIZE, 0x0, PTE_W | PTE_P); 
-   cprintf("Done mapping all phys pages\n"); 
+
+   // Set perms for all pde above KERNBASE
+   for (n = PDX(KERNBASE); n < NPDENTRIES; n++)
+      kern_pgdir[n] = kern_pgdir[n] | PTE_W | PTE_P;
 
 	// Check that the initial page directory has been set up correctly.
 	check_kern_pgdir();
@@ -422,7 +425,8 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
    physaddr_t cur_pa = pa;
    
    while (cur_va < va + size) {
-      ptEntry = pgdir_walk(pgdir, (void *)cur_va, 1);
+      if (!(ptEntry = pgdir_walk(pgdir, (void *)cur_va, 1)))
+         return; // Out of mem
       *ptEntry = cur_pa | perm | PTE_P;
       cur_va += PGSIZE;
       cur_pa += PGSIZE;
