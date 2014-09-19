@@ -448,15 +448,22 @@ int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {
    physaddr_t pa;
+   pde_t *pdEntry;
    pte_t *ptEntry;
-   
+
    if (!(ptEntry = pgdir_walk(pgdir, va, 1)))
       return -E_NO_MEM;  
 
-   pp->pp_ref++;
-   page_remove(pgdir, va);
+   // Set perm for pde
+   pdEntry = pgdir + PDX(va); 
+   *pdEntry &= ~0xFFF;  // Clear the lower bit flags 
+   *pdEntry = *pdEntry | perm | PTE_P;
 
+   pp->pp_ref++;  // Inc first so we don't delete same va
+   page_remove(pgdir, va);
    pa = page2pa(pp);
+   
+   // Set perm for pte
    *ptEntry = pa | perm | PTE_P;
 
    return 0;
