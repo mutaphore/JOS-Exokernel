@@ -452,17 +452,13 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
    
    if (!(ptEntry = pgdir_walk(pgdir, va, 1)))
       return -E_NO_MEM;  
-   
-   // Check if there is a page already mapped in pt entry
-   pa = page2pa(pp);
-   if (*ptEntry & PTE_P) { 
-      page_remove(pgdir, va);
-      tlb_invalidate(pgdir, va);
-   }
-   *ptEntry = pa | perm | PTE_P;
 
    pp->pp_ref++;
-	
+   page_remove(pgdir, va);
+
+   pa = page2pa(pp);
+   *ptEntry = pa | perm | PTE_P;
+
    return 0;
 }
 
@@ -791,7 +787,7 @@ check_page(void)
 	assert(page_insert(kern_pgdir, pp1, 0x0, PTE_W) == 0);
 	assert(PTE_ADDR(kern_pgdir[0]) == page2pa(pp0));
 	assert(check_va2pa(kern_pgdir, 0x0) == page2pa(pp1));
-	assert(pp1->pp_ref == 1);
+	assert(pp1->pp_ref == 1);  
 	assert(pp0->pp_ref == 1);
    
 	// should be able to map pp2 at PGSIZE because pp0 is already allocated for page table
