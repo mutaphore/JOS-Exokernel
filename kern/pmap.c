@@ -164,8 +164,8 @@ mem_init(void)
 	// or page_insert
 	page_init();
 
-	check_page_free_list(1);
-	check_page_alloc();
+//	check_page_free_list(1);
+//	check_page_alloc();
 	check_page();
 
 	//////////////////////////////////////////////////////////////////////
@@ -372,11 +372,11 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
    
    // Check if page table page is present 
    if (!(*pdEntry & PTE_P)) {
-      if (create == false)
+      if (!create)
          return NULL;
       if (!(pp = page_alloc(ALLOC_ZERO)))
          return NULL;   // Out of mem, cannot alloc pt
-      
+
       // Increment reference count
       pp->pp_ref++;
       // Set pa and present bit in pd entry
@@ -386,7 +386,8 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
    else
       pa = PTE_ADDR(*pdEntry);
 
-   ptEntry = KADDR(pa) + ptIndex;   // Walk to pt entry 
+   // Walk to pt entry 
+   ptEntry = (pte_t *)(KADDR(pa)) + ptIndex;
    
 	return ptEntry;
 }
@@ -450,7 +451,7 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
    pte_t *ptEntry;
    
    if (!(ptEntry = pgdir_walk(pgdir, va, 1)))
-      return E_NO_MEM;  
+      return -E_NO_MEM;  
    
    // Check if there is a page already mapped in pt entry
    pa = page2pa(pp);
@@ -483,11 +484,13 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
    physaddr_t pa;
    struct PageInfo *page;
 
-   ptEntry = pgdir_walk(pgdir, va, 1);
-   if (!(*ptEntry & PTE_P))
+   ptEntry = pgdir_walk(pgdir, va, 0);
+
+   if (!ptEntry || !(*ptEntry & PTE_P))
       return NULL;   // va is not mapped yet
-   
+
    pa = PTE_ADDR(*ptEntry);
+   cprintf("pa: %x\n", pa);
    page = pa2page(pa);
 
    if (pte_store)
@@ -791,7 +794,7 @@ check_page(void)
 	assert(check_va2pa(kern_pgdir, 0x0) == page2pa(pp1));
 	assert(pp1->pp_ref == 1);
 	assert(pp0->pp_ref == 1);
-
+   
 	// should be able to map pp2 at PGSIZE because pp0 is already allocated for page table
 	assert(page_insert(kern_pgdir, pp2, (void*) PGSIZE, PTE_W) == 0);
 	assert(check_va2pa(kern_pgdir, PGSIZE) == page2pa(pp2));
