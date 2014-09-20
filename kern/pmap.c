@@ -210,7 +210,7 @@ mem_init(void)
    boot_map_region(kern_pgdir, KERNBASE, 
     npages * PGSIZE, 0x0, PTE_W | PTE_P); 
 
-   // Set perms for all pde above KERNBASE
+   // We have less than 256MB, set the other perms
    for (n = PDX(KERNBASE); n < NPDENTRIES; n++)
       kern_pgdir[n] = kern_pgdir[n] | PTE_W | PTE_P;
 
