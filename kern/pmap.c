@@ -161,6 +161,10 @@ mem_init(void)
 	// Make 'envs' point to an array of size 'NENV' of 'struct Env'.
 	// LAB 3: Your code here.
 
+   envs = boot_alloc(NENV * sizeof(struct Env));
+   for (n = 0; n < NENV; n++)
+      memset(envs + n, 0, sizeof(struct Env));
+
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
 	// up the list of free physical pages. Once we've done so, all further
@@ -191,6 +195,10 @@ mem_init(void)
 	//    - the new image at UENVS  -- kernel R, user R
 	//    - envs itself -- kernel RW, user NONE
 	// LAB 3: Your code here.
+
+   boot_map_region(kern_pgdir, UENVS,
+    ROUNDUP(NENV * sizeof(struct Env), PGSIZE),
+    PADDR(envs), PTE_U | PTE_P); 
 
 	//////////////////////////////////////////////////////////////////////
    
@@ -783,14 +791,11 @@ check_kern_pgdir(void)
 	for (i = 0; i < n; i += PGSIZE)
 		assert(check_va2pa(pgdir, UPAGES + i) == PADDR(pages) + i);
 
-<<<<<<< HEAD
 	// check envs array (new test for lab 3)
 	n = ROUNDUP(NENV*sizeof(struct Env), PGSIZE);
 	for (i = 0; i < n; i += PGSIZE)
 		assert(check_va2pa(pgdir, UENVS + i) == PADDR(envs) + i);
 
-=======
->>>>>>> lab2
 	// check phys mem
    for (i = 0; i < npages * PGSIZE; i += PGSIZE)
       assert(check_va2pa(pgdir, KERNBASE + i) == i);
