@@ -1,0 +1,43 @@
+Lab 2 Writeup
+Dewei Chen
+10645846
+
+Question 1:
+Variable x should have uintptr_t because variable "value" holds a virtual address.
+
+Question 2:
+The entries in page directory is mapped as follows:
+
+Entry    Base Virtual Address    Points to
+-----    --------------------    ---------
+1023     0xFFBFFFFF              Page table for last 4MB of phys memory
+960      0xF0000000              Phys address 0x0 
+959      0xEFC00000 (KSTACKTOP)  bootstacktop
+957      0xEF400000 (UVPT)       end (kern_pgdir)
+956      0xEF000000 (UPAGES)     end + PGSIZE (pages)
+
+Question 3:
+Because the CPU has entered protected mode, part of the memory that contains important kernel structures have its page 
+directory and page table entries User bit cleared. This protects the kernel memory from user level processes that runs 
+at lower privileges.
+
+Question 4:
+It supports up to 4GB of physical memory. This is due to the fact that the CPU is 32-bit and the OS has arbitrarily 
+decided to enforce a 4KB page size and a 2 level page structure on its memory mapping.
+
+Question 5:
+2^20 * sizeof(struct PageInfo) will be used for the pages structs and another 4KB for the virtual page directory. 
+Additionally, we will have more memory allocated for page tables: 1024 * 4KB = 4MB.
+
+Question 6:
+The few instructions executing at low EIP works because in entry_pgdir we also mapped low address va [0, 4MB) to pa [0, 4MB).
+This is necessary because we still have a few instructions left executing at low address that are necessary to jump to the 
+higher address instruction.
+
+Challenge:
+For the challenge problem, I implemented the following extensions to the kernel monitor commands:
+alloc_page: allocates a page from the free list and displays its physical address
+page_status: checks whether a page is allocated or free
+free_page: frees a page and puts it back to the free list
+list_used: lists all allocated pages by both virtual and physical memory. Also shows permission flags and references.
+
