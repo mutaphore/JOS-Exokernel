@@ -280,14 +280,23 @@ region_alloc(struct Env *e, void *va, size_t len)
 	//   'va' and 'len' values that are not page-aligned.
 	//   You should round va down, and round (va + len) up.
 	//   (Watch out for corner-cases!)
-
+   
    struct PageInfo *page;
-
-   va = ROUNDDOWN(va, PGSIZE);
+   pte_t *ptEntry;
+   int counter;
+   
+   va = ROUNDDOWN(va, PGSIZE);   
    len = ROUNDUP(len, PGSIZE);
    
-   if (!(page = page_alloc(ALLOC_ZERO)))
-      panic("region_alloc: page allocation attempt failed\n"); 
+   for (counter = 0; counter < len; counter += PGSIZE) {
+      if (!(ptEntry = pgdir_walk(e->env_pgdir, va + counter, 1)))
+         panic("region_alloc: %e\n", -E_NO_MEM); 
+      
+      if (!(page = page_alloc(0)))
+         panic("region_alloc: %e\n", -E_NO_MEM);
+      
+      *ptEntry = page2pa(page) | PTE_U | PTE_W | PTE_P;
+   }
 }
 
 //
