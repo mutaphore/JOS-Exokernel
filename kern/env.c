@@ -116,6 +116,13 @@ env_init(void)
 {
 	// Set up envs array
 	// LAB 3: Your code here.
+   struct Env *walker;
+
+   for (walker = envs; walker < envs + NENV - 1; walker++) {
+      walker->env_id = 0;
+      walker->env_link = walker + 1;
+   }
+   env_free_list = envs;
 
 	// Per-CPU part of the initialization
 	env_init_percpu();
@@ -177,8 +184,14 @@ env_setup_vm(struct Env *e)
 	//	is an exception -- you need to increment env_pgdir's
 	//	pp_ref for env_free to work correctly.
 	//    - The functions in kern/pmap.h are handy.
-
-	// LAB 3: Your code here.
+   
+   p->pp_ref++;
+   e->env_pgdir = page2kva(p);
+   // Use kern_pgdir as a template for UTOP->UVPT, ULIM and up
+   for (i = PDX(UTOP); i < NPDENTRIES; i++) {
+      if (i != PDX(UVPT))
+         e->env_pgdir[i] = kern_pgdir[i];
+   }
 
 	// UVPT maps the env's own page table read-only.
 	// Permissions: kernel R, user R
@@ -267,6 +280,14 @@ region_alloc(struct Env *e, void *va, size_t len)
 	//   'va' and 'len' values that are not page-aligned.
 	//   You should round va down, and round (va + len) up.
 	//   (Watch out for corner-cases!)
+
+   struct PageInfo *page;
+
+   va = ROUNDDOWN(va, PGSIZE);
+   len = ROUNDUP(len, PGSIZE);
+   
+   if (!(page = page_alloc(ALLOC_ZERO)))
+      panic("region_alloc: page allocation attempt failed\n"); 
 }
 
 //
