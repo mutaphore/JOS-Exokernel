@@ -15,7 +15,6 @@
 
 #define CMDBUF_SIZE	80	// enough for one VGA text line
 
-
 struct Command {
 	const char *name;
 	const char *desc;
@@ -28,8 +27,9 @@ static struct Command commands[] = {
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
    { "backtrace", "Display backtrace info", mon_backtrace },
    { "alloc_page", "Allocate a page", alloc_page },
-   { "page_status <addr>", "Check if a page is allocated", page_status },
-   { "free_page", "Free a page", free_page }
+   { "page_status", "Check if a page is allocated", page_status },
+   { "free_page", "Free a page", free_page },
+   { "list_used", "List all used pages and their refs", list_used }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -93,26 +93,72 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 }
 
 // Extension commands
-void alloc_page(int argc, char **argv, struct Trapframe *tf) {
+int alloc_page(int argc, char **argv, struct Trapframe *tf) {
    struct PageInfo *page;
 
-   if (page = page_alloc(ALLOC_ZERO))
-      cprintf("%x\n", page2kva(page));
-   else
+   if ((page = page_alloc(ALLOC_ZERO))) {
+      cprintf("%08p\n", page2pa(page));
+      return 0;
+   }
+   else {
       cprintf("Cannot allocate page - out of memory\n");
+      return -1;
+   }
 }
 
-void page_status(int argc, char **argv, struct Trapframe *tf) {
+int page_status(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   physaddr_t pa;
+   char *end;
   
    if (argc == 2) {
-         
+      end = strfind(*(argv + 1), 0);
+      pa = (physaddr_t)strtol(*(argv + 1), &end, 16);
 
-   } 
+      page = pa2page(pa);
+      if (page->pp_link)
+         cprintf("free\n");
+      else
+         cprintf("allocated\n");
+      return 0;
+   }
+   else
+      return -1;
 }
 
-void free_page(int argc, char **argv, struct Trapframe *tf) {
+int free_page(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   physaddr_t pa;
+   char *end;
 
+   if (argc == 2) {
+      end = strfind(*(argv + 1), 0);
+      pa = (physaddr_t)strtol(*(argv + 1), &end, 16);
 
+      page = pa2page(pa);
+      if (page->pp_ref == 0 && page->pp_link == NULL)
+         page_free(page);
+
+      return 0;
+   }
+   else
+      return -1;
+}
+
+int list_used(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   pte_t *pte;
+
+   for (page = pages + npages - 1; page >= pages; page--) {
+
+      if (page->pp_link == NULL) {
+         page_lookup(kern_pgdir, page2kva(page), &pte);
+         cprintf("%08p  UWP:%d%d%d  ref:%d\n", page2pa(page),
+          (*pte & PTE_U) >> 2, (*pte & PTE_W) >> 1, 
+          *pte & PTE_P, page->pp_ref);
+      }
+   } 
+   return 0; 
 }
 
 /***** Kernel monitor command interpreter *****/
