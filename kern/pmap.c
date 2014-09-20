@@ -206,13 +206,13 @@ mem_init(void)
 	// we just set up the mapping anyway.
 	// Permissions: kernel RW, user NONE
 	// Your code goes here:
-
+   
    boot_map_region(kern_pgdir, KERNBASE, 
-    npages * PGSIZE, 0x0, PTE_W | PTE_P); 
+    (0xFFFFFFFF - KERNBASE) + 1, 0x0, PTE_W | PTE_P); 
 
-   // We have less than 256MB, set the other perms
+   // Set the write perms for > KERNBASE dir entries
    for (n = PDX(KERNBASE); n < NPDENTRIES; n++)
-      kern_pgdir[n] = kern_pgdir[n] | PTE_W | PTE_P;
+      kern_pgdir[n] = kern_pgdir[n] | PTE_W;
 
 	// Check that the initial page directory has been set up correctly.
 	check_kern_pgdir();
@@ -423,13 +423,17 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
    pte_t *ptEntry;
    uintptr_t cur_va = va;
    physaddr_t cur_pa = pa;
+   uint32_t counter = 0;   // Use counter to prevent overflow!
    
-   while (cur_va < va + size) {
+   while (counter < size) {
       if (!(ptEntry = pgdir_walk(pgdir, (void *)cur_va, 1)))
-         return; // Out of mem
+         return; // Out of memory
+
       *ptEntry = cur_pa | perm | PTE_P;
+
       cur_va += PGSIZE;
       cur_pa += PGSIZE;
+      counter += PGSIZE;
    }
 }
 
@@ -630,7 +634,7 @@ check_page_alloc(void)
 	struct PageInfo *pp, *pp0, *pp1, *pp2;
 	int nfree;
 	struct PageInfo *fl;
-	char *c;
+char *c;
 	int i;
 
 	if (!pages)

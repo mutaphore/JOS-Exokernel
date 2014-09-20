@@ -26,9 +26,8 @@ It supports up to 4GB of physical memory. This is due to the fact that the CPU i
 decided to enforce a 4KB page size and a 2 level page structure on its memory mapping.
 
 Question 5:
-We will essentially have the same memory overhead as right now. 4MB will be used for the pages structs and another 4MB for
-the virtual page directory. The only difference is that the entire page directory will be used to remapping the 4GB memory,
-with some reserved mappings for the kernel structs.
+4MB will be used for the pages structs and another 4MB for the virtual page directory. Additionally, we will have more 
+memory allocated for additional page tables: we will have 1024 * 4KB = 4MB of page tables.
 
 Question 6:
 The few instructions executing at low EIP works because in entry_pgdir we also mapped low address va [0, 4MB) to pa [0, 4MB).
