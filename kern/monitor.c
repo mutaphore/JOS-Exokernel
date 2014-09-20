@@ -148,14 +148,15 @@ int free_page(int argc, char **argv, struct Trapframe *tf) {
 int list_used(int argc, char **argv, struct Trapframe *tf) {
    struct PageInfo *page;
    pte_t *pte;
-
+   
+   cprintf("%10s    %10s  UWP  r\n", "VA", "PA");
    for (page = pages + npages - 1; page >= pages; page--) {
 
       if (page->pp_link == NULL) {
          page_lookup(kern_pgdir, page2kva(page), &pte);
-         cprintf("%08p  UWP:%d%d%d  ref:%d\n", page2pa(page),
-          (*pte & PTE_U) >> 2, (*pte & PTE_W) >> 1, 
-          *pte & PTE_P, page->pp_ref);
+         cprintf("%08p -> %08p  %d%d%d  %d\n", page2kva(page),
+          page2pa(page), (*pte & PTE_U) >> 2,
+          (*pte & PTE_W) >> 1, *pte & PTE_P, page->pp_ref);
       }
    } 
    return 0; 

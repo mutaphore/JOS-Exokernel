@@ -35,4 +35,9 @@ This is necessary because we still have a few instructions left executing at low
 higher address instruction.
 
 Challenge:
+For the challenge problem, I implemented the following extensions to the kernel monitor commands:
+alloc_page: allocates a page from the free list and displays its physical address
+page_status: checks whether a page is allocated or free
+free_page: frees a page and puts it back to the free list
+list_used: lists all allocated pages by both virtual and physical memory. Also shows permission flags and references.
 
