@@ -470,7 +470,7 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
    pte_t *ptEntry;
 
    if (!(ptEntry = pgdir_walk(pgdir, va, 1)))
-      return -E_NO_MEM;  
+      return -E_NO_MEM;  // Out of memory
 
    // Set perm for pde
    pdEntry = pgdir + PDX(va); 

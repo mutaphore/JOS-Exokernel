@@ -11,6 +11,8 @@
 #include <kern/monitor.h>
 #include <kern/kdebug.h>
 
+#include <kern/pmap.h>  // For page alloc/free commands
+
 #define CMDBUF_SIZE	80	// enough for one VGA text line
 
 
@@ -24,7 +26,10 @@ struct Command {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
-   { "backtrace", "Display backtrace info", mon_backtrace }
+   { "backtrace", "Display backtrace info", mon_backtrace },
+   { "alloc_page", "Allocate a page", alloc_page },
+   { "page_status <addr>", "Check if a page is allocated", page_status },
+   { "free_page", "Free a page", free_page }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -87,7 +92,28 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
    return 0;
 }
 
+// Extension commands
+void alloc_page(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
 
+   if (page = page_alloc(ALLOC_ZERO))
+      cprintf("%x\n", page2kva(page));
+   else
+      cprintf("Cannot allocate page - out of memory\n");
+}
+
+void page_status(int argc, char **argv, struct Trapframe *tf) {
+  
+   if (argc == 2) {
+         
+
+   } 
+}
+
+void free_page(int argc, char **argv, struct Trapframe *tf) {
+
+
+}
 
 /***** Kernel monitor command interpreter *****/
 
