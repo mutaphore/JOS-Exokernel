@@ -348,11 +348,46 @@ load_icode(struct Env *e, uint8_t *binary)
 	//  So which page directory should be in force during
 	//  this function?
 	//
+
 	//  You must also do something with the program's entry point,
 	//  to make sure that the environment starts executing there.
 	//  What?  (See env_run() and env_pop_tf() below.)
 
 	// LAB 3: Your code here.
+   struct Elf *elfh = (struct Elf *)binary;
+   struct Proghdr *ph, *eph;
+   struct PageInfo *page;
+   uint8_t *temp, *seg;
+   int i, pos;
+
+   // Check for valid ELF
+   if (elfh->e_magic != ELF_MAGIC)
+      panic("load_icode: not a valid ELF\n");
+   
+   // Load each program segment of type ELF_PROG_LOAD
+   ph = binary + elfh->e_phoff;
+   eph = ph + elfh->e_phnum;
+   for (; ph < eph; ph++) {
+      
+      if (ph->p_type == ELF_PROG_LOAD) {
+         // Round down to page boundary
+         va = ROUNDDOWN(ph->p_va, PGSIZE);
+         // Set up mapping
+         region_alloc(e, va, ph->memsz);
+
+         // Copy from binary to env virtual memory space
+         seg = binary + ph->p_offset;
+         for (pos = 0; pos < ph->filesz; pos++) {
+
+            if (pos % PGSIZE == 0) {
+               page = page_lookup(e->env_pgdir, va + counter, 0);
+               temp = page2kva(page);  // Get addr of the page  
+               i = 0;   // Start at index 0 of a new page
+            }
+            temp[i] = seg[counter];
+         }
+      }
+   }
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
@@ -369,8 +404,7 @@ load_icode(struct Env *e, uint8_t *binary)
 //
 void
 env_create(uint8_t *binary, enum EnvType type)
-{
-	// LAB 3: Your code here.
+{ // LAB 3: Your code here.
 }
 
 //
