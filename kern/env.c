@@ -375,22 +375,28 @@ load_icode(struct Env *e, uint8_t *binary)
          // Set up mapping
          region_alloc(e, va, ph->memsz);
 
-         // Copy from binary to env virtual memory space
          seg = binary + ph->p_offset;
-         for (pos = 0; pos < ph->filesz; pos++) {
+
+         // Copy from binary to env virtual memory space
+         for (pos = 0; pos < ph->p_memsz; pos++, i++) {
 
             if (pos % PGSIZE == 0) {
-               page = page_lookup(e->env_pgdir, va + counter, 0);
+               page = page_lookup(e->env_pgdir, va + pos, 0);
                temp = page2kva(page);  // Get addr of the page  
                i = 0;   // Start at index 0 of a new page
             }
-            temp[i] = seg[counter];
+
+            if (pos < ph->p_filesz)
+               temp[i] = seg[pos];
+            else
+               temp[i] = 0;   // Zero out remaining bytes
          }
       }
    }
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
+   region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
 
 	// LAB 3: Your code here.
 }
