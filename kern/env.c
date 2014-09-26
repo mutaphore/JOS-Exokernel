@@ -367,8 +367,8 @@ load_icode(struct Env *e, uint8_t *binary)
    // Load each program segment of type ELF_PROG_LOAD
    ph = binary + elfh->e_phoff;
    eph = ph + elfh->e_phnum;
+
    for (; ph < eph; ph++) {
-      
       if (ph->p_type == ELF_PROG_LOAD) {
          // Round down to page boundary
          va = ROUNDDOWN(ph->p_va, PGSIZE);
@@ -376,16 +376,14 @@ load_icode(struct Env *e, uint8_t *binary)
          region_alloc(e, va, ph->memsz);
 
          seg = binary + ph->p_offset;
-
          // Copy from binary to env virtual memory space
          for (pos = 0; pos < ph->p_memsz; pos++, i++) {
-
             if (pos % PGSIZE == 0) {
-               page = page_lookup(e->env_pgdir, va + pos, 0);
+               if (!(page = page_lookup(e->env_pgdir, va + pos, 0)))
+                  panic("load_icode: page not mapped\n");
                temp = page2kva(page);  // Get addr of the page  
                i = 0;   // Start at index 0 of a new page
             }
-
             if (pos < ph->p_filesz)
                temp[i] = seg[pos];
             else
@@ -396,9 +394,12 @@ load_icode(struct Env *e, uint8_t *binary)
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
-   region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
-
 	// LAB 3: Your code here.
+
+   region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
+   // need to zero it out?
+
+   // Trap frame related work
 }
 
 //
@@ -410,7 +411,16 @@ load_icode(struct Env *e, uint8_t *binary)
 //
 void
 env_create(uint8_t *binary, enum EnvType type)
-{ // LAB 3: Your code here.
+{ 
+   // LAB 3: Your code here.
+   struct Env *e;
+   int r;
+
+   if ((r = env_alloc(&e, 0)) < 0)
+      panic("env_create: %e\n", r);
+
+   e->env_type = type;
+   load_icode(env, binary); 
 }
 
 //
@@ -493,6 +503,7 @@ env_pop_tf(struct Trapframe *tf)
 		"\tpopal\n"
 		"\tpopl %%es\n"
 		"\tpopl %%ds\n"
+
 		"\taddl $0x8,%%esp\n" /* skip tf_trapno and tf_errcode */
 		"\tiret"
 		: : "g" (tf) : "memory");
@@ -527,6 +538,15 @@ env_run(struct Env *e)
 
 	// LAB 3: Your code here.
 
-	panic("env_run not yet implemented");
+   if (curenv)
+      curenv->env_status = ENV_RUNNABLE;
+        
+   curenv = e; 
+   curenv->env_status = ENV_RUNNING;
+   curenv->env_runs++; 
+	lcr3(PADDR(curenv->env_pgdir)); 
+
+   // Pop registers back to env and execute there
+   env_pop_tf(curenv->env_tf);
 }
 
