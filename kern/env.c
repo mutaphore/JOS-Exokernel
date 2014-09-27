@@ -357,35 +357,37 @@ load_icode(struct Env *e, uint8_t *binary)
    struct Elf *elfh = (struct Elf *)binary;
    struct Proghdr *ph, *eph;
    struct PageInfo *page;
-   uint8_t *temp, *seg;
-   int i, pos;
+   uint8_t *temp = NULL, *sect, *va;
+   int i = 0, pos = 0;
 
    // Check for valid ELF
    if (elfh->e_magic != ELF_MAGIC)
       panic("load_icode: not a valid ELF\n");
    
    // Load each program segment of type ELF_PROG_LOAD
-   ph = binary + elfh->e_phoff;
+   ph = (struct Proghdr *)(binary + elfh->e_phoff);
    eph = ph + elfh->e_phnum;
 
    for (; ph < eph; ph++) {
       if (ph->p_type == ELF_PROG_LOAD) {
          // Round down to page boundary
-         va = ROUNDDOWN(ph->p_va, PGSIZE);
+         //va = (void *)ROUNDDOWN(ph->p_va, PGSIZE);
          // Set up mapping
-         region_alloc(e, va, ph->memsz);
+         region_alloc(e, va, ph->p_memsz);
 
-         seg = binary + ph->p_offset;
-         // Copy from binary to env virtual memory space
+         // Copy from binary to virtual memory space for env
+         sect = binary + ph->p_offset;
          for (pos = 0; pos < ph->p_memsz; pos++, i++) {
+
             if (pos % PGSIZE == 0) {
                if (!(page = page_lookup(e->env_pgdir, va + pos, 0)))
                   panic("load_icode: page not mapped\n");
                temp = page2kva(page);  // Get addr of the page  
                i = 0;   // Start at index 0 of a new page
             }
+
             if (pos < ph->p_filesz)
-               temp[i] = seg[pos];
+               temp[i] = sect[pos];
             else
                temp[i] = 0;   // Zero out remaining mem bytes
          }
@@ -397,14 +399,13 @@ load_icode(struct Env *e, uint8_t *binary)
 	// LAB 3: Your code here.
    
    // Map user stack memory
-   region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
+   region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 
-   // Set up register values to pop off later
+   // Set up eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
-   e->env_tf.tf_cs = 
    e->env_tf.tf_eflags = elfh->e_flags;
-   e->env_tf.tf_esp = UTSTACKTOP - PGSIZE;
-   e->env_tf.tf_ss
+
+   cprintf("e_entry is %08x\n", elfh->e_entry);
 }
 
 //
@@ -425,7 +426,7 @@ env_create(uint8_t *binary, enum EnvType type)
       panic("env_create: %e\n", r);
 
    e->env_type = type;
-   load_icode(env, binary); 
+   load_icode(e, binary); 
 }
 
 //
@@ -504,6 +505,9 @@ env_destroy(struct Env *e)
 void
 env_pop_tf(struct Trapframe *tf)
 {
+   cprintf("env_pop_tf: Trap frame info %08x %08x\n",
+    tf->tf_ds, tf->tf_esp);
+
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
 		"\tpopl %%es\n"
@@ -552,6 +556,8 @@ env_run(struct Env *e)
 	lcr3(PADDR(curenv->env_pgdir)); 
 
    // Pop registers back to env and execute there
-   env_pop_tf(curenv->env_tf);
+   cprintf("env_run: Trap frame info %08x %08x\n",
+    curenv->env_tf.tf_ds, curenv->env_tf.tf_esp);
+   env_pop_tf(&curenv->env_tf);
 }
 
