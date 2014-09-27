@@ -398,7 +398,15 @@ load_icode(struct Env *e, uint8_t *binary)
 
    region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
 
-   // Push registers onto stack to pop off later by env_pop_tf
+   // Push flags, CS and EIP onto stack to pop off later
+   page = page_lookup(e->env_pgdir, UTSTACKTOP - PGSIZE, 0);
+   temp = page2kva(page);
+   // Processor Flags
+   *(temp + PGSIZE - 4) = elfh->e_flags;
+   // CS
+   *(temp + PGSIZE - 8) = elfh->e_entry; 
+   // EIP
+   *(temp + PGSIZE - 12) = elfh->e_entry; 
 }
 
 //
