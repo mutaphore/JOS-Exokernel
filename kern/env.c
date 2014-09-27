@@ -326,7 +326,7 @@ load_icode(struct Env *e, uint8_t *binary)
 {
 	// Hints:
 	//  Load each program segment into virtual memory
-	//  at the address specified in the ELF section header.
+//  at the address specified in the ELF section header.
 	//  You should only load segments with ph->p_type == ELF_PROG_LOAD.
 	//  Each segment's virtual address can be found in ph->p_va
 	//  and its size in memory can be found in ph->p_memsz.
@@ -387,7 +387,7 @@ load_icode(struct Env *e, uint8_t *binary)
             if (pos < ph->p_filesz)
                temp[i] = seg[pos];
             else
-               temp[i] = 0;   // Zero out remaining bytes
+               temp[i] = 0;   // Zero out remaining mem bytes
          }
       }
    }
@@ -397,9 +397,8 @@ load_icode(struct Env *e, uint8_t *binary)
 	// LAB 3: Your code here.
 
    region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
-   // need to zero it out?
 
-   // Trap frame related work
+   // Push registers onto stack to pop off later by env_pop_tf
 }
 
 //
