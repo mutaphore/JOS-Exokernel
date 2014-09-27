@@ -395,18 +395,16 @@ load_icode(struct Env *e, uint8_t *binary)
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
 	// LAB 3: Your code here.
-
+   
+   // Map user stack memory
    region_alloc(e, UTSTACKTOP - PGSIZE, PGSIZE);
 
-   // Push flags, CS and EIP onto stack to pop off later
-   page = page_lookup(e->env_pgdir, UTSTACKTOP - PGSIZE, 0);
-   temp = page2kva(page);
-   // Processor Flags
-   *(temp + PGSIZE - 4) = elfh->e_flags;
-   // CS
-   *(temp + PGSIZE - 8) = elfh->e_entry; 
-   // EIP
-   *(temp + PGSIZE - 12) = elfh->e_entry; 
+   // Set up register values to pop off later
+   e->env_tf.tf_eip = elfh->e_entry;
+   e->env_tf.tf_cs = 
+   e->env_tf.tf_eflags = elfh->e_flags;
+   e->env_tf.tf_esp = UTSTACKTOP - PGSIZE;
+   e->env_tf.tf_ss
 }
 
 //
