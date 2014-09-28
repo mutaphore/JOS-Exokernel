@@ -68,7 +68,14 @@ void ILLOP();
 void DEVICE();
 void DBLFLT();
 void TSS();
-// more..
+void SEGNP();
+void STACK();
+void GPFLT();
+void PGFLT();
+void FPERR();
+void ALIGN();
+void MCHK();
+void SIMDERR();
 
 void
 trap_init(void)
@@ -86,6 +93,15 @@ trap_init(void)
    SETGATE(idt[T_DEVICE], 0, GD_KT, DEVICE, 0); 
    SETGATE(idt[T_DBLFLT], 0, GD_KT, DBLFLT, 0); 
    SETGATE(idt[T_TSS], 0, GD_KT, TSS, 0); 
+   SETGATE(idt[T_SEGNP], 0, GD_KT, SEGNP, 0); 
+   SETGATE(idt[T_STACK], 0, GD_KT, STACK, 0); 
+   SETGATE(idt[T_GPFLT], 0, GD_KT, GPFLT, 0); 
+   SETGATE(idt[T_PGFLT], 0, GD_KT, PGFLT, 0); 
+   SETGATE(idt[T_FPERR], 0, GD_KT, FPERR, 0); 
+   SETGATE(idt[T_ALIGN], 0, GD_KT, ALIGN, 0); 
+   SETGATE(idt[T_MCHK], 0, GD_KT, MCHK, 0); 
+   SETGATE(idt[T_SIMDERR], 0, GD_KT, SIMDERR, 0); 
+
 	// Per-CPU setup 
 	trap_init_percpu();
 }
