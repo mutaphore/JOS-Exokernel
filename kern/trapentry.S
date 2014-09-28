@@ -28,6 +28,7 @@
 	pushl $(num);							\
 	jmp _alltraps
 
+
 /* Use TRAPHANDLER_NOEC for traps where the CPU doesn't push an error code.
  * It pushes a 0 in place of the error code, so the trap frame has the same
  * format in either case.
@@ -47,9 +48,29 @@
  * Lab 3: Your code here for generating entry points for the different traps.
  */
 
+TRAPHANDLER(DIVIDE, T_DIVIDE)
+TRAPHANDLER(DEBUG, T_DEBUG)
+TRAPHANDLER(NMI, T_NMI)
+TRAPHANDLER(BRKPT, T_BRKPT)
+TRAPHANDLER(OFLOW, T_FLOW)
+TRAPHANDLER(BOUND, T_BOUND)
+TRAPHANDLER(ILLOP, T_ILLOP)
+TRAPHANDLER(DEVICE, T_DEVICE)
+TRAPHANDLER(DBLFLT, T_DBLFLT)
+TRAPHANDLER(TSS, T_TSS)
 
 
 /*
  * Lab 3: Your code here for _alltraps
  */
-
+_alltraps:
+   push     %ss
+   push     %esp
+   pushfl
+   push     %cs
+   push 
+   pushal 
+   movw     $GD_KD, %ds
+   movw     $GD_KD, %es 
+   pushl    %esp
+   call     trap

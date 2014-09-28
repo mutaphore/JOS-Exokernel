@@ -58,6 +58,17 @@ static const char *trapname(int trapno)
 	return "(unknown trap)";
 }
 
+void DIVIDE();
+void DEBUG();
+void NMI();
+void BRKPT();
+void OFLOW();
+void BOUND();
+void ILLOP();
+void DEVICE();
+void DBLFLT();
+void TSS();
+// more..
 
 void
 trap_init(void)
@@ -65,6 +76,16 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
+   SETGATE(idt[0], 0, GD_KT, DIVIDE, 0); 
+   SETGATE(idt[1], 0, GD_KT, DEBUG, 0); 
+   SETGATE(idt[2], 0, GD_KT, NMI, 0); 
+   SETGATE(idt[3], 0, GD_KT, BRKPT, 0); 
+   SETGATE(idt[4], 0, GD_KT, OFLOW, 0); 
+   SETGATE(idt[5], 0, GD_KT, BOUND, 0); 
+   SETGATE(idt[6], 0, GD_KT, ILLOP, 0); 
+   SETGATE(idt[7], 0, GD_KT, DEVICE, 0); 
+   SETGATE(idt[8], 0, GD_KT, DBLFLT, 0); 
+   SETGATE(idt[9], 0, GD_KT, TSS, 0); 
 
 	// Per-CPU setup 
 	trap_init_percpu();
