@@ -283,19 +283,24 @@ region_alloc(struct Env *e, void *va, size_t len)
    
    struct PageInfo *page;
    pte_t *ptEntry;
-   int counter;
+   uintptr_t cur_va;
+   int counter = 0;
    
-   va = ROUNDDOWN(va, PGSIZE);   
+   cur_va = (uintptr_t)ROUNDDOWN(va, PGSIZE);   
    len = ROUNDUP(len, PGSIZE);
    
-   for (counter = 0; counter < len; counter += PGSIZE) {
-      if (!(ptEntry = pgdir_walk(e->env_pgdir, va + counter, 1)))
+   while (counter < len) {
+      if (!(ptEntry = pgdir_walk(e->env_pgdir, 
+            (void *)cur_va, 1)))
          panic("region_alloc: %e\n", -E_NO_MEM); 
       
       if (!(page = page_alloc(0)))
          panic("region_alloc: %e\n", -E_NO_MEM);
       
       *ptEntry = page2pa(page) | PTE_U | PTE_W | PTE_P;
+      
+      cur_va += PGSIZE;
+      counter += PGSIZE;
    }
 }
 
@@ -357,7 +362,7 @@ load_icode(struct Env *e, uint8_t *binary)
    struct Elf *elfh = (struct Elf *)binary;
    struct Proghdr *ph, *eph;
    struct PageInfo *page;
-   uint8_t *temp = NULL, *sect, *va;
+   uint8_t *temp = NULL, *sect;
    int i = 0, pos = 0;
 
    // Check for valid ELF
@@ -370,19 +375,22 @@ load_icode(struct Env *e, uint8_t *binary)
 
    for (; ph < eph; ph++) {
       if (ph->p_type == ELF_PROG_LOAD) {
-         // Round down to page boundary
-         //va = (void *)ROUNDDOWN(ph->p_va, PGSIZE);
          // Set up mapping
-         region_alloc(e, va, ph->p_memsz);
+         region_alloc(e, (void *)ph->p_va, ph->p_memsz);
+
+         sect = binary + ph->p_offset;
+         i = ph->p_va % PGSIZE;  // Offset into the page
+         page = page_lookup(e->env_pgdir, (void *)ph->p_va, 0);
+         temp = page2kva(page);
 
          // Copy from binary to virtual memory space for env
-         sect = binary + ph->p_offset;
          for (pos = 0; pos < ph->p_memsz; pos++, i++) {
 
-            if (pos % PGSIZE == 0) {
-               if (!(page = page_lookup(e->env_pgdir, va + pos, 0)))
+            if (i % PGSIZE == 0) {
+               if (!(page = page_lookup(e->env_pgdir, 
+                     (void *)(ph->p_va + pos), 0)))
                   panic("load_icode: page not mapped\n");
-               temp = page2kva(page);  // Get addr of the page  
+               temp = page2kva(page);  // Get addr of page  
                i = 0;   // Start at index 0 of a new page
             }
 
@@ -401,7 +409,17 @@ load_icode(struct Env *e, uint8_t *binary)
    // Map user stack memory
    region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 
-   // Set up eip and eflags values to pop off later by IRET
+   // Save regs, eip and eflags values to pop off later by IRET
+   __asm __volatile("movl %%ebp, %0\n\t"\
+                    "=r" (e->env_tf.tf_regs.reg_ebp));
+
+//   __asm __volatile("movl %%edx, %0\n\t"
+//                    "movl %%ecx, %1\n\t"
+//                    "movl %%eax, %2\n\t" :\
+//                    "=r" (e->env_tf.tf_regs.reg_edx),\
+//                    "=r" (e->env_tf.tf_regs.reg_ecx),\
+//                    "=r" (e->env_tf.tf_regs.reg_eax));
+
    e->env_tf.tf_eip = elfh->e_entry;
    e->env_tf.tf_eflags = elfh->e_flags;
 
@@ -505,8 +523,8 @@ env_destroy(struct Env *e)
 void
 env_pop_tf(struct Trapframe *tf)
 {
-   cprintf("env_pop_tf: Trap frame info %08x %08x\n",
-    tf->tf_ds, tf->tf_esp);
+//   cprintf("env_pop_tf: Trap frame info %08x %08x\n",
+//    tf->tf_ds, tf->tf_esp);
 
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
