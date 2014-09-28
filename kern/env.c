@@ -290,14 +290,14 @@ region_alloc(struct Env *e, void *va, size_t len)
    len = ROUNDUP(len, PGSIZE);
    
    while (counter < len) {
-      if (!(ptEntry = pgdir_walk(e->env_pgdir, 
-            (void *)cur_va, 1)))
-         panic("region_alloc: %e\n", -E_NO_MEM); 
-      
+      // Allocate a page
       if (!(page = page_alloc(0)))
          panic("region_alloc: %e\n", -E_NO_MEM);
       
-      *ptEntry = page2pa(page) | PTE_U | PTE_W | PTE_P;
+      // Insert and map it in pgdir 
+      if (page_insert(e->env_pgdir, page, (void* )cur_va, 
+          PTE_U | PTE_W | PTE_P) != 0)
+         panic("region_alloc: %e\n", -E_NO_MEM);
       
       cur_va += PGSIZE;
       counter += PGSIZE;
@@ -382,6 +382,8 @@ load_icode(struct Env *e, uint8_t *binary)
          i = ph->p_va % PGSIZE;  // Offset into the page
          page = page_lookup(e->env_pgdir, (void *)ph->p_va, 0);
          temp = page2kva(page);
+         
+         cprintf("p_va: %08x\n", ph->p_va);
 
          // Copy from binary to virtual memory space for env
          for (pos = 0; pos < ph->p_memsz; pos++, i++) {
@@ -409,21 +411,9 @@ load_icode(struct Env *e, uint8_t *binary)
    // Map user stack memory
    region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 
-   // Save regs, eip and eflags values to pop off later by IRET
-   __asm __volatile("movl %%ebp, %0\n\t"\
-                    "=r" (e->env_tf.tf_regs.reg_ebp));
-
-//   __asm __volatile("movl %%edx, %0\n\t"
-//                    "movl %%ecx, %1\n\t"
-//                    "movl %%eax, %2\n\t" :\
-//                    "=r" (e->env_tf.tf_regs.reg_edx),\
-//                    "=r" (e->env_tf.tf_regs.reg_ecx),\
-//                    "=r" (e->env_tf.tf_regs.reg_eax));
-
+   // Save eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
    e->env_tf.tf_eflags = elfh->e_flags;
-
-   cprintf("e_entry is %08x\n", elfh->e_entry);
 }
 
 //
