@@ -119,6 +119,7 @@ env_init(void)
    struct Env *walker;
 
    for (walker = envs; walker < envs + NENV - 1; walker++) {
+      walker->env_status = ENV_FREE;
       walker->env_id = 0;
       walker->env_link = walker + 1;
    }
@@ -383,8 +384,6 @@ load_icode(struct Env *e, uint8_t *binary)
          page = page_lookup(e->env_pgdir, (void *)ph->p_va, 0);
          temp = page2kva(page);
          
-         cprintf("p_va: %08x\n", ph->p_va);
-
          // Copy from binary to virtual memory space for env
          for (pos = 0; pos < ph->p_memsz; pos++, i++) {
 
@@ -564,8 +563,6 @@ env_run(struct Env *e)
 	lcr3(PADDR(curenv->env_pgdir)); 
 
    // Pop registers back to env and execute there
-   cprintf("env_run: Trap frame info %08x %08x\n",
-    curenv->env_tf.tf_ds, curenv->env_tf.tf_esp);
    env_pop_tf(&curenv->env_tf);
 }
 

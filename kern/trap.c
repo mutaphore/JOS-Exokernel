@@ -81,7 +81,7 @@ void
 trap_init(void)
 {
 	extern struct Segdesc gdt[];
-
+     
 	// LAB 3: Your code here.
    SETGATE(idt[T_DIVIDE], 0, GD_KT, DIVIDE, 0); 
    SETGATE(idt[T_DEBUG], 0, GD_KT, DEBUG, 0); 
@@ -102,6 +102,12 @@ trap_init(void)
    SETGATE(idt[T_MCHK], 0, GD_KT, MCHK, 0); 
    SETGATE(idt[T_SIMDERR], 0, GD_KT, SIMDERR, 0); 
 
+   cprintf("DIVIDE addr: %08x\n", DIVIDE);
+   cprintf("divide gate info:\
+            %4x, %4x, %4x\n", idt[T_DIVIDE].gd_off_15_0,
+            idt[T_DIVIDE].gd_off_31_16,
+            idt[T_DIVIDE].gd_sel);
+   
 	// Per-CPU setup 
 	trap_init_percpu();
 }
