@@ -123,6 +123,11 @@ env_init(void)
       walker->env_id = 0;
       walker->env_link = walker + 1;
    }
+   // Set the last env
+   walker->env_status = ENV_FREE;
+   walker->env_id = 0;
+   walker->env_link = NULL;
+
    env_free_list = envs;
 
 	// Per-CPU part of the initialization
@@ -283,25 +288,20 @@ region_alloc(struct Env *e, void *va, size_t len)
 	//   (Watch out for corner-cases!)
    
    struct PageInfo *page;
-   pte_t *ptEntry;
-   uintptr_t cur_va;
-   int counter = 0;
-   
+   uintptr_t cur_va, end;
+
    cur_va = (uintptr_t)ROUNDDOWN(va, PGSIZE);   
-   len = ROUNDUP(len, PGSIZE);
-   
-   while (counter < len) {
+   end = (uintptr_t)ROUNDUP(((uintptr_t)va + len), PGSIZE);
+
+   for (; cur_va < end; cur_va+=PGSIZE) {
       // Allocate a page
       if (!(page = page_alloc(0)))
          panic("region_alloc: %e\n", -E_NO_MEM);
       
       // Insert and map it in pgdir 
-      if (page_insert(e->env_pgdir, page, (void* )cur_va, 
+      if (page_insert(e->env_pgdir, page, (void *)cur_va, 
           PTE_U | PTE_W | PTE_P) != 0)
          panic("region_alloc: %e\n", -E_NO_MEM);
-      
-      cur_va += PGSIZE;
-      counter += PGSIZE;
    }
 }
 
@@ -361,47 +361,31 @@ load_icode(struct Env *e, uint8_t *binary)
 
 	// LAB 3: Your code here.
    struct Elf *elfh = (struct Elf *)binary;
-   struct Proghdr *ph, *eph;
+   struct Proghdr *cur_ph, *end;
    struct PageInfo *page;
-   uint8_t *temp = NULL, *sect;
-   int i = 0, pos = 0;
+   uint8_t *sect;
 
    // Check for valid ELF
    if (elfh->e_magic != ELF_MAGIC)
       panic("load_icode: not a valid ELF\n");
    
    // Load each program segment of type ELF_PROG_LOAD
-   ph = (struct Proghdr *)(binary + elfh->e_phoff);
-   eph = ph + elfh->e_phnum;
+   cur_ph = (struct Proghdr *)(binary + elfh->e_phoff);
+   end = cur_ph + elfh->e_phnum;
 
-   for (; ph < eph; ph++) {
-      if (ph->p_type == ELF_PROG_LOAD) {
-         // Set up mapping
-         region_alloc(e, (void *)ph->p_va, ph->p_memsz);
-
-         sect = binary + ph->p_offset;
-         i = ph->p_va % PGSIZE;  // Offset into the page
-         page = page_lookup(e->env_pgdir, (void *)ph->p_va, 0);
-         temp = page2kva(page);
+   // Switch to the env pgdir so we can directly copy to it
+   lcr3(PADDR(e->env_pgdir));
+   for (; cur_ph < end; cur_ph++) {
+      if (cur_ph->p_type == ELF_PROG_LOAD) {
+         sect = binary + cur_ph->p_offset;
          
-         // Copy from binary to virtual memory space for env
-         for (pos = 0; pos < ph->p_memsz; pos++, i++) {
-
-            if (i % PGSIZE == 0) {
-               if (!(page = page_lookup(e->env_pgdir, 
-                     (void *)(ph->p_va + pos), 0)))
-                  panic("load_icode: page not mapped\n");
-               temp = page2kva(page);  // Get addr of page  
-               i = 0;   // Start at index 0 of a new page
-            }
-
-            if (pos < ph->p_filesz)
-               temp[i] = sect[pos];
-            else
-               temp[i] = 0;   // Zero out remaining mem bytes
-         }
-      }
-   }
+         region_alloc(e, (void *)cur_ph->p_va, cur_ph->p_memsz);
+         //memset((void *)cur_ph->p_va, 0, cur_ph->p_memsz);
+         //memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
+         memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
+         memset((void *)(cur_ph->p_va + cur_ph->p_filesz), 0, cur_ph->p_memsz - cur_ph->p_filesz);
+      }  
+   }   
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
@@ -412,7 +396,11 @@ load_icode(struct Env *e, uint8_t *binary)
 
    // Save eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
-   e->env_tf.tf_eflags = elfh->e_flags;
+//   e->env_tf.tf_eflags = elfh->e_flags;
+
+
+   // Done copying now switch back to kern_pgdir
+   //lcr3(PADDR(kern_pgdir));
 }
 
 //

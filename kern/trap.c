@@ -81,13 +81,13 @@ void
 trap_init(void)
 {
 	extern struct Segdesc gdt[];
-     
+
 	// LAB 3: Your code here.
    SETGATE(idt[T_DIVIDE], 0, GD_KT, DIVIDE, 0); 
    SETGATE(idt[T_DEBUG], 0, GD_KT, DEBUG, 0); 
    SETGATE(idt[T_NMI], 0, GD_KT, NMI, 0); 
-   SETGATE(idt[T_BRKPT], 1, GD_KT, BRKPT, 0); 
-   SETGATE(idt[T_OFLOW], 1, GD_KT, OFLOW, 0); 
+   SETGATE(idt[T_BRKPT], 0, GD_KT, BRKPT, 0); 
+   SETGATE(idt[T_OFLOW], 0, GD_KT, OFLOW, 0); 
    SETGATE(idt[T_BOUND], 0, GD_KT, BOUND, 0); 
    SETGATE(idt[T_ILLOP], 0, GD_KT, ILLOP, 0); 
    SETGATE(idt[T_DEVICE], 0, GD_KT, DEVICE, 0); 
@@ -102,11 +102,11 @@ trap_init(void)
    SETGATE(idt[T_MCHK], 0, GD_KT, MCHK, 0); 
    SETGATE(idt[T_SIMDERR], 0, GD_KT, SIMDERR, 0); 
 
-   cprintf("DIVIDE addr: %08x\n", DIVIDE);
-   cprintf("divide gate info:\
-            %4x, %4x, %4x\n", idt[T_DIVIDE].gd_off_15_0,
-            idt[T_DIVIDE].gd_off_31_16,
-            idt[T_DIVIDE].gd_sel);
+   //cprintf("DIVIDE addr: %08x\n", DIVIDE);
+   //cprintf("divide gate info:
+   //         %4x, %4x, %4x\n", idt[T_DIVIDE].gd_off_15_0,
+   //         idt[T_DIVIDE].gd_off_31_16,
+   //         idt[T_DIVIDE].gd_sel);
    
 	// Per-CPU setup 
 	trap_init_percpu();
