@@ -46,6 +46,7 @@
  * Lab 3: Your code here for generating entry points for the different traps.
  */
 
+// Standard Intel traps
 TRAPHANDLER_NOEC(DIVIDE, T_DIVIDE)
 TRAPHANDLER_NOEC(DEBUG, T_DEBUG)
 TRAPHANDLER_NOEC(NMI, T_NMI)
@@ -64,6 +65,9 @@ TRAPHANDLER_NOEC(FPERR, T_FPERR)
 TRAPHANDLER(ALIGN, T_ALIGN)
 TRAPHANDLER_NOEC(MCHK, T_MCHK)
 TRAPHANDLER_NOEC(SIMDERR, T_SIMDERR)
+// System Call
+TRAPHANDLER_NOEC(SYSCALL, T_SYSCALL)
+
 
 /*
  * Lab 3: Your code here for _alltraps

@@ -76,6 +76,7 @@ void FPERR();
 void ALIGN();
 void MCHK();
 void SIMDERR();
+void SYSCALL();
 
 void
 trap_init(void)
@@ -83,10 +84,12 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
+   
+   // Standard Intel trap nos
    SETGATE(idt[T_DIVIDE], 0, GD_KT, DIVIDE, 0); 
    SETGATE(idt[T_DEBUG], 0, GD_KT, DEBUG, 0); 
    SETGATE(idt[T_NMI], 0, GD_KT, NMI, 0); 
-   SETGATE(idt[T_BRKPT], 0, GD_KT, BRKPT, 3); // BRKPT is user!
+   SETGATE(idt[T_BRKPT], 0, GD_KT, BRKPT, 3); // BRKPT is user
    SETGATE(idt[T_OFLOW], 0, GD_KT, OFLOW, 0); 
    SETGATE(idt[T_BOUND], 0, GD_KT, BOUND, 0); 
    SETGATE(idt[T_ILLOP], 0, GD_KT, ILLOP, 0); 
@@ -101,13 +104,10 @@ trap_init(void)
    SETGATE(idt[T_ALIGN], 0, GD_KT, ALIGN, 0); 
    SETGATE(idt[T_MCHK], 0, GD_KT, MCHK, 0); 
    SETGATE(idt[T_SIMDERR], 0, GD_KT, SIMDERR, 0); 
-
-   //cprintf("DIVIDE addr: %08x\n", DIVIDE);
-   //cprintf("divide gate info:
-   //         %4x, %4x, %4x\n", idt[T_DIVIDE].gd_off_15_0,
-   //         idt[T_DIVIDE].gd_off_31_16,
-   //         idt[T_DIVIDE].gd_sel);
    
+   // System call (user space)
+   SETGATE(idt[T_SYSCALL], 0, GD_KT, SYSCALL, 3);
+
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -187,14 +187,22 @@ trap_dispatch(struct Trapframe *tf)
 	// LAB 3: Your code here.
 
    switch (tf->tf_trapno) {
-      case T_BRKPT:
-         monitor(tf);
-         break;
-      case T_PGFLT:
-         page_fault_handler(tf);
-         break;
-      default:
-         break; 
+   case T_BRKPT:
+      monitor(tf);
+      break;
+   case T_PGFLT:
+      page_fault_handler(tf);
+      break;
+   case T_SYSCALL:
+      syscall(tf->tf_trapno, 
+              tf->tf_regs.reg_edx,
+              tf->tf_regs.reg_ecx,
+              tf->tf_regs.reg_ebx,
+              tf->tf_regs.reg_edi,
+              tf->tf_regs.reg_esi);
+      break;
+   default:
+      break; 
    }
    
 
