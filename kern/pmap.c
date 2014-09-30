@@ -199,7 +199,7 @@ mem_init(void)
    boot_map_region(kern_pgdir, UENVS,
     ROUNDUP(NENV * sizeof(struct Env), PGSIZE),
     PADDR(envs), PTE_U | PTE_P); 
-
+   
 	//////////////////////////////////////////////////////////////////////
    
    // Map pa of pages to UPAGES
@@ -221,6 +221,8 @@ mem_init(void)
 
    boot_map_region(kern_pgdir, KSTACKTOP - KSTKSIZE,
     KSTKSIZE, PADDR(bootstack), PTE_W | PTE_P);
+   // Also give permission to the pgdir entry!!!!
+   kern_pgdir[PDX(KSTACKTOP - KSTKSIZE)] |= PTE_W;
 
 // Map all of physical memory at KERNBASE.
 	// Ie.  the VA range [KERNBASE, 2^32) should map to

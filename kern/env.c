@@ -378,14 +378,17 @@ load_icode(struct Env *e, uint8_t *binary)
    for (; cur_ph < end; cur_ph++) {
       if (cur_ph->p_type == ELF_PROG_LOAD) {
          sect = binary + cur_ph->p_offset;
+         cprintf("va: %08x memsz: %d filesz: %d\n", cur_ph->p_va, cur_ph->p_memsz, cur_ph->p_filesz);
          
          region_alloc(e, (void *)cur_ph->p_va, cur_ph->p_memsz);
-         //memset((void *)cur_ph->p_va, 0, cur_ph->p_memsz);
-         //memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
+         memset((void *)cur_ph->p_va, 0, cur_ph->p_memsz);
          memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
-         memset((void *)(cur_ph->p_va + cur_ph->p_filesz), 0, cur_ph->p_memsz - cur_ph->p_filesz);
+         //memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
+         //memset((void *)(cur_ph->p_va + cur_ph->p_filesz), 0, cur_ph->p_memsz - cur_ph->p_va);
       }  
    }   
+   // Done copying now switch back to kern_pgdir
+   lcr3(PADDR(kern_pgdir));
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
@@ -397,10 +400,6 @@ load_icode(struct Env *e, uint8_t *binary)
    // Save eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
 //   e->env_tf.tf_eflags = elfh->e_flags;
-
-
-   // Done copying now switch back to kern_pgdir
-   //lcr3(PADDR(kern_pgdir));
 }
 
 //
