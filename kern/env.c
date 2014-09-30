@@ -377,9 +377,9 @@ load_icode(struct Env *e, uint8_t *binary)
    lcr3(PADDR(e->env_pgdir));
    for (; cur_ph < end; cur_ph++) {
       if (cur_ph->p_type == ELF_PROG_LOAD) {
+
          sect = binary + cur_ph->p_offset;
          region_alloc(e, (void *)cur_ph->p_va, cur_ph->p_memsz);
-
          memset((void *)cur_ph->p_va, 0, cur_ph->p_memsz);
          memmove((void *)cur_ph->p_va, sect, cur_ph->p_filesz);
       }  
@@ -396,7 +396,7 @@ load_icode(struct Env *e, uint8_t *binary)
 
    // Save eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
-//   e->env_tf.tf_eflags = elfh->e_flags;
+   e->env_tf.tf_eflags = elfh->e_flags;
 }
 
 //
