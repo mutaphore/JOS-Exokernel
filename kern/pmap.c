@@ -460,8 +460,8 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 
    // Set permission for the pgdir entries
    pdx = PDX(va);
-   for (cnt = 0; cnt < size; cnt += PTSIZE, pdx++)
-      pgdir[pdx] |= perm;
+   for (cnt = 0; cnt < size; cnt += PTSIZE)
+      pgdir[pdx++] |= perm;
 }
 
 //
