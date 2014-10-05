@@ -18,9 +18,8 @@
  * You shouldn't call a TRAPHANDLER function from C, but you may
  * need to _declare_ one in C (for instance, to get a function pointer
  * during IDT setup).  You can declare the function with
- *   void NAME();
- * where NAME is the argument passed to TRAPHANDLER.
- */
+ *   void NAME(); * where NAME is the argument passed to TRAPHANDLER.  */
+
 #define TRAPHANDLER(name, num)						\
 	.globl name;		/* define global symbol for 'name' */	\
 	.type name, @function;	/* symbol type is function */		\
@@ -48,9 +47,38 @@
  * Lab 3: Your code here for generating entry points for the different traps.
  */
 
+// Standard Intel traps
+TRAPHANDLER_NOEC(DIVIDE, T_DIVIDE)
+TRAPHANDLER_NOEC(DEBUG, T_DEBUG)
+TRAPHANDLER_NOEC(NMI, T_NMI)
+TRAPHANDLER_NOEC(BRKPT, T_BRKPT)
+TRAPHANDLER_NOEC(OFLOW, T_OFLOW)
+TRAPHANDLER_NOEC(BOUND, T_BOUND)
+TRAPHANDLER_NOEC(ILLOP, T_ILLOP)
+TRAPHANDLER_NOEC(DEVICE, T_DEVICE)
+TRAPHANDLER(DBLFLT, T_DBLFLT)
+TRAPHANDLER(TSS, T_TSS)
+TRAPHANDLER(SEGNP, T_SEGNP)
+TRAPHANDLER(STACK, T_STACK)
+TRAPHANDLER(GPFLT, T_GPFLT)
+TRAPHANDLER(PGFLT, T_PGFLT)
+TRAPHANDLER_NOEC(FPERR, T_FPERR)
+TRAPHANDLER(ALIGN, T_ALIGN)
+TRAPHANDLER_NOEC(MCHK, T_MCHK)
+TRAPHANDLER_NOEC(SIMDERR, T_SIMDERR)
+// System Call
+TRAPHANDLER_NOEC(SYSCALL, T_SYSCALL)
 
 
 /*
  * Lab 3: Your code here for _alltraps
  */
-
+_alltraps:
+   push     %ds
+   push     %es
+   pushal 
+   movw     $GD_KD, %ax
+   movw     %ax, %ds
+   movw     %ax, %es 
+   pushl    %esp
+   call     trap

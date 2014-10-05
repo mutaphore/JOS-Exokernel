@@ -1,0 +1,40 @@
+Dewei Chen
+dc3186
+
+Lab 3A
+------
+1)
+If we only had 1 handler, we would not be able to distinguish between the two cases where we may or
+may not have an error code pushed onto the stack. Since we want the structure of the trap frame to be
+consistent for both cases, we need a different version of the handler that puts a 0 in that position 
+when there is no error code pushed.
+
+2)
+Since we are in user mode where CPL is 3, there is not sufficient privilege to enter the gate which 
+has DPL of 0 (to enter: CPL <= DPL). Instead we get the general protection fault which captures 
+all faults not captured by the current gates in the IDT. If it is allowed into vector 14, nothing will
+happen as of now because have not set up the trap dispatcher to call the page fault handler function.
+
+Lab 3B
+------
+3)
+The general protection fault is caused by the breakpoint gate in IDT setting to privilege level 0. Since
+we are entering the breakpoint trap from user mode (privilege level 3), this will cause a general protection
+fault because we don't have sufficient privileges. Once we change the IDT privilege level to 3, the user
+enters without triggering a protection fault and triggers the breakpoint trap that we wanted. 
+
+4)
+We have these protection mechanisms in place to prevent or allow users to access specific trap gates.
+For example, the softint user program attempts to trigger a page fault from user space, which is not allowed.
+Since the page fault gate (14) is set to only allow entrance from privilege level 0, a general protection
+fault is triggered instead. This will protect the kernel from any malicious attacks from user processes.
+
+Challenge
+---------
+For the challenge I added 2 additional methods to the kernel monitor: "ss" (single step) and "cont" (continue). 
+Running "ss" after a breakpoint is encountered will switch the TF on in the EFlAGS register, thereby causing the 
+processor to trigger int 1 after every instruction, single stepping through the program. trap() in trap.c has 
+been modified to handle int 1 by printing to the monitor the current trap frame. Running "cont" after a breakpoint
+will continue the program from the next instruction after the breakpoint. This is achieved by turning on the
+Resume bit in the EFLAGS register, and restoring the current environment. If another breakpoint is encountered, 
+it will stop there and print out trap frame info, otherwise it will continue running the user process.

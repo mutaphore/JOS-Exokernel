@@ -15,5 +15,10 @@ void monitor(struct Trapframe *tf);
 int mon_help(int argc, char **argv, struct Trapframe *tf);
 int mon_kerninfo(int argc, char **argv, struct Trapframe *tf);
 int mon_backtrace(int argc, char **argv, struct Trapframe *tf);
-
+int alloc_page(int argc, char **argv, struct Trapframe *tf);
+int page_status(int argc, char **argv, struct Trapframe *tf);
+int free_page(int argc, char **argv, struct Trapframe *tf);
+int list_used(int argc, char **argv, struct Trapframe *tf);
+int ss(int argc, char **argv, struct Trapframe *tf);
+int cont(int argc, char **argv, struct Trapframe *tf);
 #endif	// !JOS_KERN_MONITOR_H
