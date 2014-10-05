@@ -188,9 +188,10 @@ trap_dispatch(struct Trapframe *tf)
    int32_t ret;
 
    switch (tf->tf_trapno) {
+   case T_DEBUG:  // Single stepping through an instruction
    case T_BRKPT:
       monitor(tf);
-      break;
+      return;
    case T_PGFLT:
       page_fault_handler(tf);
       break;

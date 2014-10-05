@@ -19,4 +19,6 @@ int alloc_page(int argc, char **argv, struct Trapframe *tf);
 int page_status(int argc, char **argv, struct Trapframe *tf);
 int free_page(int argc, char **argv, struct Trapframe *tf);
 int list_used(int argc, char **argv, struct Trapframe *tf);
+int ss(int argc, char **argv, struct Trapframe *tf);
+int cont(int argc, char **argv, struct Trapframe *tf);
 #endif	// !JOS_KERN_MONITOR_H

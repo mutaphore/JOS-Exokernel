@@ -30,7 +30,9 @@ static struct Command commands[] = {
    { "alloc_page", "Allocate a page", alloc_page },
    { "page_status", "Check if a page is allocated", page_status },
    { "free_page", "Free a page", free_page },
-   { "list_used", "List all used pages and their refs", list_used }
+   { "list_used", "List all used pages and their refs", list_used },
+   { "ss", "Make a single step after a breakpoint", ss },
+   { "cont", "Continue from a breakpoint", cont }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -161,6 +163,22 @@ int list_used(int argc, char **argv, struct Trapframe *tf) {
       }
    } 
    return 0; 
+}
+
+int ss(int argc, char **argv, struct Trapframe *tf) {
+
+   // Turn on the trap flag
+   tf->tf_eflags |= FL_TF;
+   cprintf("Single step\n"); 
+
+   return -1;
+}
+
+int cont(int argc, char **argv, struct Trapframe *tf) {
+
+   tf->tf_eflags &= FL_RF;
+   cprintf("Continue\n"); 
+   return -1;
 }
 
 /***** Kernel monitor command interpreter *****/
