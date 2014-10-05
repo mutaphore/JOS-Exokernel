@@ -146,6 +146,24 @@ trap_init_percpu(void)
 	//
 	// LAB 4: Your code here:
 
+   struct Taskstate *cpu_ts = &thiscpu->cpu_ts;
+   uint8_t cpu_id = cpunum();
+
+   // Set the kstack address for this CPU
+   cpu_ts->ts_esp0 = KSTACKTOP - cpu_id * (KSTKSIZE + KSTKGAP); 
+   cpu_ts->ts_ss0 = GD_KD;   
+
+   gdt[(GD_TSS0 >> 3) + cpu_id] = SEG16(STS_T32A, (uint32_t) (cpu_ts),
+	                                sizeof(struct Taskstate) - 1, 0);
+   gdt[(GD_TSS0 >> 3) + cpu_id].sd_s = 0;
+
+   ltr(GD_TSS0 + (cpu_id << 3));
+
+   lidt(&idt_pd);
+   
+
+   // --- Old Lab 3 implementation when there was only 1 CPU ---
+/*
 	// Setup a TSS so that we get the right stack
 	// when we trap to the kernel.
 	ts.ts_esp0 = KSTACKTOP;
@@ -162,6 +180,7 @@ trap_init_percpu(void)
 
 	// Load the IDT
 	lidt(&idt_pd);
+*/
 }
 
 void
