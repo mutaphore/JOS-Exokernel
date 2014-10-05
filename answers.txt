@@ -28,3 +28,13 @@ We have these protection mechanisms in place to prevent or allow users to access
 For example, the softint user program attempts to trigger a page fault from user space, which is not allowed.
 Since the page fault gate (14) is set to only allow entrance from privilege level 0, a general protection
 fault is triggered instead. This will protect the kernel from any malicious attacks from user processes.
+
+Challenge
+---------
+For the challenge I added 2 additional methods to the kernel monitor: "ss" (single step) and "cont" (continue). 
+Running "ss" after a breakpoint is encountered will switch the TF on in the EFlAGS register, thereby causing the 
+processor to trigger int 1 after every instruction, single stepping through the program. trap() in trap.c has 
+been modified to handle int 1 by printing to the monitor the current trap frame. Running "cont" after a breakpoint
+will continue the program from the next instruction after the breakpoint. This is achieved by turning on the
+Resume bit in the EFLAGS register, and restoring the current environment. If another breakpoint is encountered, 
+it will stop there and print out trap frame info, otherwise it will continue running the user process.
