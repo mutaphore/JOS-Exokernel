@@ -653,7 +653,16 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// Hint: The staff solution uses boot_map_region.
 	//
 	// Your code here:
-	panic("mmio_map_region not implemented");
+	
+   uint32_t alignedSize = ROUNDUP(size, PGSIZE);
+
+   if (base + alignedSize > MMIOLIM)
+      panic("mmio_map_region: memory reserved past MMIOLIM");
+   
+   base += alignedSize;
+   boot_map_region(kern_pgdir, base, alignedSize, pa, PTE_PCD | PTE_PWT | PTE_W); 
+
+   return base;
 }
 
 static uintptr_t user_mem_check_addr;
