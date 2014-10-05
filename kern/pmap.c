@@ -611,15 +611,15 @@ int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
 	// LAB 3: Your code here.
-   uintptr_t cur_va = (uintptr_t)ROUNDDOWN(va, PGSIZE);
-   uintptr_t end = (uintptr_t)ROUNDUP((uintptr)va + len, PGSIZE);
+   //uintptr_t cur_va = (uintptr_t)ROUNDDOWN(va, PGSIZE);
+   uintptr_t cur_va = (uintptr_t)va;
    pte_t *ptEntry;
 
-   for (; cur_va < end; cur_va += PGSIZE) {
+   for (; (void *)cur_va < va + len; cur_va++) {
       // Check if address is below ULIM
       if (cur_va < ULIM) {
          // Check if page table gives it permission
-         if (!(ptEntry = pgdir_walk(env->env_pgdir, cur_va, 0)))
+         if (!(ptEntry = pgdir_walk(env->env_pgdir, (void *)cur_va, 0)))
             panic("user_mem_check:pgdir entry doesn't exist\n");
          if (*ptEntry & (perm | PTE_P))
             continue;

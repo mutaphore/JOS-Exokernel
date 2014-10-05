@@ -21,24 +21,8 @@ sys_cputs(const char *s, size_t len)
 	// Destroy the environment if not.
 
 	// LAB 3: Your code here.
-   pde_t *pdEntry;
-   pte_t *ptEntry;
-   uintptr_t va;
-   size_t cnt;
-   
-   // Check present and user bits set for pd and pt entries
-
-   for (cnt = 0; cnt < len; cnt++) {
-      va = (uintptr_t)(s + cnt);
-      pdEntry = curenv->env_pgdir + PDX(va);
-      ptEntry = KADDR(PTE_ADDR(*pdEntry)) + PTX(va);
+   user_mem_assert(curenv, s, len, PTE_U);
       
-      //if (*pdEntry & PTE_P && *ptEntry & PTE_P)
-      if (*pdEntry & PTE_U && *ptEntry & PTE_U)
-         continue;
-      
-      env_destroy(curenv);
-   }
 	// Print the string supplied by the user.
 	cprintf("%.*s", len, s);
 }
