@@ -291,7 +291,7 @@ region_alloc(struct Env *e, void *va, size_t len)
    uintptr_t cur_va, end;
 
    cur_va = (uintptr_t)ROUNDDOWN(va, PGSIZE);   
-   end = (uintptr_t)ROUNDUP(((uintptr_t)va + len), PGSIZE);
+   end = (uintptr_t)ROUNDUP((uintptr_t)va + len, PGSIZE);
 
    for (; cur_va < end; cur_va+=PGSIZE) {
       // Allocate a page
@@ -496,9 +496,6 @@ env_destroy(struct Env *e)
 void
 env_pop_tf(struct Trapframe *tf)
 {
-//   cprintf("env_pop_tf: Trap frame info %08x %08x\n",
-//    tf->tf_ds, tf->tf_esp);
-
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
 		"\tpopl %%es\n"
@@ -538,7 +535,7 @@ env_run(struct Env *e)
 
 	// LAB 3: Your code here.
 
-   if (curenv)
+   if (curenv && curenv->env_status == ENV_RUNNING)
       curenv->env_status = ENV_RUNNABLE;
         
    curenv = e; 

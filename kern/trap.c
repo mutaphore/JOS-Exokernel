@@ -185,6 +185,7 @@ trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
+   int32_t ret;
 
    switch (tf->tf_trapno) {
    case T_BRKPT:
@@ -194,13 +195,16 @@ trap_dispatch(struct Trapframe *tf)
       page_fault_handler(tf);
       break;
    case T_SYSCALL:
-      syscall(tf->tf_trapno, 
-              tf->tf_regs.reg_edx,
-              tf->tf_regs.reg_ecx,
-              tf->tf_regs.reg_ebx,
-              tf->tf_regs.reg_edi,
-              tf->tf_regs.reg_esi);
-      break;
+      // Call to the KERNEL version of kern/syscall.c
+      ret = syscall(tf->tf_regs.reg_eax, 
+                    tf->tf_regs.reg_edx,
+                    tf->tf_regs.reg_ecx,
+                    tf->tf_regs.reg_ebx,
+                    tf->tf_regs.reg_edi,
+                    tf->tf_regs.reg_esi);
+      // Now put return val in the expected eax register
+      tf->tf_regs.reg_eax = ret;
+      return;
    default:
       break; 
    }
@@ -266,6 +270,9 @@ page_fault_handler(struct Trapframe *tf)
 	// Handle kernel-mode page faults.
 
 	// LAB 3: Your code here.
+   // Check privilege level of CS reg for kernel mode
+   if (!(tf->tf_cs & 3))
+      panic("Page fault in kernel-mode!\n");
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
