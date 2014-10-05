@@ -291,6 +291,19 @@ mem_init_mp(void)
 	//
 	// LAB 4: Your code here:
 
+   size_t i;
+   uintptr_t kstktop_va;
+   physaddr_t kstktop_pa;
+
+   for (i = 0; i < NCPU; i++) {
+      // Get the phys memory address from percpu_kstacks
+      kstktop_pa = PADDR(percpu_kstacks[i]); 
+      // Calculate va of the stack bottom
+      kstktop_va = KSTACKTOP - i * (KSTKSIZE + KSTKGAP) - KSTKSIZE;
+      // Map it into kern_pgdir
+      boot_map_region(kern_pgdir, kstktop_va, KSTKSIZE, 
+       kstktop_pa, PTE_W | PTE_P);
+   }
 }
 
 // --------------------------------------------------------------
@@ -330,15 +343,15 @@ page_init(void)
 	// NB: DO NOT actually touch the physical memory corresponding to
 	// free pages!
    
-   // Page indices of in use memory boundaries
-   size_t usedStart, usedEnd;
-   usedStart = IOPHYSMEM >> PGSHIFT;
-   usedEnd = PADDR(boot_alloc(0)) >> PGSHIFT;
-
+   // pages indices of in use memory
+   size_t usedStart = IOPHYSMEM >> PGSHIFT;
+   size_t usedEnd = PADDR(boot_alloc(0)) >> PGSHIFT;   
+   size_t mpEntryNdx = MPENTRY_PADDR >> PGSHIFT;
 	size_t i;
-   // Page 0 is in use per (1), so we start at page 1
+
+   // Page 0 is in use per above item (1), so we start at page 1
 	for (i = 1; i < npages; i++) {
-      if (i < usedStart || i >= usedEnd) {
+      if ((i < usedStart || i >= usedEnd) && i != mpEntryNdx) {
 		   pages[i].pp_ref = 0;
 		   pages[i].pp_link = page_free_list;
 		   page_free_list = &pages[i];
@@ -654,15 +667,16 @@ mmio_map_region(physaddr_t pa, size_t size)
 	//
 	// Your code here:
 	
-   uint32_t alignedSize = ROUNDUP(size, PGSIZE);
+   size_t alignedSize = ROUNDUP(size, PGSIZE);
+   uintptr_t tempBase = base;   
 
    if (base + alignedSize > MMIOLIM)
       panic("mmio_map_region: memory reserved past MMIOLIM");
    
-   base += alignedSize;
    boot_map_region(kern_pgdir, base, alignedSize, pa, PTE_PCD | PTE_PWT | PTE_W); 
+   base += alignedSize;
 
-   return base;
+   return (void *)tempBase;
 }
 
 static uintptr_t user_mem_check_addr;
