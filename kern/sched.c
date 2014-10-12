@@ -30,13 +30,20 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
-   size_t i;
-   struct Env *   
-
-   for (i = 0; i < NENV; i++) {
-      if (envs[i].env_status == ENV_RUNNABLE)
-         
+   struct Env *env = envs, *prev;
+   
+   // Check if there was a previously running environment
+   if (curenv) {
+      env += (curenv - envs + 1) % NENV;   // Wrap around
+      prev = curenv;
    }
+      
+   do {
+      if (envs[i].env_status == ENV_RUNNABLE)
+         env_run(env);  // Doesn't return
+      if (++env >= envs + NENV)
+         env = envs;    // Wrap around
+   } while (env != prev);
    
 
 	// sched_halt never returns
