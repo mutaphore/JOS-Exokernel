@@ -14,7 +14,11 @@ refer to some other place in memory that we do not want.
 
 2)
 One scenario where having shared stack for multiple CPUs will be problematic is when the CPUs trap 
-simultaneously into the kernel. Although we have a lock in place for
+simultaneously into the kernel. Although we have a lock in place at the trap() function, in trapentry.S 
+(before the kernel is locked) it is possible for multiple kernels to push registers with different 
+values to the same stack. This will result in a "corrupted" state saved in the environment's trapframe.
+Upon finishing the handler for a trap on one of the CPUs, it may pop back some unexpected values
+for on return that was "leaked" from another CPU's state.
 
 3)
 Pointer e can be dereferenced before and after switching an address space because the environment structs
