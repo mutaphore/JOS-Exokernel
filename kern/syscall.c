@@ -191,8 +191,23 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 	//   allocated!
 
 	// LAB 4: Your code here.
-	panic("sys_page_alloc not implemented");
+
+   struct Env *e;
+
+   // Check if va >= UTOP and not page-aligned
+   if (va >= UTOP || va & 0xFFF)
+      return -E_INVAL;
+   // Check the permission bits
+   if (!(perm & (PTE_U | PTE_P)) || perm & ~PTE_SYSCALL)
+      return -E_INVAL;
+   // Get env from id and check if we have perm to change its status
+   if ((error = envid2env(envid, &e, 1)) < 0)
+      return error;
+   // Allocate the page
+   if (!page_alloc(ALLOC_ZERO)) 
+      return -E_NO_MEM;
 }
+
 
 // Map the page of memory at 'srcva' in srcenvid's address space
 // at 'dstva' in dstenvid's address space with permission 'perm'.
