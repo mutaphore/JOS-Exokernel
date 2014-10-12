@@ -85,7 +85,21 @@ sys_exofork(void)
 	// will appear to return 0.
 
 	// LAB 4: Your code here.
-	panic("sys_exofork not implemented");
+
+   struct Env *e;
+   int error;
+
+   if ((error = env_alloc(&e, curenv->env_id)) < 0)
+      return error;
+   
+   e->env_status = ENV_NOT_RUNNABLE;
+   e->env_tf.tf_regs = curenv->env_tf.tf_regs;
+
+   // Set %eax to 0 so it appears to return 0 in the child
+   e->env_tf.tf_regs.reg_eax = 0;   
+   
+   // Return child id for the parent env
+   return e->env_id;
 }
 
 // Set envid's env_status to status, which must be ENV_RUNNABLE
@@ -105,7 +119,20 @@ sys_env_set_status(envid_t envid, int status)
 	// envid's status.
 
 	// LAB 4: Your code here.
-	panic("sys_env_set_status not implemented");
+
+   struct Env *e;
+   int error;
+
+   // Check status we're trying to set
+   if (status != ENV_RUNNABLE || status != ENV_NOT_RUNNABLE)
+      return -E_INVAL;
+   // Get env from id and check if we have perm to change its status
+   if ((error = envid2env(envid, &e, 1)) < 0)
+      return error;
+
+   e->env_status = status;
+
+   return 0;
 }
 
 // Set the page fault upcall for 'envid' by modifying the corresponding struct
@@ -120,7 +147,21 @@ static int
 sys_env_set_pgfault_upcall(envid_t envid, void *func)
 {
 	// LAB 4: Your code here.
-	panic("sys_env_set_pgfault_upcall not implemented");
+
+   struct Env *e;
+   int error;
+   
+   // Check if func is in a valid address range
+   if ((uintptr_t)func > ULIM)
+      panic("sys_env_set_pgfault_upcall: invalid func address");
+
+   // Get env from id and check if we have perm to change its status
+   if ((error = envid2env(envid, &e, 1)) < 0)
+      return error;
+
+   e->env_pgfault_upcall = func;   
+
+   return 0;
 }
 
 // Allocate a page of memory and map it at 'va' with permission
@@ -286,6 +327,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_env_destroy:
       ret = sys_env_destroy((envid_t)a1);
+      break;
+   case SYS_yield:
+      sys_yield();
       break;
 	default:
 		return -E_NO_SYS;

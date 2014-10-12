@@ -30,21 +30,27 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
-   struct Env *env = envs, *prev;
+   struct Env *env = envs;
+   struct Env *prev = envs;
+   uint8_t hasPrev = 0;
    
    // Check if there was a previously running environment
    if (curenv) {
       env += (curenv - envs + 1) % NENV;   // Wrap around
       prev = curenv;
+      hasPrev = 1;
    }
       
    do {
-      if (envs[i].env_status == ENV_RUNNABLE)
-         env_run(env);  // Doesn't return
+      if (env->env_status == ENV_RUNNABLE)
+         env_run(env);  // env_run doesn't return
       if (++env >= envs + NENV)
          env = envs;    // Wrap around
    } while (env != prev);
-   
+
+   // No envs are runnable, if prev env is running then run it
+   if (hasPrev && prev->env_status == ENV_RUNNING)
+      env_run(prev);
 
 	// sched_halt never returns
 	sched_halt();
