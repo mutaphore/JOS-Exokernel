@@ -193,19 +193,28 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 	// LAB 4: Your code here.
 
    struct Env *e;
+   struct PageInfo *page;
+   int error;
 
    // Check if va >= UTOP and not page-aligned
    if (va >= UTOP || va & 0xFFF)
       return -E_INVAL;
-   // Check the permission bits
+   // Check if the permission bits are valid
    if (!(perm & (PTE_U | PTE_P)) || perm & ~PTE_SYSCALL)
       return -E_INVAL;
-   // Get env from id and check if we have perm to change its status
+   // Get env from id and check if we have perm to change it
    if ((error = envid2env(envid, &e, 1)) < 0)
       return error;
-   // Allocate the page
-   if (!page_alloc(ALLOC_ZERO)) 
+   // Allocate the page and return error if no memory to allocate
+   if (!(page = page_alloc(ALLOC_ZERO))) 
       return -E_NO_MEM;
+   // Insert the page and return error if no mem to allocate pt 
+   if ((error = page_insert(e->env_pgdir, page, va, perm)) < 0) {
+      page_free(page);  // Free the page!
+      return error;   
+   }
+
+   return 0;
 }
 
 
@@ -237,7 +246,21 @@ sys_page_map(envid_t srcenvid, void *srcva,
 	//   check the current permissions on the page.
 
 	// LAB 4: Your code here.
-	panic("sys_page_map not implemented");
+   
+   struct Env *e;
+   int error;
+
+   // Get env from id and check if we have perm to change it
+   if ((error = envid2env(srcenvid, &e, 1)) < 0)
+      return error;
+   if ((error = envid2env(dstenvid, &e, 1)) < 0)
+      return error;
+   // Check if srcva or dstva is >= UTOP or not page aligned
+   if (srcva >= UTOP || srcva & 0xFFF || dstva >= UTOP || dstva & 0xFFF)
+      return -E_INVAL;
+
+
+   return 0;
 }
 
 // Unmap the page of memory at 'va' in the address space of 'envid'.
