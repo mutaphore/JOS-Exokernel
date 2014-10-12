@@ -247,18 +247,31 @@ sys_page_map(envid_t srcenvid, void *srcva,
 
 	// LAB 4: Your code here.
    
-   struct Env *e;
+   struct Env *srce, *dste;
+   struct PageInfo *page;
+   pte_t *ptEntry;
    int error;
 
    // Get env from id and check if we have perm to change it
-   if ((error = envid2env(srcenvid, &e, 1)) < 0)
+   if ((error = envid2env(srcenvid, &srce, 1)) < 0)
       return error;
-   if ((error = envid2env(dstenvid, &e, 1)) < 0)
+   if ((error = envid2env(dstenvid, &dste, 1)) < 0)
       return error;
    // Check if srcva or dstva is >= UTOP or not page aligned
    if (srcva >= UTOP || srcva & 0xFFF || dstva >= UTOP || dstva & 0xFFF)
       return -E_INVAL;
-
+   // Check if srcva is mapped in srcenvid's address space
+   if (!(page = page_lookup(srce->env_pgdir, srcva, &ptEntry)))
+      return -E_INVAL;
+   // Check if the permission bits are valid
+   if (!(perm & (PTE_U | PTE_P)) || perm & ~PTE_SYSCALL)
+      return -E_INVAL;
+   // If srcva is read-only, perm cannot have write in it
+   if (perm & PTE_W && !(*ptEntry & PTE_W))
+      return -E_INVAL;
+   // Insert page into dst env address space
+   if ((error = page_insert(dste->env_pgdir, page, dstva, perm)) < 0)
+      return error;    
 
    return 0;
 }
@@ -276,7 +289,21 @@ sys_page_unmap(envid_t envid, void *va)
 	// Hint: This function is a wrapper around page_remove().
 
 	// LAB 4: Your code here.
-	panic("sys_page_unmap not implemented");
+
+   struct Env *e;
+   int error;
+      
+   // Check if va >= UTOP and not page-aligned
+   if (va >= UTOP || va & 0xFFF)
+      return -E_INVAL;
+   // Get env from id and check if we have perm to change it
+   if ((error = envid2env(envid, &e, 1)) < 0)
+      return error;
+
+   // Remove the mapping
+   page_remove(e->env_pgdir, va);
+   
+   return 0;
 }
 
 // Try to send 'value' to the target env 'envid'.
