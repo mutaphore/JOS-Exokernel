@@ -34,10 +34,10 @@ sched_yield(void)
    struct Env *prev = envs;
    uint8_t hasPrev = 0;
    
-   // Check if there was a previously running environment
+   // Check if there is a currently running environment
    if (curenv) {
       env += (curenv - envs + 1) % NENV;   // Wrap around
-      prev = curenv;
+      prev = curenv;    // Set prev to curenv to use later
       hasPrev = 1;
    }
       
@@ -45,10 +45,10 @@ sched_yield(void)
       if (env->env_status == ENV_RUNNABLE)
          env_run(env);  // env_run doesn't return
       if (++env >= envs + NENV)
-         env = envs;    // Wrap around
+         env = envs;    // Wrap around if reached the end
    } while (env != prev);
 
-   // No envs are runnable, if prev env is running then run it
+   // No envs are runnable, if there is a prev env just run it
    if (hasPrev && prev->env_status == ENV_RUNNING)
       env_run(prev);
 

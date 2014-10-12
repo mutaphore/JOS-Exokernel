@@ -92,12 +92,12 @@ sys_exofork(void)
    if ((error = env_alloc(&e, curenv->env_id)) < 0)
       return error;
    
+   // Set not runnable so it doesn't run until permitted 
    e->env_status = ENV_NOT_RUNNABLE;
+   // Copy all trap frame registers from parent
    e->env_tf = curenv->env_tf;
-
    // Set %eax to 0 so it appears to return 0 in the child
    e->env_tf.tf_regs.reg_eax = 0;   
-   
    // Return child id for the parent env
    return e->env_id;
 }
