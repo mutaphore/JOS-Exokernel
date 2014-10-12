@@ -93,7 +93,7 @@ sys_exofork(void)
       return error;
    
    e->env_status = ENV_NOT_RUNNABLE;
-   e->env_tf.tf_regs = curenv->env_tf.tf_regs;
+   e->env_tf = curenv->env_tf;
 
    // Set %eax to 0 so it appears to return 0 in the child
    e->env_tf.tf_regs.reg_eax = 0;   
@@ -124,7 +124,7 @@ sys_env_set_status(envid_t envid, int status)
    int error;
 
    // Check status we're trying to set
-   if (status != ENV_RUNNABLE || status != ENV_NOT_RUNNABLE)
+   if (status != ENV_RUNNABLE && status != ENV_NOT_RUNNABLE)
       return -E_INVAL;
    // Get env from id and check if we have perm to change its status
    if ((error = envid2env(envid, &e, 1)) < 0)
@@ -197,7 +197,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
    int error;
 
    // Check if va >= UTOP and not page-aligned
-   if (va >= UTOP || va & 0xFFF)
+   if ((uintptr_t)va >= UTOP || (uintptr_t)va & 0xFFF)
       return -E_INVAL;
    // Check if the permission bits are valid
    if (!(perm & (PTE_U | PTE_P)) || perm & ~PTE_SYSCALL)
@@ -258,7 +258,8 @@ sys_page_map(envid_t srcenvid, void *srcva,
    if ((error = envid2env(dstenvid, &dste, 1)) < 0)
       return error;
    // Check if srcva or dstva is >= UTOP or not page aligned
-   if (srcva >= UTOP || srcva & 0xFFF || dstva >= UTOP || dstva & 0xFFF)
+   if ((uintptr_t)srcva >= UTOP || (uintptr_t)srcva & 0xFFF \
+         || (uintptr_t)dstva >= UTOP || (uintptr_t)dstva & 0xFFF)
       return -E_INVAL;
    // Check if srcva is mapped in srcenvid's address space
    if (!(page = page_lookup(srce->env_pgdir, srcva, &ptEntry)))
@@ -294,7 +295,7 @@ sys_page_unmap(envid_t envid, void *va)
    int error;
       
    // Check if va >= UTOP and not page-aligned
-   if (va >= UTOP || va & 0xFFF)
+   if ((uintptr_t)va >= UTOP || (uintptr_t)va & 0xFFF)
       return -E_INVAL;
    // Get env from id and check if we have perm to change it
    if ((error = envid2env(envid, &e, 1)) < 0)
@@ -396,7 +397,26 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
    case SYS_yield:
       sys_yield();
       break;
-	default:
+   case SYS_exofork:
+      ret = sys_exofork();
+      break;
+   case SYS_env_set_status:
+      ret = sys_env_set_status((envid_t)a1, (int)a2);
+      break;
+   case SYS_env_set_pgfault_upcall:
+      ret = sys_env_set_pgfault_upcall((envid_t)a1, (void *)a2);
+      break;
+   case SYS_page_alloc:
+      ret = sys_page_alloc((envid_t)a1, (void *)a2, (int)a3);
+	   break;
+   case SYS_page_map:
+      ret = sys_page_map((envid_t)a1, (void *)a2, (envid_t)a3, 
+                          (void *)a4, (int)a5);
+      break;
+   case SYS_page_unmap:
+      ret = sys_page_unmap((envid_t)a1, (void *)a2);
+      break;
+   default:
 		return -E_NO_SYS;
 	}
 
