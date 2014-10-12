@@ -13,3 +13,18 @@ mpentry.S directly using macro MPBOOTPHYS. If we did not have the macro the memo
 refer to some other place in memory that we do not want.
 
 2)
+One scenario where having shared stack for multiple CPUs will be problematic is when the CPUs trap 
+simultaneously into the kernel. Although we have a lock in place for
+
+3)
+Pointer e can be dereferenced before and after switching an address space because the environment structs
+are allocated above UENV/UTOP. All mapping above UTOP is copied across all processes and is consistent except
+for the page table at UVPT. Therefore, referring to e in one address space versus another gives us the same 
+physical address in memory in the end.
+
+4)
+When the user program calls sys_yield, it generates an interrupt to the kernel via T_SYSCALL. The "int"
+instruction is performed which causes the CPU to push the current environment's registers (state) onto the 
+stack and then later saved into the trapframe for this environment by trap.c/trap(). This is needed because 
+later when returning to this environment, env_pop_tf pops whats in the trapframe back to the stack so the CPU
+can return to the last instruction it was executing before it was interrupted.
