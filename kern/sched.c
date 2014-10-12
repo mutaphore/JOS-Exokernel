@@ -30,6 +30,15 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
+   size_t i;
+   struct Env *   
+
+   for (i = 0; i < NENV; i++) {
+      if (envs[i].env_status == ENV_RUNNABLE)
+         
+   }
+   
+
 	// sched_halt never returns
 	sched_halt();
 }
