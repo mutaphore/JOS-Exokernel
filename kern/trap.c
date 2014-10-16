@@ -393,6 +393,17 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
+   struct UTrapframe *utf;
+
+   // Check if we have a user level page handler
+   if (curenv->env_pgfault_upcall) {
+      // Assuming user already mapped page at UXSTACKTOP
+      utf = UXSTACKTOP - sizeof(struct UTrapframe); 
+      utf->utf_fault_va = fault_va;
+      utf->err = tf->err;
+      utf->utf_regs = tf->tf_regs;
+   }
+
 	// Destroy the environment that caused the fault.
 	cprintf("[%08x] user fault va %08x ip %08x\n",
 		curenv->env_id, fault_va, tf->tf_eip);

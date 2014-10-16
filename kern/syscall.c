@@ -152,8 +152,8 @@ sys_env_set_pgfault_upcall(envid_t envid, void *func)
    int error;
    
    // Check if func is in a valid address range
-   if ((uintptr_t)func > ULIM)
-      panic("sys_env_set_pgfault_upcall: invalid func address");
+   if ((uintptr_t)func >= ULIM)
+      return -E_INVAL;
 
    // Get env from id and check if we have perm to change its status
    if ((error = envid2env(envid, &e, 1)) < 0)
