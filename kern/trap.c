@@ -399,7 +399,7 @@ page_fault_handler(struct Trapframe *tf)
    // Check if we have a user level page handler
    if (curenv->env_pgfault_upcall) {
       // Check if env allocated exception stack page and can write to it
-      user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
+      //user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
       
       // Check if we're already in the user exception stack
       if (tf->tf_esp >= (UXSTACKTOP - PGSIZE) && 
