@@ -25,6 +25,12 @@ pgfault(struct UTrapframe *utf)
 	//   (see <inc/memlayout.h>).
 
 	// LAB 4: Your code here.
+   
+   pte_t ptEntry = uvpt[PGNUM(addr)];
+   
+   // Check for a write and to a copy-on-write page
+   if (!(err & FEC_WR && *ptEntry & PTE_COW))
+      panic("Not a write and to a copy-on-write page");
 
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
@@ -33,8 +39,18 @@ pgfault(struct UTrapframe *utf)
 	//   You should make three system calls.
 
 	// LAB 4: Your code here.
-
-	panic("pgfault not implemented");
+   
+   void *algn_addr = ROUNDDOWN(addr, PGSIZE);
+   // Allocate new page at PFTEMP
+   if ((r = sys_page_alloc(0, PFTEMP, PTE_P | PTE_U | PTE_W)) < 0)
+      panic("pgfault: sys_page_alloc %e", r);
+   // Copy contents of page containing faulted addr to temp page
+   memmove(UTEMP, ROUNDDOWN(addr, PGSIZE), PGSIZE);
+   // Map to the 
+   if ((r = sys_page_map(0, PFTEMP, 0, ROUNDDOWN(addr, PG, PTE_P|PTE_U|PTE_W)) < 0)
+      panic("pgfault: sys_page_map %e", r);
+   if ((r = sys_page_unmap(0, PFTTEMP)) < 0)   
+      panic("pgfault: sys_page_unmap %e", r);
 }
 
 //
@@ -54,7 +70,10 @@ duppage(envid_t envid, unsigned pn)
 	int r;
 
 	// LAB 4: Your code here.
-	panic("duppage not implemented");
+
+   sys_page_map(0, pn * PGSIZE, 
+    envid, pn * PGSIZE, PTE_COW | PTE_U | PTE_P);
+
 	return 0;
 }
 
@@ -78,13 +97,31 @@ envid_t
 fork(void)
 {
 	// LAB 4: Your code here.
-	panic("fork not implemented");
+   
+   envid_t envid;
+   // Set up page fault handler
+   set_pgfault_handler(pgfault);
+   // Create a child environment
+   envid = sys_exofork();
+
+   if (envid < 0)
+      panic("sys_exofork: %e", envid);
+   if (envid == 0) {
+      // We're the child
+      // Global var this env refers to the parent, fix it
+      thisenv = &envs[ENVX(sys_getenvid())];
+      return 0;
+   }
+   if (envid > 0) {
+      // We're the parent
+
+
+   }
 }
 
 // Challenge!
 int
 sfork(void)
 {
-	panic("sfork not implemented");
 	return -E_INVAL;
 }
