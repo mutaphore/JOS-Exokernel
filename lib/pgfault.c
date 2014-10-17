@@ -32,7 +32,7 @@ set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
       // Get current env id
       envid_t envid = sys_getenvid();
       // Allocate exception stack page
-      if ((r = sys_page_alloc(envid, UXSTACKTOP, PGSIZE)) < 0)
+      if ((r = sys_page_alloc(envid, (void *)(UXSTACKTOP - PGSIZE), PTE_W | PTE_U | PTE_P)) < 0)
          panic("set_pgfault_handler: %e", r);
       // Register page fault handler entrypoint
       if ((r = sys_env_set_pgfault_upcall(envid, _pgfault_upcall)) < 0)

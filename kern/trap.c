@@ -393,30 +393,34 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
-   struct UTrapframe *utf = UXSTACKTOP;
+   struct UTrapframe *utf = (void *)UXSTACKTOP;
 
-   // Check if env allocated exception stack page and can write to it
-   user_mem_assert(curenv, UXSTACKTOP - PGSIZE, PGSIZE, PTE_W);
-
+   //TODO: check exception stack overflow?
    // Check if we have a user level page handler
-   if (curenv->env_pgfault_upcall ) {
+   if (curenv->env_pgfault_upcall) {
+      // Check if env allocated exception stack page and can write to it
+      user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
+      
+      //cprintf("stack pos %08x\n", tf->tf_esp);
       // Check if we're already in the user exception stack
-      if (tf->tf_esp >= USTACKTOP - PGSIZE && 
-       tf->tf_esp <= UXSTACKTOP - 1)
-         utf = tf->tf_esp - 1;   // Push a 32-bit scratch space
-   
+      if (tf->tf_esp >= (UXSTACKTOP - PGSIZE) && 
+       tf->tf_esp <= (UXSTACKTOP - 1)) {
+         utf = (void *)(tf->tf_esp - 4);   // Push a 32-bit scratch space
+         cprintf("In exception stack already\n");
+      }      
+
       // Simulate a "push" onto the user exception stack
-      utf -= sizeof(struct UTrapframe); 
+      utf--; 
       utf->utf_fault_va = fault_va;
-      utf->err = tf->err;
+      utf->utf_err = tf->tf_err;
       utf->utf_regs = tf->tf_regs;
       utf->utf_eip = tf->tf_eip;
       utf->utf_eflags = tf->tf_eflags;
       utf->utf_esp = tf->tf_esp;
 
       // Switch to exception stack and set pagefault function
-      curenv->env_tf.esp = (uintptr_t)utf;   
-      curenv->env_tf.eip = (uintptr_t)curenv->env_pgfault_upcall;
+      curenv->env_tf.tf_esp = (uintptr_t)utf;   
+      curenv->env_tf.tf_eip = (uintptr_t)curenv->env_pgfault_upcall;
       // Run it!
       env_run(curenv); 
    }
