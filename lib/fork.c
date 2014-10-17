@@ -27,9 +27,8 @@ pgfault(struct UTrapframe *utf)
 	// LAB 4: Your code here.
    
    pte_t ptEntry = uvpt[PGNUM(addr)];
-   
    // Check for a write and to a copy-on-write page
-   if (!(err & FEC_WR && *ptEntry & PTE_COW))
+   if (!(err & FEC_WR && ptEntry & PTE_COW))
       panic("Not a write and to a copy-on-write page");
 
 	// Allocate a new page, map it at a temporary location (PFTEMP),
@@ -40,16 +39,19 @@ pgfault(struct UTrapframe *utf)
 
 	// LAB 4: Your code here.
    
+   // Address must be page aligned! 
    void *algn_addr = ROUNDDOWN(addr, PGSIZE);
+
    // Allocate new page at PFTEMP
    if ((r = sys_page_alloc(0, PFTEMP, PTE_P | PTE_U | PTE_W)) < 0)
       panic("pgfault: sys_page_alloc %e", r);
    // Copy contents of page containing faulted addr to temp page
-   memmove(UTEMP, ROUNDDOWN(addr, PGSIZE), PGSIZE);
-   // Map to the 
-   if ((r = sys_page_map(0, PFTEMP, 0, ROUNDDOWN(addr, PG, PTE_P|PTE_U|PTE_W)) < 0)
+   memmove(PFTEMP, algn_addr, PGSIZE);
+   // Map to the "old" address, now with read and write permissions
+   if ((r = sys_page_map(0, PFTEMP, 0, algn_addr, PTE_P | PTE_U | PTE_W)) < 0)
       panic("pgfault: sys_page_map %e", r);
-   if ((r = sys_page_unmap(0, PFTTEMP)) < 0)   
+   // Unmap the temporary address
+   if ((r = sys_page_unmap(0, PFTEMP)) < 0)   
       panic("pgfault: sys_page_unmap %e", r);
 }
 
@@ -71,8 +73,20 @@ duppage(envid_t envid, unsigned pn)
 
 	// LAB 4: Your code here.
 
-   sys_page_map(0, pn * PGSIZE, 
-    envid, pn * PGSIZE, PTE_COW | PTE_U | PTE_P);
+   pte_t ptEntry = uvpt[pn];
+   pde_t pdEntry = uvpd[PDX(pn * PGSIZE)];
+   void *addr = (void *)(pn * PGSIZE);
+
+   if ((pdEntry & PTE_W || pdEntry & PTE_COW) && 
+       (ptEntry & PTE_W || ptEntry & PTE_COW)) {
+      // Map to new env COW
+      if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U)) < 0)
+         panic("duppage: sys_page_map to new env %e", r);
+      // Remap our own to COW
+      if ((r = sys_page_map(0, addr, 0, addr, PTE_COW | PTE_U)) < 0)
+         panic("duppage: sys_page_map for remap %e", r);
+   }
+   else if (pdEntry & PTE_P && ptEntry & PTE_P)
 
 	return 0;
 }
@@ -99,7 +113,11 @@ fork(void)
 	// LAB 4: Your code here.
    
    envid_t envid;
-   // Set up page fault handler
+   uint32_t pn;
+   void *addr;
+   int r;
+
+   // Set up our own page fault handler
    set_pgfault_handler(pgfault);
    // Create a child environment
    envid = sys_exofork();
@@ -108,15 +126,33 @@ fork(void)
       panic("sys_exofork: %e", envid);
    if (envid == 0) {
       // We're the child
-      // Global var this env refers to the parent, fix it
+      // Global var thisenv refers to the parent, fix it
       thisenv = &envs[ENVX(sys_getenvid())];
       return 0;
    }
-   if (envid > 0) {
-      // We're the parent
-
-
+   
+   // We're the parent
+   // Copy address space below UTOP to child
+   for (pn = 0; pn < PGNUM(UTOP); pn++) {
+      
+      duppage(envid, pn);
    }
+   
+   // Create new page and copy page fault handler setup to child
+   addr = (void *)(UXSTACKTOP - PGSIZE);
+   if ((r = sys_page_alloc(envid, addr, PTE_P | PTE_U | PTE_W)) < 0)
+      panic("fork: sys_page_alloc %e", r);
+   if ((r = sys_env_set_pgfault_upcall(envid, pgfault)) < 0)
+      panic("fork: sys_env_set_pgfault_upcall %e", r);
+
+   // Create normal stack page for child
+
+   
+   // Set child to be runnable
+   if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
+      panics("fork: sys_env_set_status %e", r);
+
+   return envid;
 }
 
 // Challenge!
