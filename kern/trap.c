@@ -286,6 +286,7 @@ trap_dispatch(struct Trapframe *tf)
 void
 trap(struct Trapframe *tf)
 {
+   cprintf("got here\n");
 	// The environment may have set DF and some versions
 	// of GCC rely on DF being clear
 	asm volatile("cld" ::: "cc");
@@ -393,13 +394,14 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
+
    struct UTrapframe *utf = (void *)UXSTACKTOP;
 
    //TODO: check exception stack overflow?
    // Check if we have a user level page handler
    if (curenv->env_pgfault_upcall) {
       // Check if env allocated exception stack page and can write to it
-      //user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
+      user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
       
       // Check if we're already in the user exception stack
       if (tf->tf_esp >= (UXSTACKTOP - PGSIZE) && 

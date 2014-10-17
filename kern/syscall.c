@@ -417,8 +417,6 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       ret = sys_page_unmap((envid_t)a1, (void *)a2);
       break;
    default:
-		return -E_NO_SYS;
-	default:
 		return -E_INVAL;
 	}
 
