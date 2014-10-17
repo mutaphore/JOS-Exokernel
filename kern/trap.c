@@ -393,8 +393,6 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
-   // Assuming user already mapped page at UXSTACKTOP
-
    struct UTrapframe *utf = UXSTACKTOP;
 
    // Check if env allocated exception stack page and can write to it
