@@ -74,10 +74,10 @@ TRAPHANDLER_NOEC(SYSCALL, T_SYSCALL)
  * Lab 3: Your code here for _alltraps
  */
 _alltraps:
-   push     %ds
-   push     %es
-   pushal 
-   movw     $GD_KD, %ax
+   push     %ds            // Push ds reg on stack
+   push     %es            // Push es reg on stack
+   pushal                  // Push other generic regs on stack
+   movw     $GD_KD, %ax    // Change to kernel segment
    movw     %ax, %ds
    movw     %ax, %es 
    pushl    %esp
