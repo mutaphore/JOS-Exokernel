@@ -418,6 +418,8 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    default:
 		return -E_NO_SYS;
+	default:
+		return -E_INVAL;
 	}
 
    return ret;
