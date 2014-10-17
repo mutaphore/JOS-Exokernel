@@ -397,8 +397,11 @@ page_fault_handler(struct Trapframe *tf)
 
    struct UTrapframe *utf = UXSTACKTOP;
 
+   // Check if env allocated exception stack page and can write to it
+   user_mem_assert(curenv, UXSTACKTOP - PGSIZE, PGSIZE, PTE_W);
+
    // Check if we have a user level page handler
-   if (curenv->env_pgfault_upcall) {
+   if (curenv->env_pgfault_upcall ) {
       // Check if we're already in the user exception stack
       if (tf->tf_esp >= USTACKTOP - PGSIZE && 
        tf->tf_esp <= UXSTACKTOP - 1)
@@ -412,9 +415,6 @@ page_fault_handler(struct Trapframe *tf)
       utf->utf_eip = tf->tf_eip;
       utf->utf_eflags = tf->tf_eflags;
       utf->utf_esp = tf->tf_esp;
-
-      // Check if env have permissions
-      //user_mem_assert(curenv, curenv->env_pgfault_upcall, 
 
       // Switch to exception stack and set pagefault function
       curenv->env_tf.esp = (uintptr_t)utf;   

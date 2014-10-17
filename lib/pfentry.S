@@ -66,24 +66,33 @@ _pgfault_upcall:
 	//
 	// LAB 4: Your code here.
    
-   movl  %esp, %edx           // Save stack pointer 
-   movl  0x28(%esp), %ecx     // Get eip value from stack
+   movl  %esp, %edx           // Save exception stack pointer 
+   movl  0x28(%esp), %ecx     // Get eip value from exception stack
    movl  0x30(%esp), %esp     // Switch to trap-time stack
    push  %ecx                 // Push eip onto trap-time stack
-   movl  %edx, %esp           // Restore stack pointer
+   movl  %edx, %esp           // Restore exception stack pointer
 
 	// Restore the trap-time registers.  After you do this, you
 	// can no longer modify any general-purpose registers.
 	// LAB 4: Your code here.
 
+   addl  $0x8, %esp           // Skip fault_va and error code
+   popal                      // Restore trap-time registers
 
 	// Restore eflags from the stack.  After you do this, you can
 	// no longer use arithmetic operations or anything else that
 	// modifies eflags.
 	// LAB 4: Your code here.
 
+   addl $0x4, %esp            // Skip eip
+   popf                       // Restore EFLAGS
+
 	// Switch back to the adjusted trap-time stack.
 	// LAB 4: Your code here.
 
+   movl  0x30(%esp), %esp     // Set esp back to trap-time stack 
+
 	// Return to re-execute the instruction that faulted.
 	// LAB 4: Your code here.
+
+   ret
