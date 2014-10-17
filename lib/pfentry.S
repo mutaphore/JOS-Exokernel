@@ -84,13 +84,13 @@ _pgfault_upcall:
 	// modifies eflags.
 	// LAB 4: Your code here.
 
-   addl $0x4, %esp            // Skip eip
+   addl  $0x4, %esp           // Skip eip
    popf                       // Restore EFLAGS
 
 	// Switch back to the adjusted trap-time stack.
 	// LAB 4: Your code here.
 
-   movl  0x30(%esp), %esp     // Set esp back to trap-time stack 
+   movl  (%esp), %esp         // Set esp back to trap-time stack 
 
 	// Return to re-execute the instruction that faulted.
 	// LAB 4: Your code here.
