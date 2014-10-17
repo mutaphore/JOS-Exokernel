@@ -214,8 +214,6 @@ sys_page_alloc(envid_t envid, void *va, int perm)
       return error;   
    }
 
-   cprintf("sys_page_alloc %8x\n", va);
-
    return 0;
 }
 

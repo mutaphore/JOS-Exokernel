@@ -241,6 +241,7 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 			break;
 		}
 	}
+   cprintf("after print\n");
 }
 
 void
@@ -274,6 +275,7 @@ vsnprintf(char *buf, int n, const char *fmt, va_list ap)
 
 	if (buf == NULL || n < 1)
 		return -E_INVAL;
+
 
 	// print the string to the buffer
 	vprintfmt((void*)sprintputch, &b, fmt, ap);

@@ -69,22 +69,27 @@ _pgfault_upcall:
    movl  %esp, %edx           // Save exception stack pointer 
    movl  0x28(%esp), %ecx     // Get eip value from exception stack
    movl  0x30(%esp), %esp     // Switch to trap-time stack
-   push  %ecx                 // Push eip onto trap-time stack
+   pushl %ecx                 // Push eip onto trap-time stack
    movl  %edx, %esp           // Restore exception stack pointer
+
+   // Hacks!!
+   movl  0x30(%esp), %ecx     // Get trap time esp from exception stack
+   addl  $-0x4, %ecx          // Sub 4 to account for the pushed eip 
+   movl  %ecx, 0x30(%esp)     // Put adjusted esp back to ex stack
 
 	// Restore the trap-time registers.  After you do this, you
 	// can no longer modify any general-purpose registers.
 	// LAB 4: Your code here.
 
    addl  $0x8, %esp           // Skip fault_va and error code
-   popal                      // Restore trap-time registers
+   popal                      // Restore gen purpose registers
 
 	// Restore eflags from the stack.  After you do this, you can
 	// no longer use arithmetic operations or anything else that
 	// modifies eflags.
 	// LAB 4: Your code here.
 
-   addl  $0x4, %esp           // Skip eip
+   addl  $0x4, %esp           // Skip eip, already done what we need
    popf                       // Restore EFLAGS
 
 	// Switch back to the adjusted trap-time stack.

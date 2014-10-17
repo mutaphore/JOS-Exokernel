@@ -401,13 +401,10 @@ page_fault_handler(struct Trapframe *tf)
       // Check if env allocated exception stack page and can write to it
       user_mem_assert(curenv, (void *)(UXSTACKTOP - PGSIZE), PGSIZE, PTE_W);
       
-      //cprintf("stack pos %08x\n", tf->tf_esp);
       // Check if we're already in the user exception stack
       if (tf->tf_esp >= (UXSTACKTOP - PGSIZE) && 
-       tf->tf_esp <= (UXSTACKTOP - 1)) {
+       tf->tf_esp <= (UXSTACKTOP - 1))
          utf = (void *)(tf->tf_esp - 4);   // Push a 32-bit scratch space
-         cprintf("In exception stack already\n");
-      }      
 
       // Simulate a "push" onto the user exception stack
       utf--; 
