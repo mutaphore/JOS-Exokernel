@@ -31,7 +31,6 @@ pgfault(struct UTrapframe *utf)
 	// page to the old page's address.
 	// Hint:
 	//   You should make three system calls.
-	//   No need to explicitly delete the old page's mapping.
 
 	// LAB 4: Your code here.
 
