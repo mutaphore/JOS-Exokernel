@@ -18,6 +18,8 @@ pgfault(struct UTrapframe *utf)
 	uint32_t err = utf->utf_err;
 	int r;
 
+   cprintf("in pgfault\n");
+
 	// Check that the faulting access was (1) a write, and (2) to a
 	// copy-on-write page.  If not, panic.
 	// Hint:
@@ -28,9 +30,11 @@ pgfault(struct UTrapframe *utf)
    
    pte_t ptEntry = uvpt[PGNUM(addr)];
    // Check for a write and to a copy-on-write page
-   if (!(err & FEC_WR && ptEntry & PTE_COW))
+   
+   if (!(err & FEC_WR && ptEntry & PTE_COW)) {
+      cprintf("addr: %08x err: %08x ptEntry: %08x\n", addr, err, ptEntry & PTE_COW);
       panic("Not a write and to a copy-on-write page");
-
+   }
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
 	// page to the old page's address.
@@ -73,20 +77,14 @@ duppage(envid_t envid, unsigned pn)
 
 	// LAB 4: Your code here.
 
-   pte_t ptEntry = uvpt[pn];
-   pde_t pdEntry = uvpd[PDX(pn * PGSIZE)];
    void *addr = (void *)(pn * PGSIZE);
-
-   if ((pdEntry & PTE_W || pdEntry & PTE_COW) && 
-       (ptEntry & PTE_W || ptEntry & PTE_COW)) {
-      // Map to new env COW
-      if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U)) < 0)
-         panic("duppage: sys_page_map to new env %e", r);
-      // Remap our own to COW
-      if ((r = sys_page_map(0, addr, 0, addr, PTE_COW | PTE_U)) < 0)
-         panic("duppage: sys_page_map for remap %e", r);
-   }
-   else if (pdEntry & PTE_P && ptEntry & PTE_P)
+   
+   // Map to new env COW and W
+   if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U | PTE_P)) < 0)
+      panic("duppage: sys_page_map to new env %e", r);
+   // Remap our own to COW and W
+   if ((r = sys_page_map(0, addr, 0, addr, PTE_COW | PTE_U | PTE_P)) < 0)
+      panic("duppage: sys_page_map for remap %e", r);
 
 	return 0;
 }
@@ -116,6 +114,8 @@ fork(void)
    uint32_t pn;
    void *addr;
    int r;
+   pte_t ptEntry;
+   pde_t pdEntry;
 
    // Set up our own page fault handler
    set_pgfault_handler(pgfault);
@@ -128,29 +128,43 @@ fork(void)
       // We're the child
       // Global var thisenv refers to the parent, fix it
       thisenv = &envs[ENVX(sys_getenvid())];
+      cprintf("Spawn child\n");
       return 0;
    }
    
    // We're the parent
-   // Copy address space below UTOP to child
-   for (pn = 0; pn < PGNUM(UTOP); pn++) {
-      
-      duppage(envid, pn);
-   }
    
-   // Create new page and copy page fault handler setup to child
+   //cprintf("Parent: going to map address space\n");
+   // Copy address space (not including exception stack) to child
+   for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
+      addr = (void *)(pn * PGSIZE);
+      pdEntry = uvpd[PDX(addr)]; 
+      if (pdEntry & PTE_P) {
+         ptEntry = uvpt[pn];
+         if (ptEntry & PTE_P && (ptEntry & PTE_W || ptEntry & PTE_COW))
+            duppage(envid, pn);
+         else if (ptEntry & PTE_P) {
+            // Handle pages that are present but not W or COW
+            if ((r = sys_page_map(0, addr, envid, addr, PTE_P | PTE_U)) < 0)
+               panic("duppage: sys_page_map to new env PTE_P %e", r);
+         }
+      }
+   }
+
+   //cprintf("Parent: going to insert xstack page\n");
+   // Create exception stack page for child
    addr = (void *)(UXSTACKTOP - PGSIZE);
    if ((r = sys_page_alloc(envid, addr, PTE_P | PTE_U | PTE_W)) < 0)
-      panic("fork: sys_page_alloc %e", r);
-   if ((r = sys_env_set_pgfault_upcall(envid, pgfault)) < 0)
-      panic("fork: sys_env_set_pgfault_upcall %e", r);
-
-   // Create normal stack page for child
-
+      panic("fork: sys_page_alloc UXSTACK %e", r);
    
+   //cprintf("Parent: going to set up pgfault handler\n");
+   // Set up the child's page fault handler
+   sys_env_set_pgfault_upcall(envid, thisenv->env_pgfault_upcall);
+   
+   //cprintf("Setting child to be runnable\n");
    // Set child to be runnable
    if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
-      panics("fork: sys_env_set_status %e", r);
+      panic("fork: sys_env_set_status %e", r);
 
    return envid;
 }

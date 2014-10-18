@@ -29,6 +29,7 @@ set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
 	if (_pgfault_handler == 0) {
 		// First time through!
 		// LAB 4: Your code here.
+
       // Get current env id
       envid_t envid = sys_getenvid();
       // Allocate exception stack page

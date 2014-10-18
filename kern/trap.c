@@ -358,7 +358,6 @@ page_fault_handler(struct Trapframe *tf)
 	// LAB 3: Your code here.
    // Check privilege level of CS reg for kernel mode
    if (!(tf->tf_cs & 3)) {
-      cprintf("Page fault address: %08x error code: %08x trapframe: %08x\n", fault_va, tf->tf_err, tf);
       panic("Page fault in kernel-mode!\n");
    }
 	// We've already handled kernel-mode exceptions, so if we get here,
@@ -407,11 +406,6 @@ page_fault_handler(struct Trapframe *tf)
       if (tf->tf_esp >= (UXSTACKTOP - PGSIZE) && 
        tf->tf_esp <= (UXSTACKTOP - 1))
          utf = (void *)(tf->tf_esp - 4);   // Push a 32-bit scratch space
-
-      int stk;
-      asm volatile("movl %%esp, %0" : "=r" (stk));
-      cprintf("trap.c utf is %08x\n", &(utf - 1)->utf_fault_va);
-      cprintf("trap.c esp is %08x\n", stk);
 
       // Simulate a "push" onto the user exception stack
       utf--; 
