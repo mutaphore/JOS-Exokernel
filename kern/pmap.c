@@ -464,7 +464,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 
       // Increment reference count
       pp->pp_ref++;
-      // Set pa and present bit in pd entry
+      // Set pa and present bit in pd entry (less strict)
       pa = page2pa(pp);
       *pdEntry = pa | PTE_P;
    }
@@ -548,14 +548,16 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 
    // Set perm for pde
    pdEntry = pgdir + PDX(va); 
-   *pdEntry &= ~0xFFF;  // Clear the lower bit flags 
-   *pdEntry = *pdEntry | perm | PTE_P;
+   // Clear the lower bit flags 
+   // *pdEntry &= ~0xFFF;  
+   // We make page dir entry perm more lenient
+   *pdEntry = *pdEntry | PTE_U | PTE_W | PTE_P;  
 
    pp->pp_ref++;  // Inc first so we don't delete same va
    page_remove(pgdir, va);
    pa = page2pa(pp);
    
-   // Set perm for pte
+   // Set perm for page table entry
    *ptEntry = pa | perm | PTE_P;
 
    return 0;
