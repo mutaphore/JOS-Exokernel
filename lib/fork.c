@@ -133,6 +133,7 @@ fork(void)
    for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
       addr = (void *)(pn * PGSIZE);
       pdEntry = uvpd[PDX(addr)]; 
+
       if (pdEntry & PTE_P) {
          ptEntry = uvpt[pn];
 

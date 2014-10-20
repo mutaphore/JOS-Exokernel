@@ -65,6 +65,7 @@ static const char *trapname(int trapno)
 	return "(unknown trap)";
 }
 
+// x86 Exceptions
 void DIVIDE();
 void DEBUG();
 void NMI();
@@ -85,6 +86,24 @@ void MCHK();
 void SIMDERR();
 void SYSCALL();
 
+// Hardware interrupts
+void IRQTIMER();
+void IRQKBD();
+void IRQ2();
+void IRQ3();
+void IRQSERIAL();
+void IRQ5();
+void IRQ6();
+void IRQSPURIOUS();
+void IRQ8();
+void IRQ9();
+void IRQ10();
+void IRQ11();
+void IRQ12();
+void IRQ13();
+void IRQIDE();
+void IRQERROR();
+
 void
 trap_init(void)
 {
@@ -93,27 +112,45 @@ trap_init(void)
 	// LAB 3: Your code here.
    
    // Standard Intel trap nos
-   SETGATE(idt[T_DIVIDE], 0, GD_KT, DIVIDE, 0); 
-   SETGATE(idt[T_DEBUG], 0, GD_KT, DEBUG, 0); 
-   SETGATE(idt[T_NMI], 0, GD_KT, NMI, 0); 
-   SETGATE(idt[T_BRKPT], 0, GD_KT, BRKPT, 3); // BRKPT is user
-   SETGATE(idt[T_OFLOW], 0, GD_KT, OFLOW, 0); 
-   SETGATE(idt[T_BOUND], 0, GD_KT, BOUND, 0); 
-   SETGATE(idt[T_ILLOP], 0, GD_KT, ILLOP, 0); 
-   SETGATE(idt[T_DEVICE], 0, GD_KT, DEVICE, 0); 
-   SETGATE(idt[T_DBLFLT], 0, GD_KT, DBLFLT, 0); 
-   SETGATE(idt[T_TSS], 0, GD_KT, TSS, 0); 
-   SETGATE(idt[T_SEGNP], 0, GD_KT, SEGNP, 0); 
-   SETGATE(idt[T_STACK], 0, GD_KT, STACK, 0); 
-   SETGATE(idt[T_GPFLT], 0, GD_KT, GPFLT, 0); 
-   SETGATE(idt[T_PGFLT], 0, GD_KT, PGFLT, 0); 
-   SETGATE(idt[T_FPERR], 0, GD_KT, FPERR, 0); 
-   SETGATE(idt[T_ALIGN], 0, GD_KT, ALIGN, 0); 
-   SETGATE(idt[T_MCHK], 0, GD_KT, MCHK, 0); 
-   SETGATE(idt[T_SIMDERR], 0, GD_KT, SIMDERR, 0); 
+   SETGATE(idt[T_DIVIDE], 1, GD_KT, DIVIDE, 0); 
+   SETGATE(idt[T_DEBUG], 1, GD_KT, DEBUG, 0); 
+   SETGATE(idt[T_NMI], 1, GD_KT, NMI, 0); 
+   SETGATE(idt[T_BRKPT], 1, GD_KT, BRKPT, 3); // BRKPT is user
+   SETGATE(idt[T_OFLOW], 1, GD_KT, OFLOW, 0); 
+   SETGATE(idt[T_BOUND], 1, GD_KT, BOUND, 0); 
+   SETGATE(idt[T_ILLOP], 1, GD_KT, ILLOP, 0); 
+   SETGATE(idt[T_DEVICE], 1, GD_KT, DEVICE, 0); 
+   SETGATE(idt[T_DBLFLT], 1, GD_KT, DBLFLT, 0); 
+   SETGATE(idt[T_TSS], 1, GD_KT, TSS, 0); 
+   SETGATE(idt[T_SEGNP], 1, GD_KT, SEGNP, 0); 
+   SETGATE(idt[T_STACK], 1, GD_KT, STACK, 0); 
+   SETGATE(idt[T_GPFLT], 1, GD_KT, GPFLT, 0); 
+   SETGATE(idt[T_PGFLT], 1, GD_KT, PGFLT, 0); 
+   SETGATE(idt[T_FPERR], 1, GD_KT, FPERR, 0); 
+   SETGATE(idt[T_ALIGN], 1, GD_KT, ALIGN, 0); 
+   SETGATE(idt[T_MCHK], 1, GD_KT, MCHK, 0); 
+   SETGATE(idt[T_SIMDERR], 1, GD_KT, SIMDERR, 0); 
    
-   // System call (user space)
-   SETGATE(idt[T_SYSCALL], 0, GD_KT, SYSCALL, 3);
+   // System calls
+   SETGATE(idt[T_SYSCALL], 1, GD_KT, SYSCALL, 3);
+
+   // IRQs (CPU doesn't check gate DPL)
+   SETGATE(idt[IRQ_OFFSET + IRQ_TIMER], 0, GD_KT, IRQTIMER, 0);
+   SETGATE(idt[IRQ_OFFSET + IRQ_KBD], 0, GD_KT, IRQKBD, 3);
+   SETGATE(idt[IRQ_OFFSET + 2], 0, GD_KT, IRQ2, 3);
+   SETGATE(idt[IRQ_OFFSET + 3], 0, GD_KT, IRQ3, 3);
+   SETGATE(idt[IRQ_OFFSET + IRQ_SERIAL], 0, GD_KT, IRQSERIAL, 3);
+   SETGATE(idt[IRQ_OFFSET + 5], 0, GD_KT, IRQ5, 3);
+   SETGATE(idt[IRQ_OFFSET + 6], 0, GD_KT, IRQ6, 3);
+   SETGATE(idt[IRQ_OFFSET + IRQ_SPURIOUS], 0, GD_KT, IRQSPURIOUS, 3);
+   SETGATE(idt[IRQ_OFFSET + 8], 0, GD_KT, IRQ8, 3);
+   SETGATE(idt[IRQ_OFFSET + 9], 0, GD_KT, IRQ9, 3);
+   SETGATE(idt[IRQ_OFFSET + 10], 0, GD_KT, IRQ10, 3);
+   SETGATE(idt[IRQ_OFFSET + 11], 0, GD_KT, IRQ11, 3);
+   SETGATE(idt[IRQ_OFFSET + 12], 0, GD_KT, IRQ12, 3);
+   SETGATE(idt[IRQ_OFFSET + 13], 0, GD_KT, IRQ13, 3);
+   SETGATE(idt[IRQ_OFFSET + IRQ_IDE], 0, GD_KT, IRQIDE, 3);
+   SETGATE(idt[IRQ_OFFSET + IRQ_ERROR], 0, GD_KT, IRQERROR, 3);
 
 	// Per-CPU setup 
 	trap_init_percpu();
@@ -236,6 +273,8 @@ trap_dispatch(struct Trapframe *tf)
 	// LAB 3: Your code here.
    int32_t ret;
 
+   cprintf("Trap dispatch %d\n", tf->tf_trapno);
+
    switch (tf->tf_trapno) {
    case T_DEBUG:  // Single stepping through an instruction
    case T_BRKPT:
@@ -259,7 +298,7 @@ trap_dispatch(struct Trapframe *tf)
       break; 
    }
    
-
+   cprintf("here\n");
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
@@ -290,6 +329,8 @@ trap(struct Trapframe *tf)
 	// of GCC rely on DF being clear
 	asm volatile("cld" ::: "cc");
 
+   cprintf("Trapped\n");
+   
 	// Halt the CPU if some other CPU has called panic()
 	extern char *panicstr;
 	if (panicstr)
