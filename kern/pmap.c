@@ -549,8 +549,10 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
    // Set perm for pde
    pdEntry = pgdir + PDX(va); 
    // Clear the lower bit flags 
-   // *pdEntry &= ~0xFFF;  
-   // We make page dir entry perm more lenient
+   //*pdEntry &= ~0xFFF;  
+   //*pdEntry = *pdEntry | perm | PTE_P;  
+
+   // We make page dir entry permissions more lenient
    *pdEntry = *pdEntry | PTE_U | PTE_W | PTE_P;  
 
    pp->pp_ref++;  // Inc first so we don't delete same va
@@ -705,16 +707,20 @@ int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
 	// LAB 3: Your code here.
-   uint32_t cur_va = (uint32_t)va;
+   uintptr_t cur_va = (uintptr_t)va;
    pte_t *ptEntry;
 
-   for (; cur_va < (uint32_t)va + len; cur_va++) {
-      // Check if address is below ULIM and page table exists
-      if (cur_va >= ULIM || 
-          !(ptEntry = pgdir_walk(env->env_pgdir, (void *)cur_va, 0))) {
-         user_mem_check_addr = cur_va;
+   for (; cur_va < (uintptr_t)va + len; cur_va++) {
+      user_mem_check_addr = cur_va;
+      // Check if address is below ULIM
+      if (cur_va >= ULIM)
          return -E_FAULT;
-      }
+      // Check if page exists
+      if (!page_lookup(env->env_pgdir, (void *)cur_va, &ptEntry))
+         return -E_FAULT;
+      // Check permissions
+      if (!(*ptEntry & (perm | PTE_P)))
+         return -E_FAULT;
    }
 	return 0;
 }

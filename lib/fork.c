@@ -74,7 +74,6 @@ duppage(envid_t envid, unsigned pn)
 	// LAB 4: Your code here.
 
    void *addr = (void *)(pn * PGSIZE);
-   
    // Map to new env COW
    if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U | PTE_P)) < 0)
       panic("duppage: sys_page_map to new env %e", r);
@@ -122,42 +121,39 @@ fork(void)
       panic("sys_exofork: %e", envid);
    if (envid == 0) {
       // We're the child
+
       // Global var thisenv refers to the parent, fix it
       thisenv = &envs[ENVX(sys_getenvid())];
-      cprintf("Spawn child\n");
       return 0;
    }
    
    // We're the parent
    
-   //cprintf("Parent: going to map address space\n");
    // Copy address space (not including exception stack) to child
    for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
       addr = (void *)(pn * PGSIZE);
       pdEntry = uvpd[PDX(addr)]; 
       if (pdEntry & PTE_P) {
          ptEntry = uvpt[pn];
+
          if (ptEntry & PTE_P && (ptEntry & PTE_W || ptEntry & PTE_COW))
             duppage(envid, pn);
          else if (ptEntry & PTE_P) {
-            // Handle pages that are present but not W or COW
+            // Just directly map pages that are present but not W or COW
             if ((r = sys_page_map(0, addr, envid, addr, PTE_P | PTE_U)) < 0)
                panic("duppage: sys_page_map to new env PTE_P %e", r);
          }
       }
    }
 
-   //cprintf("Parent: going to insert xstack page\n");
    // Create exception stack page for child
    addr = (void *)(UXSTACKTOP - PGSIZE);
    if ((r = sys_page_alloc(envid, addr, PTE_P | PTE_U | PTE_W)) < 0)
       panic("fork: sys_page_alloc UXSTACK %e", r);
    
-   //cprintf("Parent: going to set up pgfault handler\n");
    // Set up the child's page fault handler
    sys_env_set_pgfault_upcall(envid, thisenv->env_pgfault_upcall);
    
-   //cprintf("Setting child to be runnable\n");
    // Set child to be runnable
    if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
       panic("fork: sys_env_set_status %e", r);
