@@ -13,8 +13,6 @@ sched_yield(void)
 {
 	struct Env *idle;
 
-   cprintf("Yield\n");
-
 	// Implement simple round-robin scheduling.
 	//
 	// Search through 'envs' for an ENV_RUNNABLE environment in
@@ -32,31 +30,25 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
-   struct Env *env = envs;
-   struct Env *prev = curenv;
-   uint8_t hasPrev = 0;
+   int envx = 0;
+   int penvx = 0;
    
    // Check if there is a currently running environment
    if (curenv) {
-      env += (curenv - envs + 1) % NENV;   // Wrap around
-      prev = curenv;    // Set prev to curenv to use later
-      hasPrev = 1;
+      envx = (ENVX(curenv->env_id) + 1) % NENV;  // Wrap around
+      penvx = ENVX(curenv->env_id); // Previous index    
    }
    
    do {
-      //cprintf("Looking for env to run \n");
-      if (env->env_status == ENV_RUNNABLE) {
-         cprintf("Found env %08x runnable\n", env->env_id);
-         //assert(read_eflags() & FL_IF);
-         env_run(env);  // env_run doesn't return
-      }
-      if (++env >= envs + NENV)
-         env = envs;    // Wrap around if reached the end
-   } while (env != prev);
+      if (envs[envx].env_status == ENV_RUNNABLE)
+         env_run(envs + envx);  // env_run doesn't return
+      if (++envx >= NENV)
+         envx = 0;    // Wrap around if reached the end
+   } while (envx != penvx);
 
    // No envs are runnable, if there was a prev env just run it
-   if (hasPrev && prev->env_status == ENV_RUNNING)
-      env_run(prev);
+   if (envs[penvx].env_status == ENV_RUNNING)
+      env_run(envs + penvx);
 
 	// sched_halt never returns
 	sched_halt();

@@ -273,7 +273,6 @@ trap_dispatch(struct Trapframe *tf)
 	// LAB 3: Your code here.
    int32_t ret;
 
-
    switch (tf->tf_trapno) {
    case T_DEBUG:  // Single stepping through an instruction
    case T_BRKPT:
@@ -292,12 +291,12 @@ trap_dispatch(struct Trapframe *tf)
                     tf->tf_regs.reg_esi);
       // Now put return val in the expected eax register
       tf->tf_regs.reg_eax = ret;
+      cprintf("returning %08x\n", ret);
       return;
    default:
       break; 
    }
    
-   cprintf("here\n");
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
@@ -310,6 +309,10 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle clock interrupts. Don't forget to acknowledge the
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
+   if (tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER) {
+      lapic_eoi(); 
+      sched_yield();
+   }
 
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);

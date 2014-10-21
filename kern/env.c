@@ -100,7 +100,7 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 		*env_store = 0;
 		return -E_BAD_ENV;
 	}
-
+   cprintf("---1\n");
 	// Check that the calling environment has legitimate permission
 	// to manipulate the specified environment.
 	// If checkperm is set, the specified environment
@@ -110,6 +110,7 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 		*env_store = 0;
 		return -E_BAD_ENV;
 	}
+   cprintf("---2\n");
 
 	*env_store = e;
 	return 0;
@@ -532,7 +533,6 @@ env_pop_tf(struct Trapframe *tf)
 	// Record the CPU we are running on for user-space debugging
 	curenv->env_cpunum = cpunum();
 
-
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
 		"\tpopl %%es\n"
@@ -572,7 +572,7 @@ env_run(struct Env *e)
 
 	// LAB 3: Your code here.
 
-   if (curenv && curenv->env_status == ENV_RUNNING)
+   if (curenv && (curenv->env_status == ENV_RUNNING))
       curenv->env_status = ENV_RUNNABLE;
         
    curenv = e; 

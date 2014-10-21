@@ -28,9 +28,10 @@ pgfault(struct UTrapframe *utf)
    
    pte_t ptEntry = uvpt[PGNUM(addr)];
    // Check for a write and to a copy-on-write page
-   if (!(err & FEC_WR && ptEntry & PTE_COW))
+   if (!(err & FEC_WR && ptEntry & PTE_COW)) {
+      cprintf("err %08x COW %d\n", err, ptEntry & PTE_COW);
       panic("Not a write and to a copy-on-write page");
-
+   }
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
 	// page to the old page's address.
@@ -129,6 +130,7 @@ fork(void)
    
    // We're the parent
    
+   cprintf("Map address space\n");
    // Copy address space (not including exception stack) to child
    for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
       addr = (void *)(pn * PGSIZE);
@@ -147,17 +149,22 @@ fork(void)
       }
    }
 
+   cprintf("Create uxstack\n");
    // Create exception stack page for child
    addr = (void *)(UXSTACKTOP - PGSIZE);
    if ((r = sys_page_alloc(envid, addr, PTE_P | PTE_U | PTE_W)) < 0)
       panic("fork: sys_page_alloc UXSTACK %e", r);
    
+   cprintf("Set up pf handler\n");
    // Set up the child's page fault handler
    sys_env_set_pgfault_upcall(envid, thisenv->env_pgfault_upcall);
    
+   cprintf("Set child runnable\n");
    // Set child to be runnable
    if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
       panic("fork: sys_env_set_status %e", r);
+  
+   cprintf("Done setting runnable\n");
 
    return envid;
 }

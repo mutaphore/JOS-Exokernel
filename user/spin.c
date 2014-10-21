@@ -9,7 +9,6 @@ umain(int argc, char **argv)
 {
 	envid_t env;
 
-   //assert(read_eflags() & FL_IF);
 	cprintf("I am the parent.  Forking the child...\n");
 	if ((env = fork()) == 0) {
 		cprintf("I am the child.  Spinning...\n");
