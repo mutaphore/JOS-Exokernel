@@ -271,6 +271,10 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	e->env_tf.tf_cs = GD_UT | 3;
 	// You will set e->env_tf.tf_eip later.
 
+	// Enable interrupts while in user mode.
+	// LAB 4: Your code here.
+   e->env_tf.tf_eflags |= FL_IF;
+
 	// Clear the page fault handler until user installs one.
 	e->env_pgfault_upcall = 0;
 
@@ -282,13 +286,6 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	*newenv_store = e;
 
 	cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
-
-
-	// Enable interrupts while in user mode.
-	// LAB 4: Your code here.
-   assert(!(read_eflags() & FL_IF));
-   asm volatile ("sti");
-   assert(read_eflags() & FL_IF);
 
 	return 0;
 }
@@ -442,7 +439,7 @@ env_create(uint8_t *binary, enum EnvType type)
    e->env_type = type;
    load_icode(e, binary); 
 
-   assert(read_eflags() & FL_IF);
+   //assert(read_eflags() & FL_IF);
 }
 
 //
@@ -534,6 +531,7 @@ env_pop_tf(struct Trapframe *tf)
 {
 	// Record the CPU we are running on for user-space debugging
 	curenv->env_cpunum = cpunum();
+
 
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"

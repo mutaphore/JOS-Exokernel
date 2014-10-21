@@ -324,7 +324,7 @@ trap_dispatch(struct Trapframe *tf)
 void
 trap(struct Trapframe *tf)
 {
-   cprintf("Trap %d eip %08x eflags %d\n", tf->tf_trapno, tf->tf_eip, read_eflags() & FL_IF);
+   //cprintf("Trap %d eip %08x eflags %d\n", tf->tf_trapno, tf->tf_eip, read_eflags() & FL_IF);
 
 	// The environment may have set DF and some versions
 	// of GCC rely on DF being clear

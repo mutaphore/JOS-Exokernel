@@ -43,19 +43,16 @@ sched_yield(void)
       hasPrev = 1;
    }
    
-   assert(read_eflags() & FL_IF);
-
    do {
-      cprintf("Looking for env to run \n");
+      //cprintf("Looking for env to run \n");
       if (env->env_status == ENV_RUNNABLE) {
          cprintf("Found env %08x runnable\n", env->env_id);
+         //assert(read_eflags() & FL_IF);
          env_run(env);  // env_run doesn't return
       }
       if (++env >= envs + NENV)
          env = envs;    // Wrap around if reached the end
    } while (env != prev);
-
-   cprintf("No envs runnable\n");
 
    // No envs are runnable, if there was a prev env just run it
    if (hasPrev && prev->env_status == ENV_RUNNING)
