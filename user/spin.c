@@ -2,12 +2,14 @@
 // Let it run for a couple time slices, then kill it.
 
 #include <inc/lib.h>
+#include <inc/x86.h>
 
 void
 umain(int argc, char **argv)
 {
 	envid_t env;
 
+   //assert(read_eflags() & FL_IF);
 	cprintf("I am the parent.  Forking the child...\n");
 	if ((env = fork()) == 0) {
 		cprintf("I am the child.  Spinning...\n");

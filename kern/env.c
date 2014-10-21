@@ -283,10 +283,12 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 
 	cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
+
 	// Enable interrupts while in user mode.
 	// LAB 4: Your code here.
-
+   assert(!(read_eflags() & FL_IF));
    asm volatile ("sti");
+   assert(read_eflags() & FL_IF);
 
 	return 0;
 }
@@ -418,7 +420,6 @@ load_icode(struct Env *e, uint8_t *binary)
 
    // Save eip and eflags values to pop off later by IRET
    e->env_tf.tf_eip = elfh->e_entry;
-   e->env_tf.tf_eflags = elfh->e_flags;
 }
 
 //
@@ -440,6 +441,8 @@ env_create(uint8_t *binary, enum EnvType type)
 
    e->env_type = type;
    load_icode(e, binary); 
+
+   assert(read_eflags() & FL_IF);
 }
 
 //
@@ -531,8 +534,6 @@ env_pop_tf(struct Trapframe *tf)
 {
 	// Record the CPU we are running on for user-space debugging
 	curenv->env_cpunum = cpunum();
-
-   //cprintf("in poptf esp %08x\n", tf->tf_esp);
 
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
