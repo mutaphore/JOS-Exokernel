@@ -12,7 +12,7 @@ void
 sched_yield(void)
 {
 	struct Env *idle;
-
+   
 	// Implement simple round-robin scheduling.
 	//
 	// Search through 'envs' for an ENV_RUNNABLE environment in
@@ -47,7 +47,7 @@ sched_yield(void)
    } while (envx != penvx);
 
    // No envs are runnable, if there was a prev env just run it
-   if (envs[penvx].env_status == ENV_RUNNING)
+   if (envs[penvx].env_status == ENV_RUNNING && envs[penvx].env_cpunum == cpunum())
       env_run(envs + penvx);
 
 	// sched_halt never returns

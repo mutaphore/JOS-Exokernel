@@ -98,9 +98,9 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	e = &envs[ENVX(envid)];
 	if (e->env_status == ENV_FREE || e->env_id != envid) {
 		*env_store = 0;
+      cprintf("DEBUG -- env id problem status %d e->env_id %08x envid %08x\n", e->env_status, e->env_id, envid);
 		return -E_BAD_ENV;
 	}
-   cprintf("---1\n");
 	// Check that the calling environment has legitimate permission
 	// to manipulate the specified environment.
 	// If checkperm is set, the specified environment
@@ -108,9 +108,9 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	// or an immediate child of the current environment.
 	if (checkperm && e != curenv && e->env_parent_id != curenv->env_id) {
 		*env_store = 0;
+      cprintf("DEBUG -- bad env caused by checkperm\n");
 		return -E_BAD_ENV;
 	}
-   cprintf("---2\n");
 
 	*env_store = e;
 	return 0;

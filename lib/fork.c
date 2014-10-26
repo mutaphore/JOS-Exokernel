@@ -130,7 +130,6 @@ fork(void)
    
    // We're the parent
    
-   cprintf("Map address space\n");
    // Copy address space (not including exception stack) to child
    for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
       addr = (void *)(pn * PGSIZE);
@@ -149,23 +148,18 @@ fork(void)
       }
    }
 
-   cprintf("Create uxstack\n");
    // Create exception stack page for child
    addr = (void *)(UXSTACKTOP - PGSIZE);
    if ((r = sys_page_alloc(envid, addr, PTE_P | PTE_U | PTE_W)) < 0)
       panic("fork: sys_page_alloc UXSTACK %e", r);
    
-   cprintf("Set up pf handler\n");
    // Set up the child's page fault handler
    sys_env_set_pgfault_upcall(envid, thisenv->env_pgfault_upcall);
    
-   cprintf("Set child runnable\n");
    // Set child to be runnable
    if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
       panic("fork: sys_env_set_status %e", r);
   
-   cprintf("Done setting runnable\n");
-
    return envid;
 }
 
