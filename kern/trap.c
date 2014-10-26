@@ -291,7 +291,6 @@ trap_dispatch(struct Trapframe *tf)
                     tf->tf_regs.reg_esi);
       // Now put return val in the expected eax register
       tf->tf_regs.reg_eax = ret;
-      cprintf("returning %08x\n", ret);
       return;
    default:
       break; 
