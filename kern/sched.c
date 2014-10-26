@@ -30,24 +30,24 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
-   int envx = 0;
-   int penvx = 0;
+   uint32_t envx = 0, penvx = 0;
    
    // Check if there is a currently running environment
    if (curenv) {
-      envx = (ENVX(curenv->env_id) + 1) % NENV;  // Wrap around
-      penvx = ENVX(curenv->env_id); // Previous index    
+      envx = (ENVX(curenv->env_id) + 1) % NENV;
+      penvx = ENVX(curenv->env_id); 
    }
    
    do {
       if (envs[envx].env_status == ENV_RUNNABLE)
-         env_run(envs + envx);  // env_run doesn't return
+         env_run(envs + envx);  // Found a runnable env
       if (++envx >= NENV)
-         envx = 0;    // Wrap around if reached the end
+         envx = 0;    // Wrap around when we reached the end
    } while (envx != penvx);
 
-   // No envs are runnable, if there was a prev env just run it
-   if (envs[penvx].env_status == ENV_RUNNING && envs[penvx].env_cpunum == cpunum())
+   // No envs are runnable, if there was a prev env on this CPU just run it
+   if (envs[penvx].env_status == ENV_RUNNING &&
+    envs[penvx].env_cpunum == cpunum())
       env_run(envs + penvx);
 
 	// sched_halt never returns
