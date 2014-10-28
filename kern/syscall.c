@@ -349,7 +349,12 @@ static int
 sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
 	// LAB 4: Your code here.
-	panic("sys_ipc_try_send not implemented");
+   // Check if srcva is below UTOP and page aligned
+   if ((uintptr_t)srcva >= UTOP || (uintptr_t)srcva & 0xFFF)
+      return -E_INVAL;
+   if (srcva
+
+   
 }
 
 // Block until a value is ready.  Record that you want to receive
@@ -415,6 +420,12 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_page_unmap:
       ret = sys_page_unmap((envid_t)a1, (void *)a2);
+      break;
+   case SYS_ipc_try_send:
+      ret = sys_ipc_try_send((envid_t)a1, (uint32_t)a2, (void *)a3, (unsigned)a4);
+      break;
+   case SYS_ipc_recv:
+      ret = sys_ipc_recv((void *)a1);
       break;
    default:
 		return -E_INVAL;
