@@ -289,7 +289,7 @@ trap_dispatch(struct Trapframe *tf)
                     tf->tf_regs.reg_ebx,
                     tf->tf_regs.reg_edi,
                     tf->tf_regs.reg_esi);
-      // Now put return val in the expected eax register
+      // Put return val in the eax register on trap frame
       tf->tf_regs.reg_eax = ret;
       return;
    default:

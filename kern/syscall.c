@@ -391,6 +391,7 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
    }
 
    // Mark the target env runnable again
+   e->env_status = ENV_RUNNABLE;
 
    return 0;
 }
@@ -410,7 +411,18 @@ static int
 sys_ipc_recv(void *dstva)
 {
 	// LAB 4: Your code here.
-	panic("sys_ipc_recv not implemented");
+   
+   curenv->env_ipc_recving = 1;
+   
+   if ((uintptr_t)dstva < UTOP) {
+      if (!((uintptr_t)dstva & 0xFFF))
+         return -E_INVAL; 
+      curenv->env_ipc_dstva = dstva;
+   } 
+   
+   // Mark this env not runnable and pass to scheduler in trap()   
+   curenv->env_status = ENV_NOT_RUNNABLE; 
+
 	return 0;
 }
 
