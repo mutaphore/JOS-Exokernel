@@ -349,12 +349,50 @@ static int
 sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
 	// LAB 4: Your code here.
-   // Check if srcva is below UTOP and page aligned
-   if ((uintptr_t)srcva >= UTOP || (uintptr_t)srcva & 0xFFF)
-      return -E_INVAL;
-   if (srcva
 
-   
+   struct PageInfo *page;
+   pte_t *ptEntry;
+   struct Env *e;
+   int error;
+
+   // Get the env struct (NOT checking permissions)
+   if ((error = envid2env(envid, &e, 0)) < 0)
+      return error;
+   // See if the destination env is blocked
+   if (!e->env_ipc_recving)
+      return -E_IPC_NOT_RECV;   
+
+   // Block other threads from sending
+   e->env_ipc_recving = 0;
+   e->env_ipc_from = curenv->env_id;
+   // Send the value
+   e->env_ipc_value = value;
+   e->env_ipc_perm = 0;
+
+   // Check if both src and dst agree that a page is to be transferred
+   if ((uintptr_t)srcva < UTOP && (uintptr_t)e->env_ipc_dstva < UTOP) {
+      // Check if we're page aligned
+      if ((uintptr_t)srcva & 0xFFF)
+         return -E_INVAL;
+      // Check if the permission bits are valid
+      if (!(perm & (PTE_U | PTE_P)) || perm & ~PTE_SYSCALL)
+         return -E_INVAL;
+      // Check if srcva is mapped in current env's address space 
+      if (!(page = page_lookup(curenv->env_pgdir, srcva, &ptEntry)))
+         return -E_INVAL;
+      // Check if entry at srcva is read-only
+      if (perm & PTE_W && !(*ptEntry & PTE_W))
+         return -E_INVAL;
+      // Map the page
+      if ((error = page_insert(e->env_pgdir, page, e->env_ipc_dstva, perm)) < 0)
+         return error;    
+
+      e->env_ipc_perm = perm;
+   }
+
+   // Mark the target env runnable again
+
+   return 0;
 }
 
 // Block until a value is ready.  Record that you want to receive
