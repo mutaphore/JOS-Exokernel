@@ -29,7 +29,7 @@ pgfault(struct UTrapframe *utf)
    pte_t ptEntry = uvpt[PGNUM(addr)];
    // Check for a write and to a copy-on-write page
    if (!(err & FEC_WR && ptEntry & PTE_COW)) {
-      cprintf("err %08x COW %d\n", err, ptEntry & PTE_COW);
+      cprintf("addr %08x err %08x COW? %d\n", addr, err, ptEntry & PTE_COW);
       panic("Not a write and to a copy-on-write page");
    }
 	// Allocate a new page, map it at a temporary location (PFTEMP),
@@ -159,7 +159,7 @@ fork(void)
    // Set child to be runnable
    if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0) 
       panic("fork: sys_env_set_status %e", r);
-  
+
    return envid;
 }
 

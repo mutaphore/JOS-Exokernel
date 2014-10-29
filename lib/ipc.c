@@ -60,15 +60,29 @@ ipc_send(envid_t to_env, uint32_t val, void *pg, int perm)
 {
 	// LAB 4: Your code here.
 
+   int error = 0;
    void *srcva = pg;
 
    if (pg == NULL)
       srcva = (void *)UTOP;   // Not sending a page, use an invalid addr
 
+   // Keep trying until ipc succeeds or error
    while (1) {
-      if (sys_ipc_try_send(to_env, val, srcva, perm) == -E_IPC_NOT_RECV)
-         
-   }
+      if ((error = sys_ipc_try_send(to_env, val, srcva, perm)) < 0) {
+         if (error == -E_IPC_NOT_RECV) {
+            cprintf("yielded\n");
+            sys_env_set_status(0, ENV_RUNNABLE);
+            sys_yield();   // Come back later and try again
+         }
+         else {
+            panic("ipc_send: %e", error);
+         }
+      }
+      else
+         break;
+   }  
+   
+   return;
 }
 
 // Find the first environment of the given type.  We'll use this to

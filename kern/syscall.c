@@ -360,7 +360,7 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
       return error;
    // See if the destination env is blocked
    if (!e->env_ipc_recving)
-      return -E_IPC_NOT_RECV;   
+      return -E_IPC_NOT_RECV;
 
    // Block other threads from sending
    e->env_ipc_recving = 0;
@@ -419,9 +419,14 @@ sys_ipc_recv(void *dstva)
          return -E_INVAL; 
       curenv->env_ipc_dstva = dstva;
    } 
-   
-   // Mark this env not runnable and pass to scheduler in trap()   
+
+   // Simulate a 0 return value sometime in the future
+   curenv->env_tf.tf_regs.reg_eax = 0;
+  
+//   cprintf("Going to block in recv\n"); 
+   // Block this env
    curenv->env_status = ENV_NOT_RUNNABLE; 
+   sched_yield();
 
 	return 0;
 }

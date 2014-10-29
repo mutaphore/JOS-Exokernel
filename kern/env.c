@@ -582,7 +582,7 @@ env_run(struct Env *e)
    
    // Unlock kernel before switching back to user mode
    unlock_kernel();
-   
+
    // Pop registers back to user env and execute there
    env_pop_tf(&curenv->env_tf);
 }
