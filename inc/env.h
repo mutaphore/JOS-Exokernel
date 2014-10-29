@@ -45,7 +45,7 @@ enum EnvType {
 
 // Scheduling Priorities
 enum EnvPriority {
-   ENV_PR_HIGHEST = 0,
+   ENV_PR_HIGHEST = 1,
    ENV_PR_HIGH,
    ENV_PR_MEDIUM,
    ENV_PR_LOW,
@@ -77,7 +77,6 @@ struct Env {
 
    // Challenge: Fixed priority scheduling
    enum EnvPriority env_priority;
-   
 };
 
 #endif // !JOS_INC_ENV_H
