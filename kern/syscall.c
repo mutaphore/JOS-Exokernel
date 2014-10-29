@@ -423,7 +423,6 @@ sys_ipc_recv(void *dstva)
    // Simulate a 0 return value sometime in the future
    curenv->env_tf.tf_regs.reg_eax = 0;
   
-//   cprintf("Going to block in recv\n"); 
    // Block this env
    curenv->env_status = ENV_NOT_RUNNABLE; 
    sched_yield();

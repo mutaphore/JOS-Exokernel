@@ -70,13 +70,11 @@ ipc_send(envid_t to_env, uint32_t val, void *pg, int perm)
    while (1) {
       if ((error = sys_ipc_try_send(to_env, val, srcva, perm)) < 0) {
          if (error == -E_IPC_NOT_RECV) {
-            cprintf("yielded\n");
-            sys_env_set_status(0, ENV_RUNNABLE);
+            //sys_env_set_status(0, ENV_RUNNABLE);
             sys_yield();   // Come back later and try again
          }
-         else {
+         else
             panic("ipc_send: %e", error);
-         }
       }
       else
          break;
