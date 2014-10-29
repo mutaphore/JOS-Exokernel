@@ -43,6 +43,15 @@ enum EnvType {
 	ENV_TYPE_USER = 0,
 };
 
+// Scheduling Priorities
+enum EnvPriority {
+   ENV_PR_HIGHEST = 0,
+   ENV_PR_HIGH,
+   ENV_PR_MEDIUM,
+   ENV_PR_LOW,
+   ENV_PR_LOWEST
+}
+
 struct Env {
 	struct Trapframe env_tf;	// Saved registers
 	struct Env *env_link;		// Next free Env
@@ -65,6 +74,10 @@ struct Env {
 	uint32_t env_ipc_value;		// Data value sent to us
 	envid_t env_ipc_from;		// envid of the sender
 	int env_ipc_perm;		// Perm of page mapping received
+
+   // Challenge: Fixed priority scheduling
+   enum EnvPriority env_priority;
+   
 };
 
 #endif // !JOS_INC_ENV_H

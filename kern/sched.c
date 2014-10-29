@@ -11,8 +11,6 @@ void sched_halt(void);
 void
 sched_yield(void)
 {
-	struct Env *idle;
-   
 	// Implement simple round-robin scheduling.
 	//
 	// Search through 'envs' for an ENV_RUNNABLE environment in
