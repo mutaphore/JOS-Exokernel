@@ -415,8 +415,8 @@ sys_ipc_recv(void *dstva)
    curenv->env_ipc_recving = 1;
    
    if ((uintptr_t)dstva < UTOP) {
-      if (!((uintptr_t)dstva & 0xFFF))
-         return -E_INVAL; 
+      if ((uintptr_t)dstva & 0xFFF)
+         return -E_INVAL;
       curenv->env_ipc_dstva = dstva;
    } 
 
