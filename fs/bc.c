@@ -41,7 +41,7 @@ bc_pgfault(struct UTrapframe *utf)
    // Create a new page
    if ((error = sys_page_alloc(0, algn_addr, PTE_W | PTE_U | PTE_P)) < 0)
       panic("bc_pgfault: sys_page_alloc %e", error);
-   // Read block from disk
+   // Read block from disk and insert into page
    if ((error = ide_read(secno, algn_addr, PGSIZE / SECTSIZE)) < 0)
       panic("bc_pgfault: ide_read %d", error);
 }
