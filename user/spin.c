@@ -2,6 +2,7 @@
 // Let it run for a couple time slices, then kill it.
 
 #include <inc/lib.h>
+#include <inc/x86.h>
 
 void
 umain(int argc, char **argv)

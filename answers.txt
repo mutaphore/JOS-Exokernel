@@ -1,0 +1,108 @@
+Dewei Chen
+dc3186
+
+Lab 4A
+------
+1)
+When the BP runs boot.S, the linker encoded link addresses of variables into the binary to be the same
+as where it was actually loaded into memory. In other words, the link address is equal to load address
+because it was specified in the elf. However, when the AP is running, the linker did not set up those 
+link addresses correctly with respect to where it was actually loaded (at MPENTRY_PADDR). The link and
+load addresses are different. Therefore, the AP have to compute the addresses of variables used in 
+mpentry.S directly using macro MPBOOTPHYS. If we did not have the macro the memory references would 
+refer to some other place in memory that we do not want.
+
+2)
+One scenario where having shared stack for multiple CPUs will be problematic is when the CPUs trap 
+simultaneously into the kernel. Although we have a lock in place at the trap() function, in trapentry.S 
+(before the kernel is locked) it is possible for multiple kernels to push registers with different 
+values to the same stack. This will result in a "corrupted" state saved in the environment's trapframe.
+Upon finishing the handler for a trap on one of the CPUs, it may pop back some unexpected values
+for on return that was "leaked" from another CPU's state.
+
+3)
+Pointer e can be dereferenced before and after switching an address space because the environment structs
+are allocated above UENV/UTOP. All mapping above UTOP is copied across all processes and is consistent except
+for the page table at UVPT. Therefore, referring to e in one address space versus another gives us the same 
+physical address in memory in the end.
+
+4)
+When the user program calls sys_yield, it generates an interrupt to the kernel via T_SYSCALL. The "int"
+instruction is performed which causes the CPU to push the current environment's registers (state) onto the 
+stack and then later saved into the trapframe for this environment by trap.c/trap(). This is needed because 
+later when returning to this environment, env_pop_tf pops whats in the trapframe back to the stack so the CPU
+can return to the last instruction it was executing before it was interrupted.
+
+Lab 4C
+------
+Challenge:
+
+For the challenge task, I implemented a fixed priority scheduler in place of the original round-robin scheduler.
+In order to change priorities of applications in user space, I added an additional system call sys_env_set_priority
+that allows the user program to change it's own priority (or it's children). There are 5 different priority levels
+ranging from ENV_PR_LOWEST to ENV_PR_HIGHEST. To keep track of each environment's priority, I also added an 
+additional field "env_priority" in the Env struct. All environments upon creation start with default ENV_PR_MEDIUM
+priority. The scheduler will always pick the env (right after the current one) that has the highest priority and 
+also in RUNNABLE state. Envs with the same priority level will be picked by round-robin. This also means that if 
+user processes never modifies their priorities after being created, the scheduler will effectively run them round 
+robin. 
+
+To test this new scheduler, I modified the old user level program "hello.c" to be more interesting. Instead of just
+saying hello and reporting its PID, the program now uses sys_env_set_priority to adjust priority of processes.
+The parent initially forks 10 children processes numbered 0-9. Even numbered children will adjust themselves to
+be highest priority (after being forked) while odd numbered children will be lowest priority. After waiting for 
+the parent to finish forking, all children yield to the scheduler to let it decide who to run next. The highest priority 
+children will be the first one to say "Hello" and report their number. After running the program, we see that the
+even numbered children indeed are always the first ones to say "Hello" before the odd numbered children. This
+means that the scheduler is working as described to pick and run the highest priority processes first. Also, running
+make grade passes all tests meaning that without adjusting priorities and leaving the priority at the default 
+ENV_PR_MEDIUM, processes are picked round-robin like before.
+
+The output of the program is following:
+
+[00000000] new env 00001000
+[00001000] new env 00001001
+[00001000] new env 00001002
+[00001000] new env 00001003
+[00001000] new env 00001004
+[00001000] new env 00001005
+[00001000] new env 00001006
+[00001000] new env 00001007
+[00001000] new env 00001008
+[00001000] new env 00001009
+[00001000] new env 0000100a
+I'm the parent, done forking and exiting ...
+[00001000] exiting gracefully
+[00001000] free env 00001000
+Hello, I'm HIGH priority child number 1
+[00001002] exiting gracefully
+[00001002] free env 00001002
+Hello, I'm HIGH priority child number 5
+[00001006] exiting gracefully
+[00001006] free env 00001006
+Hello, I'm HIGH priority child number 3
+[00001004] exiting gracefully
+[00001004] free env 00001004
+Hello, I'm HIGH priority child number 7
+[00001008] exiting gracefully
+[00001008] free env 00001008
+Hello, I'm HIGH priority child number 9
+[0000100a] exiting gracefully
+[0000100a] free env 0000100a
+Hello, I'm LOW priority child number 0
+[00001001] exiting gracefully
+[00001001] free env 00001001
+Hello, I'm LOW priority child number 2
+[00001003] exiting gracefully
+[00001003] free env 00001003
+Hello, I'm LOW priority child number 4
+[00001005] exiting gracefully
+[00001005] free env 00001005
+Hello, I'm LOW priority child number 6
+[00001007] exiting gracefully
+[00001007] free env 00001007
+Hello, I'm LOW priority child number 8
+[00001009] exiting gracefully
+[00001009] free env 00001009
+
+

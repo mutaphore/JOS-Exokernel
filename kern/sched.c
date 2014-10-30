@@ -11,8 +11,6 @@ void sched_halt(void);
 void
 sched_yield(void)
 {
-	struct Env *idle;
-
 	// Implement simple round-robin scheduling.
 	//
 	// Search through 'envs' for an ENV_RUNNABLE environment in
@@ -30,8 +28,67 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
+   uint32_t envx = 0, penvx = 0;
+   
+   // Check if there is a currently running environment
+   if (curenv) {
+      envx = (ENVX(curenv->env_id) + 1) % NENV;
+      penvx = ENVX(curenv->env_id); 
+   }
+   
+   do {
+      if (envs[envx].env_status == ENV_RUNNABLE)
+         env_run(envs + envx);  // Found a runnable env
+      if (++envx >= NENV)
+         envx = 0;    // Wrap around when we reached the end
+   } while (envx != penvx);
+
+   // No envs are runnable, if there was a prev env on this CPU just run it
+   if (envs[penvx].env_status == ENV_RUNNING &&
+    envs[penvx].env_cpunum == cpunum())
+      env_run(envs + penvx);
+
 	// sched_halt never returns
 	sched_halt();
+
+
+/*
+   // Lab4 Challenge: Fixed Priority Scheduler
+
+   uint32_t envx = 0, penvx = 0, i;
+   enum EnvPriority highp = ENV_PR_LOWEST;
+   uint32_t plist[NENV] = {0};
+
+   // Check if there is a currently running environment
+   if (curenv) {
+      envx = (ENVX(curenv->env_id) + 1) % NENV;
+      penvx = ENVX(curenv->env_id); 
+   }
+
+   // Find the highest priority environment candidates
+   for (i = 0; i < NENV; i++) {
+      if (envs[i].env_priority < highp && 
+       envs[i].env_status == ENV_RUNNABLE)
+         highp = envs[i].env_priority;
+   }
+   
+   // Do round robin on the highest priority envs thats runnable   
+   do {
+      if (envs[envx].env_priority == highp &&
+       envs[envx].env_status == ENV_RUNNABLE)
+         env_run(envs + envx);  // Found one
+      if (++envx >= NENV)
+         envx = 0;    // Wrap around when we reached the end
+   } while (envx != penvx);
+
+   // No envs are runnable, if there was a prev env on this CPU just run it
+   if (envs[penvx].env_status == ENV_RUNNING &&
+    envs[penvx].env_cpunum == cpunum())
+      env_run(envs + penvx);
+
+	// sched_halt never returns
+	sched_halt();
+*/
 }
 
 // Halt this CPU when there is nothing to do. Wait until the
