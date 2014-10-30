@@ -433,14 +433,11 @@ load_icode(struct Env *e, uint8_t *binary)
 //
 void
 env_create(uint8_t *binary, enum EnvType type)
-<<<<<<< HEAD
 {
-	// LAB 3: Your code here.
-
 	// If this is the file server (type == ENV_TYPE_FS) give it I/O privileges.
 	// LAB 5: Your code here.
-=======
-{ 
+
+
    // LAB 3: Your code here.
    struct Env *e;
    int r;
@@ -452,7 +449,6 @@ env_create(uint8_t *binary, enum EnvType type)
    load_icode(e, binary); 
 
    //assert(read_eflags() & FL_IF);
->>>>>>> lab4
 }
 
 //
@@ -472,7 +468,7 @@ env_free(struct Env *e)
 		lcr3(PADDR(kern_pgdir));
 
 	// Note the environment's demise.
-	// cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+	cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
 	// Flush all mapped pages in the user portion of the address space
 	static_assert(UTOP % PTSIZE == 0);
