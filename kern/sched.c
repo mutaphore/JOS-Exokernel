@@ -27,7 +27,7 @@ sched_yield(void)
 	// below to halt the cpu.
 
 	// LAB 4: Your code here.
-/*
+
    uint32_t envx = 0, penvx = 0;
    
    // Check if there is a currently running environment
@@ -50,9 +50,10 @@ sched_yield(void)
 
 	// sched_halt never returns
 	sched_halt();
-*/
 
-   // Challenge: Fixed Priority Scheduler
+
+/*
+   // Lab4 Challenge: Fixed Priority Scheduler
 
    uint32_t envx = 0, penvx = 0, i;
    enum EnvPriority highp = ENV_PR_LOWEST;
@@ -87,6 +88,7 @@ sched_yield(void)
 
 	// sched_halt never returns
 	sched_halt();
+*/
 }
 
 // Halt this CPU when there is nothing to do. Wait until the
