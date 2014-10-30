@@ -2,8 +2,6 @@
 
 #include <inc/lib.h>
 
-volatile int counter;
-
 void
 umain(int argc, char **argv)
 {
@@ -19,31 +17,32 @@ umain(int argc, char **argv)
       if ((who = fork()) == 0) {
          if (i % 2 == 0) {
             // Low priority children (even)
-            sys_env_set_priority(0, ENV_PR_LOWEST);   
-            //sys_env_set_priority(0, ENV_PR_MEDIUM);
+            sys_env_set_priority(0, ENV_PR_LOW);   
             break;
          }
          else { 
             // High priority children (odd)
-            sys_env_set_priority(0, ENV_PR_HIGHEST);
-            //sys_env_set_priority(0, ENV_PR_MEDIUM);
+            sys_env_set_priority(0, ENV_PR_HIGH);
             break;
          }
       }
    }
    
    // Yield the parent
-   if (i == 10) {
+   if (who != 0) {
       cprintf("I'm the parent, done forking and exiting ...\n");
       sys_yield();
       return;
    }
 
+   // Children wait for the parent to finish
    while (envs[ENVX(parent)].env_status != ENV_FREE)
       asm volatile("pause");
     
    sys_yield();   
-   cprintf("Hello, I'm child number %d\n", i);
+   cprintf("Hello, I'm %s priority child number %d\n", 
+    i % 2 == 0 ? "LOW" : "HIGH", i);
+
    return;
 }
 
