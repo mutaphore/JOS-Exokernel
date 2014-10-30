@@ -251,6 +251,9 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	e->env_status = ENV_RUNNABLE;
 	e->env_runs = 0;
 
+   // Challenge: fixed priority scheduling
+   e->env_priority = ENV_PR_MEDIUM;
+
 	// Clear out all the saved register state,
 	// to prevent the register values
 	// of a prior environment inhabiting this Env structure

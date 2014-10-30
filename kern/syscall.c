@@ -430,6 +430,26 @@ sys_ipc_recv(void *dstva)
 	return 0;
 }
 
+// Challenge
+static int
+sys_env_set_priority(envid_t envid, int priority)
+{
+   int error;
+   struct Env *e;
+
+   // Check if it is a valid priority level
+   if (priority < ENV_PR_HIGHEST || priority > ENV_PR_LOWEST)
+      return -E_INVAL;
+
+   // Only parent of a child can change its priority
+   if ((error = envid2env(envid, &e, 1)) < 0)
+      return error;
+
+   e->env_priority = priority;
+
+   return 0;   
+}
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -480,6 +500,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_ipc_recv:
       ret = sys_ipc_recv((void *)a1);
+      break;
+   case SYS_env_set_priority:
+      ret = sys_env_set_priority((envid_t)a1, (int)a2);
       break;
    default:
 		return -E_INVAL;

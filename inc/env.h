@@ -50,7 +50,7 @@ enum EnvPriority {
    ENV_PR_MEDIUM,
    ENV_PR_LOW,
    ENV_PR_LOWEST
-}
+};
 
 struct Env {
 	struct Trapframe env_tf;	// Saved registers
@@ -75,7 +75,7 @@ struct Env {
 	envid_t env_ipc_from;		// envid of the sender
 	int env_ipc_perm;		// Perm of page mapping received
 
-   // Challenge: Fixed priority scheduling
+   // Lab 4 Challenge: Fixed priority scheduling
    enum EnvPriority env_priority;
 };
 
