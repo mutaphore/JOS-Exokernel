@@ -9,7 +9,7 @@
 #include "fs.h"
 
 
-#define debug 0
+#define debug 1
 
 // The file system server maintains three structures
 // for each open file.
@@ -186,7 +186,7 @@ serve_read(envid_t envid, union Fsipc *ipc)
    // Update offset with number of bytes read
    o->o_fd->fd_offset += r;
 	
-   return 0;
+   return r;
 }
 
 
