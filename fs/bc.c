@@ -39,7 +39,7 @@ bc_pgfault(struct UTrapframe *utf)
    int error;
 
    // Create a new page
-   if ((error = sys_page_alloc(0, algn_addr, PTE_U | PTE_P | PTE_W)) < 0)
+   if ((error = sys_page_alloc(0, algn_addr, PTE_W | PTE_U | PTE_P)) < 0)
       panic("bc_pgfault: sys_page_alloc %e", error);
    // Read block from disk
    if ((error = ide_read(secno, algn_addr, PGSIZE / SECTSIZE)) < 0)
