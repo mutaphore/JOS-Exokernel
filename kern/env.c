@@ -251,7 +251,7 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	e->env_status = ENV_RUNNABLE;
 	e->env_runs = 0;
 
-   // Challenge: fixed priority scheduling
+   // Lab4 Challenge: fixed priority scheduling
    e->env_priority = ENV_PR_MEDIUM;
 
 	// Clear out all the saved register state,
@@ -434,16 +434,17 @@ load_icode(struct Env *e, uint8_t *binary)
 void
 env_create(uint8_t *binary, enum EnvType type)
 {
-	// If this is the file server (type == ENV_TYPE_FS) give it I/O privileges.
-	// LAB 5: Your code here.
-
-
    // LAB 3: Your code here.
    struct Env *e;
    int r;
 
    if ((r = env_alloc(&e, 0)) < 0)
       panic("env_create: %e\n", r);
+
+	// If this is the file server (type == ENV_TYPE_FS) give it I/O privileges.
+	// LAB 5: Your code here.
+   if (type == ENV_TYPE_FS)
+      e->env_tf.tf_eflags |= FL_IOPL_MASK;
 
    e->env_type = type;
    load_icode(e, binary); 
