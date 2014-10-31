@@ -82,8 +82,8 @@ duppage(envid_t envid, unsigned pn)
       ptEntry = uvpt[pn];
       if (ptEntry & PTE_P) {
          if (ptEntry & PTE_SHARE) {
-            cprintf("Found a sharable page\n");
-            if ((r = sys_page_map(0, addr, envid, addr, PTE_U | PTE_W | PTE_P)) < 0)
+            // Share this page with parent
+            if ((r = sys_page_map(0, addr, envid, addr, PTE_SHARE | PTE_U | PTE_W | PTE_P)) < 0)
                panic("duppage: sys_page_map page to be shared %e", r);
          }
          else if (ptEntry & PTE_W || ptEntry & PTE_COW) {
