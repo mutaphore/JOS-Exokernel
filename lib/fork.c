@@ -71,17 +71,45 @@ static int
 duppage(envid_t envid, unsigned pn)
 {
 	int r;
+   pte_t ptEntry;
+   pde_t pdEntry;
+   void *addr = (void *)(pn * PGSIZE);
 
 	// LAB 4: Your code here.
+   
+   pdEntry = uvpd[PDX(addr)]; 
+   if (pdEntry & PTE_P) {
+      ptEntry = uvpt[pn];
+      if (ptEntry & PTE_P) {
+         if (ptEntry & PTE_SHARE) {
+            cprintf("Found a sharable page\n");
+            if ((r = sys_page_map(0, addr, envid, addr, PTE_U | PTE_W | PTE_P)) < 0)
+               panic("duppage: sys_page_map page to be shared %e", r);
+         }
+         else if (ptEntry & PTE_W || ptEntry & PTE_COW) {
+            // Map to new env COW
+            if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U | PTE_P)) < 0)
+               panic("duppage: sys_page_map to new env %e", r);
+            // Remap our own to COW
+            if ((r = sys_page_map(0, addr, 0, addr, PTE_COW | PTE_U | PTE_P)) < 0)
+               panic("duppage: sys_page_map for remap %e", r);
+         }
+         else {
+            // Just directly map pages that are present but not W or COW
+            if ((r = sys_page_map(0, addr, envid, addr, PTE_P | PTE_U)) < 0)
+               panic("duppage: sys_page_map to new env PTE_P %e", r);
+         }
+      }
+   }
 
-   void *addr = (void *)(pn * PGSIZE);
+/*
    // Map to new env COW
    if ((r = sys_page_map(0, addr, envid, addr, PTE_COW | PTE_U | PTE_P)) < 0)
       panic("duppage: sys_page_map to new env %e", r);
    // Remap our own to COW
    if ((r = sys_page_map(0, addr, 0, addr, PTE_COW | PTE_U | PTE_P)) < 0)
       panic("duppage: sys_page_map for remap %e", r);
-
+*/
 	return 0;
 }
 
@@ -132,6 +160,8 @@ fork(void)
    
    // Copy address space (not including exception stack) to child
    for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
+      duppage(envid, pn);
+/*      
       addr = (void *)(pn * PGSIZE);
       pdEntry = uvpd[PDX(addr)]; 
 
@@ -146,6 +176,7 @@ fork(void)
                panic("duppage: sys_page_map to new env PTE_P %e", r);
          }
       }
+*/      
    }
 
    // Create exception stack page for child
