@@ -6,4 +6,4 @@ Lab 5
 1)
 No. Because the eflags register is pushed onto the stack whenever we do a context switch or trap
 into the kernel. When we return back to this environment, the saved setting of the IOPL mask will 
-be popped back off the stack and restored into the eflags register, so our setting is never lost.
+be popped back off the trap frame and restored into the eflags register, so our setting is never lost.
