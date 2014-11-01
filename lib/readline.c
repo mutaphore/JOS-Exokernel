@@ -52,7 +52,7 @@ readline(const char *prompt)
 
 #define MAX_CMDS 50
 
-static char *commands[23] = {
+static char *commands[MAX_CMDS] = {
    "newmotd",
    "motd",
    "lorem",
@@ -78,18 +78,20 @@ static char *commands[23] = {
    "hello"
 };
 
+// Lab 5 Challenge:
+// Tab completion - take in position of cursor and
+// return d > 0 if auto completed
 int tab_complt(int pos) {
 
    char *start = buf + pos, *cmd;
    int i, n, d = 0;
 
    // Walk to the space before this command
-   while (start > buf && *start != ' ')
+   while (start > buf && *(start - 1) != ' ')
       start--; 
 
-   n = buf + pos - start - 1;
-
    // Look for a match
+   n = buf + pos - start;
    for (i = 0; n > 0 && i < 23; i++) {
       if (strncmp(start, commands[i], n) == 0) {
          cmd = commands[i];
@@ -98,7 +100,7 @@ int tab_complt(int pos) {
       }
    }
    // Output the rest of the command
-   for (i = n + 1; d > 0 && i < strlen(cmd); i++) {
+   for (i = n; d > 0 && i < strlen(cmd); i++) {
       buf[pos++] = cmd[i];
       cputchar(cmd[i]);
    }
