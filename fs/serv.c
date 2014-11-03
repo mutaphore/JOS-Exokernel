@@ -171,7 +171,22 @@ serve_read(envid_t envid, union Fsipc *ipc)
 		cprintf("serve_read %08x %08x %08x\n", envid, req->req_fileid, req->req_n);
 
 	// Lab 5: Your code here:
-	return 0;
+   
+   struct OpenFile *o;
+   off_t offset;
+   int r;
+
+   // Lookup the open file struct based on requested fileid
+   if ((r = openfile_lookup(envid, req->req_fileid, &o)) < 0)
+      return r;
+   // Read bytes from file into page
+   offset = o->o_fd->fd_offset;
+   if ((r = file_read(o->o_file, ret->ret_buf, req->req_n, offset)) < 0)
+      return r;
+   // Update offset with number of bytes read
+   o->o_fd->fd_offset += r;
+	
+   return r;
 }
 
 

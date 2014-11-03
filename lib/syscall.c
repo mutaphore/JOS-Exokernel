@@ -122,3 +122,9 @@ sys_time_msec(void)
 {
 	return (unsigned int) syscall(SYS_time_msec, 0, 0, 0, 0, 0, 0);
 }
+// Challenge
+int
+sys_env_set_priority(envid_t envid, int priority)
+{
+   return syscall(SYS_env_set_priority, 1, envid, priority, 0, 0, 0);
+}

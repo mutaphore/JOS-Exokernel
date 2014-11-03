@@ -12,8 +12,9 @@
 #include <kern/kdebug.h>
 #include <kern/trap.h>
 
-#define CMDBUF_SIZE	80	// enough for one VGA text line
+#include <kern/pmap.h>  // For page alloc/free commands
 
+#define CMDBUF_SIZE	80	// enough for one VGA text line
 
 struct Command {
 	const char *name;
@@ -25,6 +26,13 @@ struct Command {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+   { "backtrace", "Display backtrace info", mon_backtrace },
+   { "alloc_page", "Allocate a page", alloc_page },
+   { "page_status", "Check if a page is allocated", page_status },
+   { "free_page", "Free a page", free_page },
+   { "list_used", "List all used pages and their refs", list_used },
+   { "ss", "Make a single step after a breakpoint", ss },
+   { "cont", "Continue from a breakpoint", cont }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -59,11 +67,119 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-	// Your code here.
-	return 0;
+   uint32_t ebp, eip, args[5] = {0};
+   struct Eipdebuginfo info;
+   
+   cprintf("Stack backtrace:\n");
+
+   ebp = read_ebp();   // Get the current ebp
+   while (ebp != 0x0) {
+      // Read in arguments wrt ebp pointer
+      __asm__ __volatile__ ("movl 8(%1), %0" : "=r" (args[0]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 12(%1), %0" : "=r" (args[1]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 16(%1), %0" : "=r" (args[2]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 20(%1), %0" : "=r" (args[3]) : "r" (ebp));
+      __asm__ __volatile__ ("movl 24(%1), %0" : "=r" (args[4]) : "r" (ebp));
+      
+      __asm__ __volatile__ ("movl 4(%1), %0" : "=r" (eip) : "r" (ebp)); // Read in return EIP
+      debuginfo_eip(eip, &info); // Get eip debug info
+
+      cprintf("  ebp %x  eip %x  args %08x %08x %08x %08x %08x\n",
+       ebp, eip, args[0], args[1], args[2], args[3], args[4]); 
+      cprintf("       %s:%d: %.*s+%d\n", info.eip_file, info.eip_line, 
+       info.eip_fn_namelen, info.eip_fn_name, (eip - info.eip_fn_addr)); 
+      
+      __asm__ __volatile__ ("movl (%0), %0" : "=r" (ebp) : "0" (ebp));  // Step down stack to find the next ebp
+   }	
+
+   return 0;
 }
 
+// Extension commands
+int alloc_page(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
 
+   if ((page = page_alloc(ALLOC_ZERO))) {
+      cprintf("%08p\n", page2pa(page));
+      return 0;
+   }
+   else {
+      cprintf("Cannot allocate page - out of memory\n");
+      return -1;
+   }
+}
+
+int page_status(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   physaddr_t pa;
+   char *end;
+  
+   if (argc == 2) {
+      end = strfind(*(argv + 1), 0);
+      pa = (physaddr_t)strtol(*(argv + 1), &end, 16);
+
+      page = pa2page(pa);
+      if (page->pp_link)
+         cprintf("free\n");
+      else
+         cprintf("allocated\n");
+      return 0;
+   }
+   else
+      return -1;
+}
+
+int free_page(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   physaddr_t pa;
+   char *end;
+
+   if (argc == 2) {
+      end = strfind(*(argv + 1), 0);
+      pa = (physaddr_t)strtol(*(argv + 1), &end, 16);
+
+      page = pa2page(pa);
+      if (page->pp_ref == 0 && page->pp_link == NULL)
+         page_free(page);
+
+      return 0;
+   }
+   else
+      return -1;
+}
+
+int list_used(int argc, char **argv, struct Trapframe *tf) {
+   struct PageInfo *page;
+   pte_t *pte;
+   
+   cprintf("%10s    %10s  UWP  r\n", "VA", "PA");
+   for (page = pages + npages - 1; page >= pages; page--) {
+
+      if (page->pp_link == NULL) {
+         page_lookup(kern_pgdir, page2kva(page), &pte);
+         cprintf("%08p -> %08p  %d%d%d  %d\n", page2kva(page),
+          page2pa(page), (*pte & PTE_U) >> 2,
+          (*pte & PTE_W) >> 1, *pte & PTE_P, page->pp_ref);
+      }
+   } 
+   return 0; 
+}
+
+int ss(int argc, char **argv, struct Trapframe *tf) {
+
+   // Turn on the trap flag
+   tf->tf_eflags |= FL_TF;
+   cprintf("Single step\n"); 
+
+   return -1;
+}
+
+int cont(int argc, char **argv, struct Trapframe *tf) {
+
+   tf->tf_eflags &= FL_RF;
+   cprintf("Continue\n"); 
+   return -1;
+}
 
 /***** Kernel monitor command interpreter *****/
 
