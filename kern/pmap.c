@@ -652,6 +652,8 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// (just like nextfree in boot_alloc).
 	static uintptr_t base = MMIOBASE;
 
+   cprintf("mmio_map_region: %08x\n", size);
+
 	// Reserve size bytes of virtual memory starting at base and
 	// map physical pages [pa,pa+size) to virtual addresses
 	// [base,base+size).  Since this is device memory and not
