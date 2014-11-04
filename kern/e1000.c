@@ -10,18 +10,17 @@ int e1000_attach(struct pci_func *pcif) {
    bar0addr = pcif->reg_base[0];
    bar0 = mmio_map_region(bar0addr, pcif->reg_size[0]);
    // Check the status register contents must be 0x80080783
-   cprintf("e1000 device status register: %08x\n", bar0[REG(E1000_STATUS)]);
+   cprintf("e1000: status %08x\n", bar0[REG(E1000_STATUS)]);
 
-   // Add map of transcript descriptor array at a 16-byte aligned address
-   physaddr_t pa = PADDR(tdarr); 
-   boot_map_region(kern_pgdir, TDSTART, sizeof(tdarr), pa, PTE_W | PTE_P);
+   td_alloc();
+   td_init();
 
    // Save TD info into registers
    bar0[REG(E1000_TDBAL)] = TDSTART;
    bar0[REG(E1000_TDLEN)] = NUMTD * sizeof(struct tx_desc);
    // Reset head and tail regs
-   bar0[REG(E1000_TDH)] = 0x0;
-   bar0[REG(E1000_TDT)] = 0x0;
+   bar0[REG(E1000_TDH)] = 0;
+   bar0[REG(E1000_TDT)] = 0;
    // Setup TCTL
    bar0[REG(E1000_TCTL)] = 0;
    bar0[REG(E1000_TCTL)] |= E1000_TCTL_EN;
@@ -36,3 +35,31 @@ int e1000_attach(struct pci_func *pcif) {
 
    return 1;
 }
+
+// Allocate mem for transcript descriptor array
+void td_alloc() {
+   
+   struct PageInfo *page;
+   int error;
+
+   if (!(page = page_alloc(ALLOC_ZERO)))
+      panic("tdarr_alloc: out of memory");
+   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_W | PTE_P)) < 0)
+      panic("tdarr_alloc: %e", error);
+   
+   tdarr = (struct tx_desc *)TDSTART;
+}
+
+// Allocate mem for packet buffers
+
+// Initialize td fields in transcript descriptor array
+void td_init() {
+   struct tx_desc *td = tdarr;
+
+   for (; td < tdarr + NUMTDS; td++) {
+       
+
+   }
+
+}
+

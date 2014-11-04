@@ -38,9 +38,32 @@
 #define E1000_TCTL_CT     0x00000ff0    /* collision threshold */
 #define E1000_TCTL_COLD   0x003ff000    /* collision distance */
 
-// Descriptors
-#define NUMTD 64
+/* Transmit Descriptor bit definitions */
+#define E1000_TXD_DTYP_D     0x00100000 /* Data Descriptor */
+#define E1000_TXD_DTYP_C     0x00000000 /* Context Descriptor */
+#define E1000_TXD_POPTS_IXSM 0x01       /* Insert IP checksum */
+#define E1000_TXD_POPTS_TXSM 0x02       /* Insert TCP/UDP checksum */
+#define E1000_TXD_CMD_EOP    0x01000000 /* End of Packet */
+#define E1000_TXD_CMD_IFCS   0x02000000 /* Insert FCS (Ethernet CRC) */
+#define E1000_TXD_CMD_IC     0x04000000 /* Insert Checksum */
+#define E1000_TXD_CMD_RS     0x08000000 /* Report Status */
+#define E1000_TXD_CMD_RPS    0x10000000 /* Report Packet Sent */
+#define E1000_TXD_CMD_DEXT   0x20000000 /* Descriptor extension (0 = legacy) */
+#define E1000_TXD_CMD_VLE    0x40000000 /* Add VLAN tag */
+#define E1000_TXD_CMD_IDE    0x80000000 /* Enable Tidv register */
+#define E1000_TXD_STAT_DD    0x00000001 /* Descriptor Done */
+#define E1000_TXD_STAT_EC    0x00000002 /* Excess Collisions */
+#define E1000_TXD_STAT_LC    0x00000004 /* Late Collisions */
+#define E1000_TXD_STAT_TU    0x00000008 /* Transmit underrun */
+#define E1000_TXD_CMD_TCP    0x01000000 /* TCP packet */
+#define E1000_TXD_CMD_IP     0x02000000 /* IP packet */
+#define E1000_TXD_CMD_TSE    0x04000000 /* TCP Seg enable */
+#define E1000_TXD_STAT_TC    0x00000004 /* Tx Underrun */
+
+// Transmit Descriptors
+#define NUMTDS 8              // Number of transmit descriptors
 #define TDSTART 0xF00D0000    // Arbitrary mem address of TD array
+#define PBUFSIZE 1518         // Buffer size in bytes = max size of a packet
 
 struct tx_desc
 {
@@ -53,16 +76,18 @@ struct tx_desc
    uint16_t special;
 };
 
-struct tx_desc tdarr[NUMTD];
+struct tx_desc *tdarr;
 
 // Register addresses
 
 volatile physaddr_t bar0addr; 
 volatile uint32_t *bar0;
 
-// Convert byte offset of register to index into 32bit array
+// Convert register byte offset to an index into bar0 array
 #define REG(byte) ((byte)/4)
 
 int e1000_attach(struct pci_func *pcif);
+void td_alloc();
+void td_init();
 
 #endif	// JOS_KERN_E1000_H
