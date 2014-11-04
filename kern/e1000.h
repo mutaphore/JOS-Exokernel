@@ -34,11 +34,9 @@
 /* Transmit Control */
 #define E1000_TCTL_RST    0x00000001    /* software reset */
 #define E1000_TCTL_EN     0x00000002    /* enable tx */
-#define E1000_TCTL_BCE    0x00000004    /* busy check enable */
 #define E1000_TCTL_PSP    0x00000008    /* pad short packets */
 #define E1000_TCTL_CT     0x00000ff0    /* collision threshold */
 #define E1000_TCTL_COLD   0x003ff000    /* collision distance */
-#define E1000_TCTL_SWXOFF 0x00400000    /* SW Xoff transmission */
 
 // Descriptors
 #define NUMTD 64
