@@ -11,8 +11,20 @@ int e1000_attach(struct pci_func *pcif) {
    bar0addr = pcif->reg_base[0];
    bar0 = mmio_map_region(bar0addr, pcif->reg_size[0]);
 
-   // Check the status register
-   cprintf("e1000 device status register: %08x\n", bar0[REGNDX(E1000_STATUS)]);
+   // Check the status register contents must be 0x80080783
+   cprintf("e1000 device status register: %08x\n", bar0[REG(E1000_STATUS)]);
+
+   // Add map of transcript descriptor array at a 16-byte aligned address
+   physaddr_t pa = PADDR(tdarr); 
+   boot_map_region(kern_pgdir, TDSTART, sizeof(tdarr), pa, PTE_W | PTE_P);
+
+   // Save TD info into registers. Reset head and tail regs
+   bar0[REG(E1000_TDBAL)] = TDSTART;
+   bar0[REG(E1000_TDLEN)] = NUMTD * sizeof(struct tx_desc);
+   bar0[REG(E1000_TDH)] = 0x0;
+   bar0[REG(E1000_TDT)] = 0x0;
+
+   //
 
    return 1;
 }
