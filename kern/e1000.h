@@ -24,14 +24,12 @@
 
 #define E1000_STATUS   0x00008  /* Device Status - RO */
 #define E1000_TCTL     0x00400  /* TX Control - RW */
+#define E1000_TIPG     0x00410  /* TX Inter-packet gap -RW */
 #define E1000_TDBAL    0x03800  /* TX Descriptor Base Address Low - RW */
 #define E1000_TDBAH    0x03804  /* TX Descriptor Base Address High - RW */
 #define E1000_TDLEN    0x03808  /* TX Descriptor Length - RW */
 #define E1000_TDH      0x03810  /* TX Descriptor Head - RW */
 #define E1000_TDT      0x03818  /* TX Descripotr Tail - RW */
-#define E1000_TIDV     0x03820  /* TX Interrupt Delay Value - RW */
-#define E1000_TXDCTL   0x03828  /* TX Descriptor Control - RW */
-#define E1000_TADV     0x0382C  /* TX Interrupt Absolute Delay Val */
 
 /* Transmit Control */
 #define E1000_TCTL_RST    0x00000001    /* software reset */
@@ -41,10 +39,6 @@
 #define E1000_TCTL_CT     0x00000ff0    /* collision threshold */
 #define E1000_TCTL_COLD   0x003ff000    /* collision distance */
 #define E1000_TCTL_SWXOFF 0x00400000    /* SW Xoff transmission */
-#define E1000_TCTL_PBE    0x00800000    /* Packet Burst Enable */
-#define E1000_TCTL_RTLC   0x01000000    /* Re-transmit on late collision */
-#define E1000_TCTL_NRTU   0x02000000    /* No Re-transmit on underrun */
-#define E1000_TCTL_MULR   0x10000000    /* Multiple request support */
 
 // Descriptors
 #define NUMTD 64
