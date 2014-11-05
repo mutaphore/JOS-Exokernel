@@ -76,7 +76,8 @@ struct tx_desc
    uint16_t special;
 };
 
-struct tx_desc *tdarr;
+struct tx_desc *tdarr;        // Transmit Descriptors
+char pbuf[NUMTDS][PBUFSIZE];  // Packet Buffers
 
 // Register addresses
 
@@ -88,6 +89,5 @@ volatile uint32_t *bar0;
 
 int e1000_attach(struct pci_func *pcif);
 void td_alloc();
-void td_init();
 
 #endif	// JOS_KERN_E1000_H

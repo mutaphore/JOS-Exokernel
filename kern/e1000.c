@@ -13,10 +13,9 @@ int e1000_attach(struct pci_func *pcif) {
    cprintf("e1000: status %08x\n", bar0[REG(E1000_STATUS)]);
 
    td_alloc();
-   td_init();
 
    // Save TD info into registers
-   bar0[REG(E1000_TDBAL)] = TDSTART;
+   bar0[REG(E1000_TDBAL)] = PADDR(TDSTART);  // Must be physical address!
    bar0[REG(E1000_TDLEN)] = NUMTD * sizeof(struct tx_desc);
    // Reset head and tail regs
    bar0[REG(E1000_TDH)] = 0;
@@ -36,30 +35,22 @@ int e1000_attach(struct pci_func *pcif) {
    return 1;
 }
 
-// Allocate mem for transcript descriptor array
 void td_alloc() {
-   
    struct PageInfo *page;
-   int error;
+   int i, error;
 
+   // Allocate mem for transcript descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("tdarr_alloc: out of memory");
    if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_W | PTE_P)) < 0)
       panic("tdarr_alloc: %e", error);
    
    tdarr = (struct tx_desc *)TDSTART;
-}
 
-// Allocate mem for packet buffers
-
-// Initialize td fields in transcript descriptor array
-void td_init() {
-   struct tx_desc *td = tdarr;
-
-   for (; td < tdarr + NUMTDS; td++) {
-       
-
+   // Initialize td fields in transcript descriptor array
+   for (i = 0; i < NUMTDS; i++) {
+      tdarr[i] = 0;
+      td->addr = PADDR(pbuf[i]);
+      td->length = PBUFSIZE;
    }
-
 }
-
