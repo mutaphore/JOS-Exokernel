@@ -15,8 +15,8 @@ int e1000_attach(struct pci_func *pcif) {
    td_alloc();
 
    // Save TD info into registers
-   bar0[REG(E1000_TDBAL)] = PADDR(TDSTART);  // Must be physical address!
-   bar0[REG(E1000_TDLEN)] = NUMTD * sizeof(struct tx_desc);
+   bar0[REG(E1000_TDBAL)] = PADDR((void *)TDSTART);  // Must be physical address!
+   bar0[REG(E1000_TDLEN)] = NUMTDS * sizeof(struct tx_desc);
    // Reset head and tail regs
    bar0[REG(E1000_TDH)] = 0;
    bar0[REG(E1000_TDT)] = 0;
@@ -47,10 +47,9 @@ void td_alloc() {
    
    tdarr = (struct tx_desc *)TDSTART;
 
-   // Initialize td fields in transcript descriptor array
+   // Initialize tdarr fields
    for (i = 0; i < NUMTDS; i++) {
-      tdarr[i] = 0;
-      td->addr = PADDR(pbuf[i]);
-      td->length = PBUFSIZE;
+      tdarr[i].addr = PADDR(pbuf[i]);
+      tdarr[i].length = PBUFSIZE;
    }
 }
