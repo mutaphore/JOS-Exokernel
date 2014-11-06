@@ -122,6 +122,13 @@ sys_time_msec(void)
 {
 	return (unsigned int) syscall(SYS_time_msec, 0, 0, 0, 0, 0, 0);
 }
+
+int
+sys_net_send_pckt(void *src, uint32_t len)
+{
+   return syscall(SYS_send_pckt, 1, (uint32_t)src, len, 0, 0, 0);
+}
+
 // Challenge
 int
 sys_env_set_priority(envid_t envid, int priority)

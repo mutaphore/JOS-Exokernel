@@ -30,7 +30,7 @@ void trans_init() {
    // Allocate mem for transcript descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("tdarr_alloc: out of memory");
-   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_PWT | PTE_PCD | PTE_W | PTE_P)) < 0)
+   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("tdarr_alloc: %e", error);
    
    tdarr = (struct tx_desc *)TDSTART;

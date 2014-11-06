@@ -477,6 +477,12 @@ sys_time_msec(void)
    return time_msec();
 }
 
+static int
+sys_net_send_pckt(void *src, uint32_t len)
+{
+   
+}
+
 // Challenge
 static int
 sys_env_set_priority(envid_t envid, int priority)
@@ -556,6 +562,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_time_msec:
       ret = sys_time_msec();
+      break;
+   case SYS_net_send_pckt:
+      ret = sys_net_send_pckt((void *)a1, (uint32_t)a2);
       break;
    default:
 		return -E_INVAL;
