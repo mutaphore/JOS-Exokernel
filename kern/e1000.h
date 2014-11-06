@@ -84,11 +84,16 @@ char pbuf[NUMTDS][PBUFSIZE];  // Packet Buffers
 
 volatile physaddr_t bar0addr; 
 volatile uint32_t *bar0;
+static uint32_t *head;  // *head is an index
+static uint32_t *tail;  // *tail is an index
 
 // Convert register byte offset to an index into bar0 array
 #define REG(byte) ((byte)/4)
+// Get the next descriptor in array
+#define NEXTTD (tdarr + ((*tail + 1) % NUMTDS))
 
 int e1000_attach(struct pci_func *pcif);
-void td_alloc();
+void trans_init(uint32_t *bar0);
+int trans_pckt(void *addr, uint32_t len);
 
 #endif	// JOS_KERN_E1000_H
