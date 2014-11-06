@@ -12,6 +12,7 @@
 #include <kern/console.h>
 #include <kern/sched.h>
 #include <kern/time.h>
+#include <kern/e1000.h>
 
 // Print a string to the system console.
 // The string is exactly 'len' characters long.
@@ -480,7 +481,9 @@ sys_time_msec(void)
 static int
 sys_net_send_pckt(void *src, uint32_t len)
 {
-   
+   // Check if packet address is in user space and doesn't exceed buffer size 
+   if ((uintptr_t)src >= UTOP || len > PBUFSIZE)
+      return -E_INVAL; 
 }
 
 // Challenge
