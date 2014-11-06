@@ -88,8 +88,11 @@ volatile uint32_t *tail;  // *tail is an index
 
 // Convert register byte offset to an index into bar0 array
 #define REG(byte) ((byte)/4)
-// Get the next descriptor in array
-#define NEXTTD (tdarr + ((*tail + 1) % NUMTDS))
+// Get the current descriptor pointed to by tail
+#define CURTD (tdarr + *tail)
+// Get the next descriptor after tail
+#define NEXTNDX ((*tail + 1) % NUMTDS)
+#define NEXTTD (tdarr + NEXTNDX)
 
 int e1000_attach(struct pci_func *pcif);
 void trans_init();

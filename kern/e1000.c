@@ -16,7 +16,7 @@ int e1000_attach(struct pci_func *pcif) {
    // Initialize tranmit descriptors and registers
    trans_init();
    // Send a test packet
-//   trans_pckt(str, strlen(str));
+   trans_pckt(str, strlen(str));
 
    return 1;
 }
@@ -39,6 +39,7 @@ void trans_init() {
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
       tdarr[i].addr = PADDR(pbuf[i]);
+      cprintf("buf addr: %08x\n", PADDR(pbuf[i]));
       // Buffer size
       tdarr[i].length = PBUFSIZE;
       // Report status when packet is transmitted
@@ -70,16 +71,16 @@ void trans_init() {
 }
 
 int trans_pckt(void *pckt, uint32_t len) {
-   uint32_t buf;
+   physaddr_t buf;
 
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
       return -1;
    // Check if transmit queue is full
    if ((*head == 0 && *tail == 0) || NEXTTD->status & E1000_TXD_STAT_DD) { 
-      buf = (uint32_t)(NEXTTD->addr & 0xFFFFFFFF);
+      buf = (physaddr_t)CURTD->addr;
       memcpy(KADDR(buf), pckt, len);
-      *tail = PADDR((void *)NEXTTD);
+      *tail = NEXTNDX;
       return 0;   
    }
    else {   
