@@ -81,11 +81,10 @@ struct tx_desc *tdarr;        // Transmit Descriptors
 char pbuf[NUMTDS][PBUFSIZE];  // Packet Buffers
 
 // Register addresses
-
-volatile physaddr_t bar0addr; 
+physaddr_t bar0addr; 
 volatile uint32_t *bar0;
-static uint32_t *head;  // *head is an index
-static uint32_t *tail;  // *tail is an index
+volatile uint32_t *head;  // *head is an index
+volatile uint32_t *tail;  // *tail is an index
 
 // Convert register byte offset to an index into bar0 array
 #define REG(byte) ((byte)/4)
@@ -93,7 +92,7 @@ static uint32_t *tail;  // *tail is an index
 #define NEXTTD (tdarr + ((*tail + 1) % NUMTDS))
 
 int e1000_attach(struct pci_func *pcif);
-void trans_init(uint32_t *bar0);
-int trans_pckt(void *addr, uint32_t len);
+void trans_init();
+int trans_pckt(void *pckt, uint32_t len);
 
 #endif	// JOS_KERN_E1000_H

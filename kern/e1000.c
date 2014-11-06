@@ -2,6 +2,8 @@
 
 // LAB 6: Your driver code here
 
+char *str = "This is a test packet\n";
+
 int e1000_attach(struct pci_func *pcif) {
 
    // Enable the e1000 on PCI bus
@@ -13,11 +15,13 @@ int e1000_attach(struct pci_func *pcif) {
    cprintf("e1000: status %08x\n", bar0[REG(E1000_STATUS)]);
    // Initialize tranmit descriptors and registers
    trans_init();
+   // Send a test packet
+//   trans_pckt(str, strlen(str));
 
    return 1;
 }
 
-void trans_init(uint32_t *bar0) {
+void trans_init() {
    struct PageInfo *page;
    int i, error;
 
@@ -66,15 +70,21 @@ void trans_init(uint32_t *bar0) {
 }
 
 int trans_pckt(void *pckt, uint32_t len) {
-   char *buf;
+   uint32_t buf;
 
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
       return -1;
-   // Check if we can move the tail
+   // Check if transmit queue is full
    if ((*head == 0 && *tail == 0) || NEXTTD->status & E1000_TXD_STAT_DD) { 
-      buf = (char *)NEXTTD->addr;
-      memcpy(buf, pckt, len);   
+      buf = (uint32_t)(NEXTTD->addr & 0xFFFFFFFF);
+      memcpy(KADDR(buf), pckt, len);
+      *tail = PADDR((void *)NEXTTD);
+      return 0;   
    }
-   
+   else {   
+      // Drop the packet for now
+      cprintf("Packet dropped\n");
+      return -2;
+   }
 }
