@@ -78,7 +78,7 @@ struct tx_desc
 };
 
 struct tx_desc *tdarr;        // Transmit Descriptors
-char pbuf[NUMTDS][PBUFSIZE];  // Packet Buffers
+static char pbuf[NUMTDS][PBUFSIZE];  // Packet Buffers
 
 // Register addresses
 physaddr_t bar0addr; 

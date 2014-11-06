@@ -2,7 +2,7 @@
 
 // LAB 6: Your driver code here
 
-char *str = "This is a test packet\n";
+char packet[PBUFSIZE] = {"Test Packet"};
 
 int e1000_attach(struct pci_func *pcif) {
 
@@ -16,7 +16,7 @@ int e1000_attach(struct pci_func *pcif) {
    // Initialize tranmit descriptors and registers
    trans_init();
    // Send a test packet
-   trans_pckt(str, strlen(str));
+   trans_pckt(packet, PBUFSIZE);
 
    return 1;
 }
@@ -30,7 +30,7 @@ void trans_init() {
    // Allocate mem for transcript descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("tdarr_alloc: out of memory");
-   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_W | PTE_P)) < 0)
+   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_PWT | PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("tdarr_alloc: %e", error);
    
    tdarr = (struct tx_desc *)TDSTART;
@@ -39,7 +39,7 @@ void trans_init() {
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
       tdarr[i].addr = PADDR(pbuf[i]);
-      cprintf("buf addr: %08x\n", PADDR(pbuf[i]));
+      cprintf("buf addr: %08x\n", pbuf[i]);
       // Buffer size
       tdarr[i].length = PBUFSIZE;
       // Report status when packet is transmitted
@@ -47,7 +47,7 @@ void trans_init() {
    }
 
    // Save TD info into registers
-   bar0[REG(E1000_TDBAL)] = PADDR((void *)TDSTART);  
+   bar0[REG(E1000_TDBAL)] = page2pa(page);  
    bar0[REG(E1000_TDLEN)] = NUMTDS * sizeof(struct tx_desc);
 
    // Setup head and tail regs
