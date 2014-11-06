@@ -2,7 +2,7 @@
 
 // LAB 6: Your driver code here
 
-char packet[PBUFSIZE] = {"Test Packet"};
+char test_packet[100] = {"-- This is a test Packet --"};
 
 int e1000_attach(struct pci_func *pcif) {
 
@@ -16,7 +16,7 @@ int e1000_attach(struct pci_func *pcif) {
    // Initialize tranmit descriptors and registers
    trans_init();
    // Send a test packet
-   trans_pckt(packet, PBUFSIZE);
+   trans_pckt(test_packet, PBUFSIZE);
 
    return 1;
 }
@@ -39,11 +39,11 @@ void trans_init() {
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
       tdarr[i].addr = PADDR(pbuf[i]);
-      cprintf("buf addr: %08x\n", pbuf[i]);
       // Buffer size
-      tdarr[i].length = PBUFSIZE;
+      tdarr[i].lower.flags.length = PBUFSIZE;
       // Report status when packet is transmitted
-      tdarr[i].cmd |= E1000_TXD_CMD_RS; 
+      tdarr[i].lower.data |= E1000_TXD_CMD_RS; 
+      tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
    }
 
    // Save TD info into registers
@@ -76,16 +76,14 @@ int trans_pckt(void *pckt, uint32_t len) {
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
       return -1;
-   // Check if transmit queue is full
-   if ((*head == 0 && *tail == 0) || NEXTTD->status & E1000_TXD_STAT_DD) { 
-      buf = (physaddr_t)CURTD->addr;
-      memcpy(KADDR(buf), pckt, len);
-      *tail = NEXTNDX;
-      return 0;   
-   }
-   else {   
+   // Check if transmit queue is full and the next slot is not ready
+   if (NEXTNDX == *head && !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
       // Drop the packet for now
       cprintf("Packet dropped\n");
       return -2;
    }
+   buf = (physaddr_t)CURTD->addr;
+   memcpy(KADDR(buf), pckt, len);
+   *tail = NEXTNDX;
+   return 0;   
 }
