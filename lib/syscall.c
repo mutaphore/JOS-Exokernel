@@ -126,7 +126,7 @@ sys_time_msec(void)
 int
 sys_net_send_pckt(void *src, uint32_t len)
 {
-   return syscall(SYS_send_pckt, 1, (uint32_t)src, len, 0, 0, 0);
+   return syscall(SYS_net_send_pckt, 1, (uint32_t)src, len, 0, 0, 0);
 }
 
 // Challenge

@@ -16,7 +16,7 @@ int e1000_attach(struct pci_func *pcif) {
    // Initialize tranmit descriptors and registers
    trans_init();
    // Send a test packet
-   trans_pckt(test_packet, PBUFSIZE);
+   trans_pckt(test_packet, 100);
 
    return 1;
 }

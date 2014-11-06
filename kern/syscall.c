@@ -484,6 +484,8 @@ sys_net_send_pckt(void *src, uint32_t len)
    // Check if packet address is in user space and doesn't exceed buffer size 
    if ((uintptr_t)src >= UTOP || len > PBUFSIZE)
       return -E_INVAL; 
+   
+   return trans_pckt(src, len);
 }
 
 // Challenge
