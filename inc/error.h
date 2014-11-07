@@ -27,7 +27,8 @@ enum {
 	E_NOT_SUPP	,	// Operation not supported
 
    // Network system error codes
-   E_TX_DROP  ,  // Transmit packet dropped
+   E_PCKT_DROP  ,    // Transmit packet dropped
+   E_PCKT_SIZE  ,    // Exceeded maximum size per packet
 
 	MAXERROR
 };

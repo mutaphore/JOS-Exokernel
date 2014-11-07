@@ -75,12 +75,12 @@ int trans_pckt(void *pckt, uint32_t len) {
 
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
-      return -1;
+      return -E_PCKT_SIZE;
    // Check if transmit queue is full and the next slot is not ready
    if (NEXTNDX == *head && !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
       // Drop the packet for now
       cprintf("Packet dropped\n");
-      return -2;
+      return -E_PCKT_DROP;
    }
    buf = (physaddr_t)CURTD->addr;
    memcpy(KADDR(buf), pckt, len);
