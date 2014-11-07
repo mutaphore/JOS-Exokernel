@@ -15,8 +15,9 @@ output(envid_t ns_envid)
    envid_t output_envid = -1;
    
    while (1) {   
-      val = ipc_recv(&output_envid, &nsipcbuf, &perm);
-      while (sys_net_send_pckt(nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len) != 0)
-         sys_yield();   // Keep yielding until packet is sent
+      if ((val = ipc_recv(&output_envid, &nsipcbuf, &perm)) == NSREQ_OUTPUT) {
+         while (sys_net_send_pckt(nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len) != 0)
+            sys_yield();   // Keep yielding until packet is sent
+      }
    }
 }
