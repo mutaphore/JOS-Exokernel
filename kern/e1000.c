@@ -16,7 +16,7 @@ int e1000_attach(struct pci_func *pcif) {
    // Initialize tranmit descriptors and registers
    trans_init();
    // Send a test packet
-   trans_pckt(test_packet, 100);
+   //trans_pckt(test_packet, 100);
 
    return 1;
 }
@@ -43,6 +43,7 @@ void trans_init() {
       tdarr[i].lower.flags.length = PBUFSIZE;
       // Report status when packet is transmitted
       tdarr[i].lower.data |= E1000_TXD_CMD_RS; 
+      // Report end of packet
       tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
    }
 
@@ -82,6 +83,7 @@ int trans_pckt(void *pckt, uint32_t len) {
       cprintf("Packet dropped\n");
       return -E_PCKT_DROP;
    }
+   CURTD->lower.flags.length = len;
    buf = (physaddr_t)CURTD->addr;
    memcpy(KADDR(buf), pckt, len);
    *tail = NEXTNDX;

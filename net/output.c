@@ -12,12 +12,13 @@ output(envid_t ns_envid)
 	//	- send the packet to the device driver
    
    int perm, val;
-   envid_t output_envid;
+   envid_t output_envid = -1;
    
-   val = ipc_recv(&output_envid, &nsipcbuf, &perm);
-   
-   if (val == NSREQ_OUTPUT && ns_envid == output_envid) {
-      sys_net_send_pckt(nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len);
-
-   }  
+   while (1) {   
+      val = ipc_recv(&output_envid, &nsipcbuf, &perm);
+      if (val == NSREQ_OUTPUT && ns_envid == output_envid) {
+         while (sys_net_send_pckt(nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len) != 0)
+            sys_yield();   // Keep yielding until packet is sent
+      }
+   }
 }

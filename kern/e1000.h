@@ -4,6 +4,7 @@
 #include <kern/pci.h>
 #include <kern/pmap.h>
 #include <inc/string.h>
+#include <inc/error.h>
 
 // E1000 Vendor and Device ID's (82540EM in QEMU)
 
