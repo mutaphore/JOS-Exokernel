@@ -7,7 +7,6 @@
 #include <inc/error.h>
 
 // E1000 Vendor and Device ID's (82540EM in QEMU)
-
 #define E1000_VENDORID 0x8086
 #define E1000_DEVICEID 0x100E
 
@@ -23,7 +22,6 @@
  * R/clr - register is read only and is cleared when read
  * A - register array
  */
-
 #define E1000_STATUS   0x00008  /* Device Status - RO */
 #define E1000_TCTL     0x00400  /* TX Control - RW */
 #define E1000_TIPG     0x00410  /* TX Inter-packet gap -RW */

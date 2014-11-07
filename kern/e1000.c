@@ -53,10 +53,10 @@ void trans_init() {
    bar0[REG(E1000_TDLEN)] = NUMTDS * sizeof(struct tx_desc);
 
    // Setup head and tail regs
-   bar0[REG(E1000_TDH)] = 0;
-   bar0[REG(E1000_TDT)] = 0;
    head = &bar0[REG(E1000_TDH)];   
    tail = &bar0[REG(E1000_TDT)];   
+   *head = 0;
+   *tail = 0;
 
    // Setup TCTL
    bar0[REG(E1000_TCTL)] = 0;
@@ -85,10 +85,13 @@ int trans_pckt(void *pckt, uint32_t len) {
       cprintf("Packet dropped\n");
       return -E_PCKT_DROP;
    }
-
+   
+   // Set the descriptor packet length
    CURTD->lower.flags.length = len;
+   // Copy packet into buffer
    buf = KADDR((physaddr_t)CURTD->addr);
    memcpy(buf, pckt, len);
+   // Move tail pointer forward
    *tail = NEXTNDX;
 
    return 0;   
