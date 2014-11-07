@@ -4,4 +4,8 @@ dc3186
 Lab 6
 ------
 1)
+Currently my implementation is that if the transmit ring is full, meaning that the next index after tail is the head
+but the DD bit shows that it's not been processed yet, the transmit packet function will simply return an error number
+indicating that the packet is dropped. However, in output() if the return of the packet send system call indicates that
+packet is dropped, it will yield and try resending the same packet again until it succeeds before fetching the next packet.
 
