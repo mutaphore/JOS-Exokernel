@@ -15,6 +15,7 @@ int e1000_attach(struct pci_func *pcif) {
    cprintf("e1000: status %08x\n", bar0[REG(E1000_STATUS)]);
    // Initialize tranmit descriptors and registers
    trans_init();
+
    // Send a test packet
    //trans_pckt(test_packet, 100);
 
@@ -72,7 +73,7 @@ void trans_init() {
 }
 
 int trans_pckt(void *pckt, uint32_t len) {
-   physaddr_t buf;
+   void *buf;
 
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
@@ -86,8 +87,8 @@ int trans_pckt(void *pckt, uint32_t len) {
    }
 
    CURTD->lower.flags.length = len;
-   buf = (physaddr_t)CURTD->addr;
-   memcpy(KADDR(buf), pckt, len);
+   buf = KADDR((physaddr_t)CURTD->addr);
+   memcpy(buf, pckt, len);
    *tail = NEXTNDX;
 
    return 0;   

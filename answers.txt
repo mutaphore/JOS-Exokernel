@@ -1,17 +1,7 @@
 Dewei Chen
 dc3186
 
-Lab 5
+Lab 6
 ------
 1)
-No. Because the eflags register is pushed onto the stack whenever we do a context switch or trap
-into the kernel. When we return back to this environment, the saved setting of the IOPL mask will 
-be popped back off the trap frame and restored into the eflags register, so our setting is never lost.
 
-Challenge:
-For the challenge problem, I implemented an auto tab completion feature for the shell. When the user
-is in the middle of typing a command and press tab, the readlines() function havew been modified such
-that it will search for a possible match to the current typed command. A list of pre-defined commands
-has been given and can be expanded if more commands are available. When a similar match has been
-found, tab_autocmpl() in readlines.c autocompletes the rest of the command for the user. This could 
-also be used in multiple commands inputted on the same line.
