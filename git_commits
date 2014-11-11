@@ -1,0 +1,1128 @@
+commit 66e79a231622edbc70d95848023372f5a758fc16
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 11 17:55:24 2014 -0500
+
+    modified GNUmakefile, see comments
+
+commit 70fbe2cc2896ca01d19b1f23b89e92dfccaa117e
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 11 17:47:12 2014 -0500
+
+    modified GNUMakefile because accidentally committed binaries in the past, making commit files large. OK from Walfish
+
+commit 9222f53868af28d342f17ce3d7c0b2d0d0572f64
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Nov 7 01:25:19 2014 -0500
+
+    more fixes
+
+commit 8a343e7b505a2d7c9c4ecf49345bb5407389baa5
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Nov 7 01:18:41 2014 -0500
+
+    some minor changes
+
+commit e5ffc52a22b43b849dd7dea02fdf12fe9fa03b03
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 21:36:35 2014 -0500
+
+    added answers and slack
+
+commit 2d91332c9d97bda25873d93fd718dbbaea15891a
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 21:25:26 2014 -0500
+
+    done with lab6a!
+
+commit ae2ad9845e948c40419a6b9610eb492ca1e92ea1
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 21:01:02 2014 -0500
+
+    ex8 is working!!!
+
+commit 88e19f50068a3b3a1ffb773897cb25a79f62fd8e
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 20:58:11 2014 -0500
+
+    working but need mod
+
+commit e6f97b0f4c40f558dcae63c72c7f122fecb47e61
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 20:15:16 2014 -0500
+
+    on ex8
+
+commit be6ce556be56f7de7d304537ab8839e418414d55
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 01:22:09 2014 -0500
+
+    almost done
+
+commit 4321e8f30138f60380bf10a62d399423235aad4c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 01:18:15 2014 -0500
+
+    almost done with syscall
+
+commit 21b7147eddeb579a932a1980aac8d87cbc8f06cf
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 00:59:40 2014 -0500
+
+    adding syscall
+
+commit e879e573b66753a5875107b3579585c359f0438c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Nov 6 00:41:04 2014 -0500
+
+    figured out pcap!
+
+commit a840fa6d9104399c828a8fb73ae7fb951636fd01
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 22:33:14 2014 -0500
+
+    woot we are transmitting!
+
+commit e4a7b41d62bf2ffe92256250698218f5a9ce2afa
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 21:35:28 2014 -0500
+
+    fixed index prob
+
+commit 9ccafa7b44ad9b5aa68d56eda53fb45df8d2bccb
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 20:59:21 2014 -0500
+
+    fixed phys addr buffer bug
+
+commit 27e38944748d16706249bf0352e2c24e9a27dd36
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 19:45:20 2014 -0500
+
+    doing ex6
+
+commit 313db718b32ddab6f8329367e655dc98cbfa1dbc
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 01:19:03 2014 -0500
+
+    think im done with ex5
+
+commit eab201ccb5ce09f4d0aee7983a70bad7d329606b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Nov 5 01:01:37 2014 -0500
+
+    done with td and buffers
+
+commit 84a86e92933e83393f3d4ca0279ff2fef056a926
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 4 18:56:35 2014 -0500
+
+    building buffers
+
+commit 15ea835240e11c3b618ec9f5ad6f2d7cd892d2ca
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 4 17:31:39 2014 -0500
+
+    going to test ex5
+
+commit fad39782949dcc88606f4a3c4e618f64340c304b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 4 01:36:44 2014 -0500
+
+    ex5 setting up regs
+
+commit e27362f0800ac67c7fb8ffb549dfa10da5bfe343
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Nov 4 01:14:02 2014 -0500
+
+    working on ex5
+
+commit 8b02d485a611f71d095d94716121390be85acbec
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Nov 3 13:29:49 2014 -0500
+
+    done with ex4
+
+commit c01038062d820245c5a1c7d74bafea62336adca4
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Nov 3 12:06:54 2014 -0500
+
+    doing ex4
+
+commit 0044baa9f939c80be731afa2b713f80914b64b14
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Nov 3 11:38:22 2014 -0500
+
+    done with pci attach test ex2
+
+commit b9d174ab1d436100fca042e046f520e7ff9770b1
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Nov 3 00:00:44 2014 -0500
+
+    done with lab6 ex1
+
+commit 8f0c637c08cb866cfea02a698bf2f25bbe2c37cb
+Merge: f3f2259 4056463
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Nov 2 22:23:09 2014 -0500
+
+    merged lab5 to 6
+
+commit 40564631291cba092c1e4f63e7f477702d5e5be0
+Merge: 7017a5f 2a1d9a1
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Nov 2 22:18:11 2014 -0500
+
+    Merge branch 'lab5' of http://news.cs.nyu.edu/~mwalfish/classes/14fa/jos into lab5
+
+commit 2a1d9a118016d18ed1cd6619e210b9a0e50c2b1b
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Sun Nov 2 16:08:46 2014 -0500
+
+    expand hint. be explicit with fsipc union.
+
+commit 7017a5fc2ca53d201a8372986b768a627ee75f60
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Nov 1 00:32:15 2014 -0400
+
+    finished answers.txt
+
+commit 8db97e7e5908096c8f09932b6712726f27e63092
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 31 22:57:34 2014 -0400
+
+    ready for handin
+
+commit 07c8acd8cda5aefc23e725d940265f3bfacc9381
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 31 22:46:40 2014 -0400
+
+    tab complete now fully functional
+
+commit 07edd0a7e9ad7315d963941201ed723d6c7beb9c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 31 21:18:55 2014 -0400
+
+    almost done with challenge
+
+commit b04e3681079ca150a1dcda1c16e148aba979ae36
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 31 19:42:38 2014 -0400
+
+    done with lab 5!
+
+commit f997fc3e9ef2fcd41de8beba5a98a2d968cf4411
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 23:59:43 2014 -0400
+
+    done with ex5!
+
+commit f27552be34e6510a48dccb2cc608a8e0cae46487
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 23:29:25 2014 -0400
+
+    changed fork to work
+
+commit 72d817707bd51e25b8ab759f7531201302bb1fc0
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 20:30:35 2014 -0400
+
+    woot done with ex4!
+
+commit 57fa58c608e7bcf00610cc13d5a87da6c87c4e84
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 19:54:46 2014 -0400
+
+    done testing ex3, testfile have writes that shouldn't be there
+
+commit 6fcd85c267cea502f7c31d51f1c16008c7438e3c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 19:07:34 2014 -0400
+
+    going to test ex3 now
+
+commit 85eb73185922fb28bad8051a1ff20d59184056b5
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 02:36:58 2014 -0400
+
+    small change to see if shows up on github
+
+commit 51117a67e0ce528229d2d71d023d586b8b96b910
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 02:31:58 2014 -0400
+
+    small change
+
+commit 9669650832082147cdb0e5309aa962ae0b032136
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 02:30:23 2014 -0400
+
+    finished up to ex2
+
+commit 396d75e5de54000db32726b85ad3912008006685
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 01:31:42 2014 -0400
+
+    finished ex1
+
+commit 7900f20b5e948799c033faea8e0c27d2af77ea0d
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 01:13:40 2014 -0400
+
+    finished reverse testing lab4 stuff, start with ex1 now
+
+commit 7e711499b51476fd521effc1250b4a3c2922f293
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 00:49:01 2014 -0400
+
+    lab5 revert to some lab4 to make sure passing tests
+
+commit 27fee8ace0dde90b3861179653a81f71a20bb2c6
+Merge: 925b6af 0e37937
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 00:14:10 2014 -0400
+
+    initial merge to lab5
+
+commit 0e37937cb2a6e9f113d8db24dbb18f65f2d61603
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 30 00:06:57 2014 -0400
+
+    removed 4c zip
+
+commit cbc6f928e43aafd9968c044bc41760a290619979
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 23:58:42 2014 -0400
+
+    Revert back to old scheduler before starting lab5
+
+commit f3f2259ef92ae69a370cc51b56750e7a0285acb9
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Wed Oct 29 23:39:45 2014 -0400
+
+    lab6 files
+
+commit d086c5bec6bd435f7607189a6b2fca3f763ae23e
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 23:15:58 2014 -0400
+
+    deleted the large zip files
+
+commit 0061a59aa3485b4ac146a8ac7e8d2fa66cb1980d
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 23:09:49 2014 -0400
+
+    zipped up 4c
+
+commit acd453874c5f0d877f4427a342f4c5870b18f0bf
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 22:54:22 2014 -0400
+
+    Done with challenge writeup
+
+commit 4c129dfefe0bcc50841ccf8fe770510d8dfbedc5
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 22:15:27 2014 -0400
+
+    finished priority scheduling
+
+commit ac6ccb53712b60125330babde51d9d6b66c11e80
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 20:05:44 2014 -0400
+
+    done with writing code, going to test now
+
+commit 6fab2d3950528682e6e5eb488a95a4a77a3c64e4
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 18:58:13 2014 -0400
+
+    starting on fixed priority scheduler
+
+commit baa355dc358b5a10068e4a51dca307a525a273dc
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 01:24:20 2014 -0400
+
+    starting on lab 4 challenge
+
+commit a8a21fc8b7ef0a0d3eaeb0e78c73fa9f700f74c0
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Wed Oct 29 00:13:13 2014 -0400
+
+    passed all lab 4 tests
+
+commit 252b33bc50ae6db0f8d0ac1538a1fc3cc4211e89
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 28 23:22:33 2014 -0400
+
+    figured out bug
+
+commit 055acc1e2d05f18072dcdc846bbe7d284a2c292e
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 28 23:15:19 2014 -0400
+
+    almost done
+
+commit 62f6331d1c085bed63621eff3ff108f02b0035b7
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 28 14:15:41 2014 -0400
+
+    almost done with u level wrappers
+
+commit f3c2ab1ab288b3fe8b72817e6af1dc62cc62af6b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 28 01:23:42 2014 -0400
+
+    done with send
+
+commit 6723a36e5092ef78dc9e268066bd6a0e7ea27793
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 28 00:31:24 2014 -0400
+
+    starting on ipc
+
+commit e9abbf1f69d14bae78a7473f0179a43406b42662
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 26 18:56:32 2014 -0400
+
+    moving on to IPC
+
+commit bc23e45c0ba08c2b654b8099f7ac5fdb758f9ec7
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 26 18:38:51 2014 -0400
+
+    finally found the crashing bug. need to check cur cpu in scheduler
+
+commit 889e0749fcdf3ef72d24ac307457ef27817be443
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 26 14:04:14 2014 -0400
+
+    fixed the returning debug msg that was failing faultregs test
+
+commit 3ad5217bc46f74abc190dc1997d104c83df21a99
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 26 13:50:18 2014 -0400
+
+    starting after the weekend now
+
+commit c4340d3a88b789e2c827fcbacdca382e8557b544
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Oct 21 01:29:59 2014 -0400
+
+    interrupts working, but multiple cores is not
+
+commit 98a05b1c11a65f9f8b47ddf8f3232f4dfddd814f
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Oct 20 22:32:10 2014 -0400
+
+    figured out flag issue
+
+commit f8173b20f4d855c51ac548ab31dde076c31995b7
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Oct 20 21:03:10 2014 -0400
+
+    doing a lot of testing not interrupting right now
+
+commit e5e8332c01a6ec89d67bfe364be70c3a9b7df07a
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Oct 20 18:14:51 2014 -0400
+
+    not interrupting
+
+commit 18339c7116a9e235bebbd4211438c352bd29c1be
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Oct 20 16:40:47 2014 -0400
+
+    commit before starting on 4C
+
+commit 95e5f52c0283266ecc7b7a9a002b7ba062b796e7
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 19 20:26:28 2014 -0400
+
+    added slack hrs
+
+commit 2e6f780b846dba70e1c8e9294a93fb28f704cae8
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 19 20:10:59 2014 -0400
+
+    finally done with 4bgit add . final commit
+
+commit c2e0acbe558003edbb579cc50188cb0953f69ed0
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 19 17:49:15 2014 -0400
+
+    4b works! had to make page_insert pgdir permission less strict
+
+commit 925b6afc6d178be3e8439f21e87f0070bc5bc7ab
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Sat Oct 18 16:01:27 2014 -0400
+
+    lab5 files
+
+commit bdb988794be2bd329f7e658e90935786492e905c
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Sat Oct 18 10:28:52 2014 -0400
+
+    lab 4 fixes, from MIT JOS:
+        * remove confusing comment
+        * execution can continue past hlt, so loop infinitely
+        * remove E_NO_SYS
+
+commit 295952ed1fd67df0d9f429cf25692c35ec7d0319
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 20:54:57 2014 -0400
+
+    figured out why getting kernel fault, still buggy
+
+commit 879bdd63b252d09559a6375f15c8355c8d523616
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 16:33:20 2014 -0400
+
+    still buggy on fork, about to change mem_init_mp mapping for kstack
+
+commit 15f57697938bd42047afeb9aac3ab2c0255fbd60
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 11:34:29 2014 -0400
+
+    almost done with fork??
+
+commit a170b1dec480233def80271a8ce078a794c447ac
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 09:00:07 2014 -0400
+
+    on fork.c now
+
+commit 4b78d3c1ab9aa655cba0772b19e1af04fd81e7fd
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 06:35:48 2014 -0400
+
+    fixed mem_check function issue, done with ex11 lab4
+
+commit 17bb9e8682cbf8eab2f41d87f9cedfdfb3bd2a2c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 05:42:29 2014 -0400
+
+    commit after pulling lab4 bugfix
+
+commit 00026f7489bbee213b4a4121464cf887f2299fad
+Merge: 445b81d bdb9887
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 05:34:33 2014 -0400
+
+    Merge branch 'lab4' of http://news.cs.nyu.edu/~mwalfish/classes/14fa/jos into lab4
+    This is for the lab4 bug commit
+    Conflicts:
+    	kern/syscall.c
+
+commit 445b81dd39817004b26cf23a411d706cb2f184eb
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 05:31:02 2014 -0400
+
+    commit before pulling bugfix
+
+commit 0d1e53f117c5c59917637156d6acab61321ca971
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 04:56:06 2014 -0400
+
+    Yess got faultalloc working!
+
+commit 2ce696c4b090aa70d80b537586654737ee680a1c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Oct 17 02:00:25 2014 -0400
+
+    trying to figure out bug
+
+commit 5ad9e61d03e3c4af4c74864bed63deba6e124257
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 16 22:30:30 2014 -0400
+
+    finished ex11 gonna test now
+
+commit fbe5e331dedb6e6757872725ce8ba3a74692eef9
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 16 21:27:45 2014 -0400
+
+    done with ex9 i think
+
+commit ed5bf873f7e7209d90d0cf57cb0eb00bd1ead83b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 16 21:24:37 2014 -0400
+
+    almost done with ex9
+
+commit 71668b7b2e55a574504a6cc24144f551a0450b54
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 16 20:36:09 2014 -0400
+
+    Working on 4b ex9
+
+commit d52d124595e892578ef5539ff338e9f8e01ad119
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Thu Oct 16 18:32:58 2014 -0400
+
+    just starting 4b now
+
+commit 3895bd7487a68cfe4844dd9a6ed5561e18becc2c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 10:33:33 2014 -0400
+
+    zipped 4a
+
+commit 7f3783ee8c6e8aa0b8da0db5bee95989ac37ff6f
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 10:22:42 2014 -0400
+
+    finished questions for 4a!
+
+commit 1fa9dec36f71d6f2d3b160da6e4a8a93e6afa7db
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 08:56:17 2014 -0400
+
+    done with 3 questions, on the last one
+
+commit b59eadba472bf5e3f66d4fe1f7c55de01df653e9
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 07:28:01 2014 -0400
+
+    finished question 1 in lab 4
+
+commit a42046528ce2c653ae157fdf13ebd62f6a9195e0
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 05:33:05 2014 -0400
+
+    finished lab4 part a!
+
+commit 63a0787cdb3e0033350bc669a3fae35a03027e5c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 03:39:40 2014 -0400
+
+    Finished ex7, testing now
+
+commit 93112824122a287d6a947889d853b7fb2ea49148
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 02:55:21 2014 -0400
+
+    almost done!
+
+commit f204d6121ad69f803b236f2424550bb128892586
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 02:11:27 2014 -0400
+
+    still on ex7
+
+commit cab269e59b173c57fe00cd2d0189f087720d4414
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 12 01:45:18 2014 -0400
+
+    almost done with ex7;
+
+commit 17ca37a134afd59ea57de1d00e1109bfc30e7752
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Oct 11 22:33:20 2014 -0400
+
+    almost done with scheduler!
+
+commit e40463144435a9f336f03c23e8d57c87aadd8371
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Oct 11 22:03:37 2014 -0400
+
+    Working on ex6
+
+commit 3f99f9fb5f44568b7e7d1de84c3507cce91fb516
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 10:54:25 2014 -0400
+
+    almost done with ex4
+
+commit 55f9a88ac9859807e1e9f65fa432a0dfdfd9f0c9
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 10:01:20 2014 -0400
+
+    finished up to ex3 of lab4
+
+commit 40ae444223800c1fa705268d858ef8abeefc718c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 08:47:28 2014 -0400
+
+    finished lab 4a ex1
+
+commit dda8a5f1b0264666c1121280dc17c76df1a924cd
+Merge: 9f24dbc c5e3411
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 07:22:07 2014 -0400
+
+    Merge branch 'lab3' into lab4
+
+commit c5e3411a4f7da641a497543eaca54dfe65f3777b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 07:16:21 2014 -0400
+
+    added lab3b zip
+
+commit 65b5475cfd3bcc4718c3db4a0ac8ca68ba8115e6
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 07:09:43 2014 -0400
+
+    Forgot to add challenge writeup. Wrote it now.
+
+commit 9f0f286cc358948e5a0b248d43488c97586cc90b
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 06:55:36 2014 -0400
+
+    Finished lab 3 and answers, getting ready to submit
+
+commit 88cf0442522b899a0516607135677ad538fdb762
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 06:30:45 2014 -0400
+
+    finished lab 3 challenge, ready to submit
+
+commit 5d2473ac242be9e124979ccc6eeba1c11997e9ee
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 03:24:03 2014 -0400
+
+    Completed lab3bmake grade
+
+commit e2b29267ae7f21df80a1f960c5c9d252a89b53ea
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Oct 5 02:44:55 2014 -0400
+
+    Finished up to ex9
+
+commit 9f24dbc3ad0d254c54f375da706b5225cba1a031
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Wed Sep 17 18:46:24 2014 -0400
+
+    update submission URL
+
+commit 22dab463c3bb856427a85fa5f1f8f1bbf3d3ef9b
+Author: Kate Montgomery <kem493@nyu.edu>
+Date:   Wed Oct 1 19:48:19 2014 -0400
+
+    lab4 files
+
+commit fa8e2ada45403aea0deda2c241874f7820c05b7d
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Sep 30 02:58:02 2014 -0400
+
+    working on ex7
+
+commit 8dfad8f9a3d831856da6233bc334ee3dca0a1f24
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Tue Sep 30 00:00:36 2014 -0400
+
+    starting on 3b, finished ex5 and 6
+
+commit 710783242491dc7700b08ebcc7836c5b21393a77
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 22:49:55 2014 -0400
+
+    added slack hours for handin
+
+commit f01763b80b6795bf024a79960cb0ffa1a454c9b4
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 22:43:07 2014 -0400
+
+    commit before submission 3b, finished answers.txt
+
+commit 473ba2d7e25f90c1a8adff594e173a44ed063f6c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 22:17:49 2014 -0400
+
+    small fix
+
+commit a0801d89a2f11fab8ef2e796d5624ba42b12af92
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 22:14:40 2014 -0400
+
+    modified boot_map_region to also give respective pgdir permissions
+
+commit 493161377b74016799da590f31c656e1174aa9fa
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 21:06:35 2014 -0400
+
+    finally part A is working!!!! woohooooo
+
+commit 148e60c736f9aabaeb52c9ae22620d4c4ab8c43c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Mon Sep 29 05:42:41 2014 -0400
+
+    did some changes now wont page fault???
+
+commit 107e4cbb11693c6c07c03b844c2ea778749122a0
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Sep 28 19:14:09 2014 -0400
+
+    still trying to figure out privilieges
+
+commit 6761c9099c3f947c8d412ca8cd579f98d1541f03
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Sep 28 04:29:23 2014 -0400
+
+    finished trap.c maybe testing now
+
+commit c8c07839b05c8db7f8a5afb994cd5528e6e1e74d
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Sep 28 03:33:26 2014 -0400
+
+    working on trap.c and trapentry.S 2
+
+commit 5d7b1fafdf6c15e7993e5b40a65adcf41c267d12
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sun Sep 28 03:23:34 2014 -0400
+
+    working on trap.c and trapentry.S
+
+commit beef6aabb602f915b2b16deec7d94943c4812951
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 27 23:52:36 2014 -0400
+
+    fixed bug now passed ex2 was caused by permissions on pgdir level
+
+commit d5ddc4000e497e012a11ca6eaf6af7f100aaa2f7
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 27 20:26:20 2014 -0400
+
+    figured out the registers to be pushed, still doesn't work
+
+commit bd773e063bfc135d0504969916b40dc035dd8283
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 27 17:06:05 2014 -0400
+
+    gonna remove round down va
+
+commit a78e1f5ea9843bfb71136c8a285fd61de333ef6f
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 27 13:24:14 2014 -0400
+
+    almost figured out what goes into stack
+
+commit 75a2a756cfca0da917e7d206e03fc1cef2637619
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Sep 26 23:40:05 2014 -0400
+
+    still trying to figure out what to go on stack
+
+commit 07e4060a1de1b01ab5a379ba3d4b24265263944c
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Sep 26 21:02:14 2014 -0400
+
+    figuring out how to push to trap frame
+
+commit cdbec81d247d31b7b6ced8b03633d90f4c41f849
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Sep 26 19:33:13 2014 -0400
+
+    finished up to env_run now
+
+commit 1c5240fd5e5e5852eb44649bd60c75d17f2a7a24
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Sep 26 17:53:49 2014 -0400
+
+    maybe done with load_icode
+
+commit d558e51bc749017ff09008805a720320a5325048
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Fri Sep 26 17:20:03 2014 -0400
+
+    almost done with load_icode
+
+commit e84fe274c6f83a7bacb8820a8874daf683d39249
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 20 07:13:21 2014 -0400
+
+    finished region_alloc
+
+commit f6c2e3d65426b563cda8736318b489e350ad1a83
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 20 05:52:59 2014 -0400
+
+    got to region_alloc
+
+commit 73127e5e91d7e6e9f05a1542133fdd1d85243ca1
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 20 04:21:43 2014 -0400
+
+    started lab 3, finished ex1 and passed check_kern_pgdir
+
+commit e2328365818306c8c373322ddfda02f5d5182d1a
+Merge: 3d4ee8f d7c6125
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 20 03:12:20 2014 -0400
+
+    merging with  lab2
+
+commit d7c612588cd2d8eebf2074b9a6aba09045c8d083
+Merge: 13936ee fc27d1e
+Author: mutaphore <deweichen47@gmail.com>
+Date:   Sat Sep 20 03:09:16 2014 -0400
+
+    Merge branch 'lab2' of http://news.cs.nyu.edu/~mwalfish/classes/14fa/jos into lab2
+
+commit 13936eeca1f77422af452d6017500eb21d126ad1
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Sat Sep 20 03:01:02 2014 -0400
+
+    lab2b handin zip added
+
+commit ca654bf3b094d7454360187d28a436ab4e1dc99c
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Sat Sep 20 02:25:04 2014 -0400
+
+    finished writing up answers to challenge prob
+
+commit 235da7f447b19c30595405e5303ef28186d3ff88
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Sat Sep 20 02:03:15 2014 -0400
+
+    finished challenge!
+
+commit 5da0e0fa95a67b45291935fc04c7ed395e9aa1b5
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Sat Sep 20 00:20:02 2014 -0400
+
+    working on challenge
+
+commit adf38d42a48b52150d5792929eba078a315e0052
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 23:35:13 2014 -0400
+
+    corrected overflow bug
+
+commit eb292183a46b0d725cf1d504673d4f10c20dec79
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 21:23:16 2014 -0400
+
+    finished writeup, doing more tests
+
+commit b2ec2da75d91a386431d99c7b70fe991db179793
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 19:08:41 2014 -0400
+
+    it works!
+
+commit f81a885c78710b40034b540ea865641ec017cde2
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 18:22:29 2014 -0400
+
+    almost done
+
+commit b1d6f301b3f7bc0c8976f4f79966aac24cb2d17b
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 14:41:02 2014 -0400
+
+    trying out the last part
+
+commit 946397181cbfc0b10f6b1cbf1e1a0f0a3918326b
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 01:33:23 2014 -0400
+
+    passed check_page! moving on to check kern_pgdir
+
+commit 4851214044864a206dd796a4a17a3db198e10773
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 19 00:42:00 2014 -0400
+
+    fixed page_insert to work for all cases
+
+commit b8891a8ad0c73a78ff72464c321c7ce15e20a045
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Thu Sep 18 23:42:47 2014 -0400
+
+    fixed memset crashing bug
+
+commit feffd6a178e0a45f23055cd3aa1e91d1edea8505
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Thu Sep 18 22:11:53 2014 -0400
+
+    fixed a few things in page_lookup
+
+commit 5577922119c3471641339ebc401214abd11d2b00
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Thu Sep 18 00:54:42 2014 -0400
+
+    fixed some bugs, didn't delete page table this time
+
+commit 86ecfcb83863fcabfb32b7a25b4ef0604a412b23
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 17 23:48:46 2014 -0400
+
+    finished up to page remove, going to test
+
+commit dda3de020b3f5c8c5d68d1524708a3f74cb3eb00
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 17 23:36:26 2014 -0400
+
+    finished up to page lookup
+
+commit b85db450eca8cf57a58edd46ec4d7b7795c3f03e
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 17 22:38:50 2014 -0400
+
+    finished page_insert
+
+commit 0cb94978dbd038ea24f7db2751a05ad15c823407
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 17 19:47:55 2014 -0400
+
+    finished up to page_insert
+
+commit 3d4ee8f62168c90775bfd63afabd9ed3a371887b
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Wed Sep 17 18:46:24 2014 -0400
+
+    update submission URL
+
+commit fc27d1e0b52d69601072f82c73d1674c19a575e6
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Wed Sep 17 18:44:29 2014 -0400
+
+    update URL
+
+commit 0bc4643709ec323897a3033fc3a51b7cd62c10a2
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 17 15:45:32 2014 -0400
+
+    finished dir walk
+
+commit 6d0b691a96a3a758ff089e587d049dbc2da743d1
+Author: Kate Montgomery <kem493@nyu.edu>
+Date:   Tue Sep 16 23:31:54 2014 -0400
+
+    lab3 files
+
+commit e6ca61c9c8381d52e6d649113dde33272128418d
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Tue Sep 16 21:20:41 2014 -0400
+
+    added answers and working on page walk
+
+commit 3ffb55928354e7b2ab1eec27cdc5d0019111022e
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Tue Sep 16 17:38:02 2014 -0400
+
+    starting lab2 part b
+
+commit ffeddcac767dfb87b323b1e58b136492f9fbc255
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 06:50:34 2014 -0400
+
+    fixed slack hrs
+
+commit ebcd7c6756e82440c5c6fef1634b548a5231fca0
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 06:47:47 2014 -0400
+
+    Finished partA of lab 2, passed grading script
+
+commit 7a74d3887b88edb7367e6d4d80d613c52adc0800
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 06:22:18 2014 -0400
+
+    finished page_alloc
+
+commit 8d0244384a7bf5d9a2030e49ea2270fd22a182bf
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 05:56:20 2014 -0400
+
+    finished page_init
+
+commit a9eeaa029e34c9fcc50e4fe1f814a5bad1f80d62
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 04:53:43 2014 -0400
+
+    Got up to page_alloc now
+
+commit fd8dc0ee84bc6ad876df5cf11921c72a4448e47f
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Fri Sep 12 00:45:52 2014 -0400
+
+    added some stuff to pmap.c for lab2A
+
+commit 797b87c42219bd9b313f4021ddc54fafdbcfffd3
+Merge: 06ce838 aecb5fe
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Wed Sep 10 15:43:38 2014 -0400
+
+    Merge branch 'lab1' into lab2
+    
+    Conflicts:
+    	kern/init.c
+
+commit aecb5fe079cfa4f493ff4413a8e0d3769043840c
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Tue Sep 9 22:52:34 2014 -0400
+
+    added some testing files
+
+commit 0c284905c52eba0cd93b6a5d7883373923fc3d7b
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Tue Sep 9 22:51:55 2014 -0400
+
+    final commit before handin
+
+commit 54a6fc6dce2a19f3fc0467c2f47c455b618bb884
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Tue Sep 9 21:15:39 2014 -0400
+
+    completed exercise 11 mon_backtrace function
+
+commit 06ce838739d8e5eaaade4308361235919b9944d9
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Tue Sep 9 20:52:28 2014 -0400
+
+    lab2 files
+
+commit f62678feb6e3d8400dcce76f838d0688dfb30ff5
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Mon Sep 8 15:27:29 2014 -0400
+
+    added stuff to gitignore
+
+commit 7517cf53d7ccd0c8cecbe7644a878c125750f5da
+Author: Dewei Chen <dc3186@cs.nyu.edu>
+Date:   Sun Sep 7 16:07:03 2014 -0400
+
+    first commit! Completed up to excercise 8
+
+commit f07a5444d1fc6c7055f599d176ddfd5b22eded5b
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Fri Sep 5 10:26:33 2014 -0400
+
+    complete the bugfix.
+
+commit 1074b4ea7dd9d667d62b5f840a6c27c3aad5fca7
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Thu Sep 4 23:12:19 2014 -0400
+
+    comment-out old-style print plus wrong error handling.
+
+commit 296eb2d0caaca435f6a88af4eae589c140bbe104
+Author: Michael Walfish <mwalfish@cs.nyu.edu>
+Date:   Thu Sep 4 01:35:19 2014 -0400
+
+    comment out handin to avoid accidentally invoking it
+
+commit c69079ed990677de4d59b994bc3cc37d4a9fcd48
+Author: Cody Cutler <ccutler@mat.lcs.mit.edu>
+Date:   Tue Sep 2 14:46:08 2014 -0400
+
+    add -f-no-tree-ch to CFLAGS
+    
+    GCC will sometimes reorder read_ebp() before mon_backtrace()'s function
+    prologue when using -O1. instead of disabling GCC's optimizations completely,
+    use -f-no-tree-ch
+    
+    tested on
+    gcc version (Debian 4.7.2-5) 4.7.2
+    gcc (Ubuntu 4.8.2-19ubuntu1) 4.8.2
+
+commit 3a6dc8c08515aef61a06373f0375b431a71d6b61
+Author: CS3250 <kem493@nyu.edu>
+Date:   Wed Sep 3 20:16:33 2014 -0400
+
+    lab1 files
+
+commit a617e3b64ba3e9c9de4b25b12f1894eb2eadbde5
+Author: Michael Walfish <mwalfish@cs.utexas.edu>
+Date:   Mon Sep 1 12:05:41 2014 -0400
+
+    Initial commit. Empty.

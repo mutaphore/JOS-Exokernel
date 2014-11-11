@@ -269,8 +269,8 @@ tarball: handin-check
    # Hacked this line to not include ./git because committed some large binaries in the past
    # that caused the handin file to be large (lab 6A). Will provide head info on a separate email
    # Talked to Walfish and he is OK with this.
-	tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tgz
-	#tar cf - `git ls-files` | gzip > lab$(LAB)-handin.tgz
+	#tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tgz
+	tar cf - `git ls-files` | gzip > lab$(LAB)-handin.tgz
 
 tarball-pref: handin-check
 	git archive --prefix=lab$(LAB)/ --format=tar HEAD | gzip > lab$(LAB)-handin.tar.gz
