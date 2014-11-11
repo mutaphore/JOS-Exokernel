@@ -266,7 +266,8 @@ handin-check:
 	fi
 
 tarball: handin-check
-	tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tgz
+	#tar cf - `git ls-files` './.git' | gzip > lab$(LAB)-handin.tgz
+	tar cf - `git ls-files` | gzip > lab$(LAB)-handin.tgz
 
 tarball-pref: handin-check
 	git archive --prefix=lab$(LAB)/ --format=tar HEAD | gzip > lab$(LAB)-handin.tar.gz
