@@ -6,9 +6,9 @@
 #include <inc/string.h>
 #include <inc/error.h>
 
-// Mac address
-#define MACL 0x52540012
-#define MACH 0x3456
+// Mac address (low to high reversed)
+#define MACL 0x12005452
+#define MACH 0x5634
 
 // E1000 Vendor and Device ID's (82540EM in QEMU)
 #define E1000_VENDORID 0x8086
@@ -61,6 +61,17 @@
 #define E1000_RCTL_UPE            0x00000008    /* unicast promiscuous enable */
 #define E1000_RCTL_MPE            0x00000010    /* multicast promiscuous enab */
 #define E1000_RCTL_LPE            0x00000020    /* long packet enable */
+#define E1000_RCTL_LBM_NO         0x00000000    /* no loopback mode */
+#define E1000_RCTL_LBM_MAC        0x00000040    /* MAC loopback mode */
+#define E1000_RCTL_LBM_SLP        0x00000080    /* serial link loopback mode */
+#define E1000_RCTL_LBM_TCVR       0x000000C0    /* tcvr loopback mode */
+#define E1000_RCTL_BAM            0x00008000    /* broadcast enable */
+#define E1000_RCTL_SECRC          0x04000000    /* Strip Ethernet CRC */
+/* these buffer sizes are valid if E1000_RCTL_BSEX is 0 */
+#define E1000_RCTL_SZ_2048        0x00000000    /* rx buffer size 2048 */
+#define E1000_RCTL_SZ_1024        0x00010000    /* rx buffer size 1024 */
+#define E1000_RCTL_SZ_512         0x00020000    /* rx buffer size 512 */
+#define E1000_RCTL_SZ_256         0x00030000    /* rx buffer size 256 */
 
 /* Transmit Descriptor bit definitions */
 #define E1000_TXD_DTYP_D     0x00100000 /* Data Descriptor */
@@ -115,7 +126,7 @@ char tbuf[NUMTDS][PBUFSIZE];  // Transmit Packet Buffers
 // Receive Descriptors
 
 #define RDSTART   0xF00E0000  // Arbitrary mem address of RD array
-#define RBUFSIZE  2048        // 1 of the standard HW buf sizes   
+#define RBUFSIZE  2048        // One of the standard HW buf sizes   
 #define NUMRDS 8              // Number of receive descriptors
 
 struct rx_desc {

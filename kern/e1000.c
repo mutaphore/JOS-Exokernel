@@ -104,17 +104,18 @@ void recv_init() {
    struct PageInfo *page;
    int i, error;
 
-   // Set mac address
+   // Set mac address and make it valid
    bar0[REG(E1000_RAL)] = MACL;
    bar0[REG(E1000_RAH)] = MACH; 
+   bar0[REG(E1000_RAH)] |= 
    // Initialize Multicast table array
    bar0[REG(E1000_MTA)] = 0;
 
    // Allocate memory for receive descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
-      panic("tdarr_alloc: out of memory");
+      panic("rdarr alloc: out of memory");
    if ((error = page_insert(kern_pgdir, page, (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
-      panic("tdarr_alloc: %e", error);
+      panic("rdarr alloc: %e", error);
    rdarr = (struct rx_desc *)RDSTART;
 
    // Initialize receive descriptor fields
@@ -132,7 +133,10 @@ void recv_init() {
    rtail = &bar0[REG(E1000_RDT)];   
    *rhead = 0;
    *rtail = 0;
-
+   
+   // Setup RCTL
    bar0[REG(E1000_RCTL)] = 0;
-
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
 }
