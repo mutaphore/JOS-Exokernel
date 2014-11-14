@@ -99,7 +99,6 @@ int trans_pckt(void *pckt, uint32_t len) {
    return 0;   
 }
 
-
 void recv_init() {
    struct PageInfo *page;
    int i, error;
@@ -141,4 +140,16 @@ void recv_init() {
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
+}
+
+int recv_pckt(envid_t envid, void *store) {
+      
+   // Check if transmit queue is full and the next slot is not ready
+   if (NEXTRNDX == *rhead && 
+      !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
+      // Drop the packet for now
+      cprintf("Packet dropped\n");
+      return -E_PCKT_DROP;
+   }
+
 }
