@@ -15,6 +15,8 @@ int e1000_attach(struct pci_func *pcif) {
    cprintf("e1000: status %08x\n", bar0[REG(E1000_STATUS)]);
    // Initialize tranmit descriptors and registers
    trans_init();
+   // Initialize receive descriptors and registers
+   recv_init(); 
 
    // Send a test packet
    //trans_pckt(test_packet, 100);
@@ -28,18 +30,17 @@ void trans_init() {
 
    // All mem addresses must be physical!
 
-   // Allocate mem for transcript descriptor array
+   // Allocate mem for transmit descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("tdarr_alloc: out of memory");
    if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("tdarr_alloc: %e", error);
    
    tdarr = (struct tx_desc *)TDSTART;
-
    // Initialize transmit descriptor fields
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
-      tdarr[i].addr = PADDR(pbuf[i]);
+      tdarr[i].addr = PADDR(tbuf[i]);
       // Buffer size
       tdarr[i].lower.flags.length = PBUFSIZE;
       // Report status when packet is transmitted
@@ -53,10 +54,10 @@ void trans_init() {
    bar0[REG(E1000_TDLEN)] = NUMTDS * sizeof(struct tx_desc);
 
    // Setup head and tail regs
-   head = &bar0[REG(E1000_TDH)];   
-   tail = &bar0[REG(E1000_TDT)];   
-   *head = 0;
-   *tail = 0;
+   thead = &bar0[REG(E1000_TDH)];   
+   ttail = &bar0[REG(E1000_TDT)];   
+   *thead = 0;
+   *ttail = 0;
 
    // Setup TCTL
    bar0[REG(E1000_TCTL)] = 0;
@@ -80,7 +81,8 @@ int trans_pckt(void *pckt, uint32_t len) {
       return -E_PCKT_SIZE;
 
    // Check if transmit queue is full and the next slot is not ready
-   if (NEXTNDX == *head && !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
+   if (NEXTTNDX == *thead && 
+      !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
       // Drop the packet for now
       cprintf("Packet dropped\n");
       return -E_PCKT_DROP;
@@ -95,4 +97,42 @@ int trans_pckt(void *pckt, uint32_t len) {
    *tail = NEXTNDX;
 
    return 0;   
+}
+
+
+void recv_init() {
+   struct PageInfo *page;
+   int i, error;
+
+   // Set mac address
+   bar0[REG(E1000_RAL)] = MACL;
+   bar0[REG(E1000_RAH)] = MACH; 
+   // Initialize Multicast table array
+   bar0[REG(E1000_MTA)] = 0;
+
+   // Allocate memory for receive descriptor array
+   if (!(page = page_alloc(ALLOC_ZERO)))
+      panic("tdarr_alloc: out of memory");
+   if ((error = page_insert(kern_pgdir, page, (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
+      panic("tdarr_alloc: %e", error);
+   rdarr = (struct rx_desc *)RDSTART;
+
+   // Initialize receive descriptor fields
+   for (i = 0; i < NUMRDS; i++) {
+      // Receive Buffer address
+      rdarr[i].addr = PADDR(rbuf[i]);
+   }
+   
+   // Save RD info into registers
+   bar0[REG(E1000_RDBAL)] = page2pa(page);  
+   bar0[REG(E1000_RDLEN)] = NUMRDS * sizeof(struct rx_desc);
+
+   // Setup head and tail regs
+   rhead = &bar0[REG(E1000_RDH)];   
+   rtail = &bar0[REG(E1000_RDT)];   
+   *rhead = 0;
+   *rtail = 0;
+
+   bar0[REG(E1000_RCTL)] = 0;
+
 }
