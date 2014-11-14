@@ -104,10 +104,10 @@ void recv_init() {
    struct PageInfo *page;
    int i, error;
 
-   // Set mac address and make it valid
+   // Setup mac address register
    bar0[REG(E1000_RAL)] = MACL;
    bar0[REG(E1000_RAH)] = MACH; 
-   bar0[REG(E1000_RAH)] |= 
+   bar0[REG(E1000_RAH)] |= E1000_RA_AV;   // Address valid 
    // Initialize Multicast table array
    bar0[REG(E1000_MTA)] = 0;
 
