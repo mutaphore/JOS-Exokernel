@@ -94,7 +94,7 @@ int trans_pckt(void *pckt, uint32_t len) {
    buf = KADDR((physaddr_t)CURTD->addr);
    memcpy(buf, pckt, len);
    // Move tail pointer forward
-   *tail = NEXTNDX;
+   *ttail = NEXTTNDX;
 
    return 0;   
 }
@@ -107,7 +107,7 @@ void recv_init() {
    // Setup mac address register
    bar0[REG(E1000_RAL)] = MACL;
    bar0[REG(E1000_RAH)] = MACH; 
-   bar0[REG(E1000_RAH)] |= E1000_RA_AV;   // Address valid 
+   bar0[REG(E1000_RAH)] |= E1000_RAH_AV;   // Address valid 
    // Initialize Multicast table array
    bar0[REG(E1000_MTA)] = 0;
 
@@ -116,17 +116,18 @@ void recv_init() {
       panic("rdarr alloc: out of memory");
    if ((error = page_insert(kern_pgdir, page, (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("rdarr alloc: %e", error);
+
    rdarr = (struct rx_desc *)RDSTART;
 
    // Initialize receive descriptor fields
    for (i = 0; i < NUMRDS; i++) {
       // Receive Buffer address
-      rdarr[i].addr = PADDR(rbuf[i]);
+      rdarr[i].buffer_addr = PADDR(rbuf[i]);
    }
    
    // Save RD info into registers
    bar0[REG(E1000_RDBAL)] = page2pa(page);  
-   bar0[REG(E1000_RDLEN)] = NUMRDS * sizeof(struct rx_desc);
+   bar0[REG(E1000_RDLEN)] = NUMRDS << 7;
 
    // Setup head and tail regs
    rhead = &bar0[REG(E1000_RDH)];   
@@ -139,4 +140,5 @@ void recv_init() {
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
 }
