@@ -29,6 +29,7 @@ enum {
    // Network system error codes
    E_PCKT_DROP  ,    // Transmit packet dropped
    E_PCKT_SIZE  ,    // Exceeded maximum size per packet
+   E_PCKT_NONE  ,    // No packets received
 
 	MAXERROR
 };

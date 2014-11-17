@@ -19,6 +19,7 @@ enum {
 	SYS_ipc_recv,
 	SYS_time_msec,
    SYS_net_send_pckt,
+   SYS_net_recv_pckt,
    SYS_env_set_priority,   // Challenge
 	NSYSCALLS
 };

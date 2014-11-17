@@ -142,8 +142,11 @@ void recv_init() {
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
 }
 
-int recv_pckt(envid_t envid, void *store) {
+// Receive a packet and copy its contents to store
+// Returns the length of packet received or < 0 on error.
+int recv_pckt(void *store) {
    void *buf;      
+   uint32_t len = 0;
 
    // First time running 
    while (CURRD->status == 0 && NEXTRNDX != *rhead)
@@ -160,12 +163,13 @@ int recv_pckt(envid_t envid, void *store) {
    if (CURRD->status & E1000_RXD_STAT_DD &&
        CURRD->status & E1000_RXD_STAT_EOP) {
       buf = KADDR((physaddr_t)CURRD->buffer_addr);
-      memcpy(store, buf, CURRD->length);
+      len = CURRD->length; 
+      memcpy(store, buf, len);
       CURRD->status &= 0;
    }
 
    *rtail = NEXTRNDX;
 
-   return 0; 
+   return len; 
 }
 
