@@ -143,13 +143,29 @@ void recv_init() {
 }
 
 int recv_pckt(envid_t envid, void *store) {
-      
-   // Check if transmit queue is full and the next slot is not ready
+   void *buf;      
+
+   // First time running 
+   while (CURRD->status == 0 && NEXTRNDX != *rhead)
+      *rtail = NEXTRNDX;
+
+   // Check if no more packets have been received
    if (NEXTRNDX == *rhead && 
-      !(NEXTTD->upper.data & E1000_TXD_STAT_DD)) { 
-      // Drop the packet for now
-      cprintf("Packet dropped\n");
-      return -E_PCKT_DROP;
+      !(NEXTRD->status & E1000_RXD_STAT_DD)) { 
+      // Tell the caller that no packets have been received
+      cprintf("No packets received\n");
+      return -E_PCKT_NONE;
+   } 
+
+   if (CURRD->status & E1000_RXD_STAT_DD &&
+       CURRD->status & E1000_RXD_STAT_EOP) {
+      buf = KADDR((physaddr_t)CURRD->buffer_addr);
+      memcpy(store, buf, CURRD->length);
+      CURRD->status &= 0;
    }
 
+   *rtail = NEXTRNDX;
+
+   return 0; 
 }
+

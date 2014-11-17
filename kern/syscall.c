@@ -488,6 +488,25 @@ sys_net_send_pckt(void *src, uint32_t len)
    return trans_pckt(src, len);
 }
 
+static int
+sys_net_recv_pckt(envid_t envid, void *dstva)
+{
+   int error;
+
+
+   // Check if the receive address is valid   
+   if ((uintptr_t)dstva >= UTOP)
+      return -E_INVAL;
+   
+   // Check if user can write to this memory 
+   user_mem_assert(curenv, s, len, PTE_U | PTE_W);
+   
+   if ((error = recv_pckt(envid, dstva)) < 0)
+      return error;
+
+   return 0;
+}
+
 // Challenge
 static int
 sys_env_set_priority(envid_t envid, int priority)
@@ -570,6 +589,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_net_send_pckt:
       ret = sys_net_send_pckt((void *)a1, (uint32_t)a2);
+      break;
+   case SYS_net_recv_pckt:
+      ret = sys_net_recv_pckt((envid_t)a1, (void *)a2);
       break;
    default:
 		return -E_INVAL;
