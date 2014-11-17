@@ -15,6 +15,8 @@ input(envid_t ns_envid)
 	// another packet in to the same physical page.
 
    int r;
+   static union Nsipc queue[5];
+   static int head = 0, tail = 0;
 
    // Spin until a packet is received
    while ((r = sys_net_recv_pckt(nsipcbuf.pkt.jp_data)) == -E_PCKT_NONE)
@@ -24,6 +26,10 @@ input(envid_t ns_envid)
       panic("input: %e", r);
 
    nsipcbuf.pkt.jp_len = r;
-   ipc_send(ns_envid, NSREQ_INPUT, &nsipcbuf, PTE_U | PTE_W); 
 
+   memcpy(queue[tail], nsipcbuf, sizeof(union Nsipc));
+   tail = (tail + 1) % 5; 
+
+   ipc_send(ns_envid, NSREQ_INPUT, &queue[head] , PTE_U | PTE_W); 
+   head = (head + 1) % 5;
 }
