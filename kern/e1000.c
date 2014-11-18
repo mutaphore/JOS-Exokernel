@@ -132,41 +132,36 @@ void recv_init() {
    rhead = &bar0[REG(E1000_RDH)];   
    rtail = &bar0[REG(E1000_RDT)];   
    *rhead = 0;
-   *rtail = 0;
+   *rtail = NUMRDS - 1;
    
    // Setup RCTL
    bar0[REG(E1000_RCTL)] = 0;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_SBP;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
 }
 
 // Receive a packet and copy its contents to store
 // Returns the length of packet received or < 0 on error.
 int recv_pckt(void *store) {
-   uint32_t i, len = 0;
+   uint32_t len = 0;
    void *buf;      
 
-   for (i = 0; i <= NUMRDS && !(CURRD->status & E1000_RXD_STAT_DD); i++)
-      *rtail = NEXTRNDX; 
-
    // Check if no more packets have been received
-   if (!(CURRD->status & E1000_RXD_STAT_DD)) { 
-      // Tell the caller that no packets have been received
+   if (NEXTRNDX == *rhead && !(NEXTRD->status & E1000_RXD_STAT_DD)) {
       cprintf("No packets received %d\n", *rhead);
       return -E_PCKT_NONE;
    } 
 
+   *rtail = NEXTRNDX;
    buf = KADDR((physaddr_t)CURRD->buffer_addr);
    len = CURRD->length; 
-   //cprintf("buf %08x store %08x len %d\n", buf, store, len);
+
    memcpy(store, buf, len);
    CURRD->status &= 0;
-   *rtail = NEXTRNDX;
-
-   cprintf("Got a packet\n");
-
+   
    return len; 
 }
 

@@ -1,6 +1,22 @@
 #include "ns.h"
 
+#define QSIZE 20
+#define QSTART 0x00811000
+
+static union Nsipc *queue[QSIZE] = {0};
+static int head = 0, tail = 0;
+
 extern union Nsipc nsipcbuf;
+
+void init_queue() {
+   int i, error;
+
+   for (i = 0; i < QSIZE; i++) {
+      queue[i] = (union Nsipc *)(QSTART + i * 0x1000);
+      if ((error = sys_page_alloc(0, queue[i], PTE_U | PTE_W | PTE_P)) < 0)
+         panic("init_queue: %e", error);   
+   }
+}
 
 void
 input(envid_t ns_envid)
@@ -15,24 +31,21 @@ input(envid_t ns_envid)
 	// another packet in to the same physical page.
 
    int r;
-   static union Nsipc queue[5];
-   static int head = 0, tail = 0;
+
+   if (!queue[0])
+      init_queue();
 
    // Spin until a packet is received
-   while ((r = sys_net_recv_pckt(queue[tail].pkt.jp_data)) == -E_PCKT_NONE)
+   while ((r = sys_net_recv_pckt(queue[tail]->pkt.jp_data)) == -E_PCKT_NONE)
       sys_yield();
    
-   cprintf("Here\n");
-
    if (r < 0)
       panic("input: %e", r);
 
+   queue[tail]->pkt.jp_len = r;
+   tail = (tail + 1) % QSIZE; 
 
-   queue[tail].pkt.jp_len = r;
-
-   //memcpy(&queue[tail], &nsipcbuf, sizeof(union Nsipc));
-   tail = (tail + 1) % 5; 
-
-   ipc_send(ns_envid, NSREQ_INPUT, &queue[head] , PTE_U | PTE_W); 
-   head = (head + 1) % 5;
+   ipc_send(ns_envid, NSREQ_INPUT, queue[head], PTE_U | PTE_W | PTE_P); 
+   head = (head + 1) % QSIZE;
 }
+
