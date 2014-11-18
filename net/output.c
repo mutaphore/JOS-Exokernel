@@ -18,6 +18,7 @@ output(envid_t ns_envid)
       if ((val = ipc_recv(&output_envid, &nsipcbuf, &perm)) == NSREQ_OUTPUT) {
          while (sys_net_send_pckt(nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len) != 0)
             sys_yield();   // Keep yielding until packet is sent
+         cprintf("packet sent size %d\n", nsipcbuf.pkt.jp_len);
       }
    }
 }

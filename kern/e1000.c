@@ -47,6 +47,8 @@ void trans_init() {
       tdarr[i].lower.data |= E1000_TXD_CMD_RS; 
       // Report end of packet
       tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
+      // Others
+      //tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
    }
 
    // Save TD info into registers
@@ -139,7 +141,6 @@ void recv_init() {
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
-   bar0[REG(E1000_RCTL)] |= E1000_RCTL_SBP;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
 }
 
@@ -150,7 +151,7 @@ int recv_pckt(void *store) {
    void *buf;      
 
    // Check if no more packets have been received
-   if (NEXTRNDX == *rhead && !(NEXTRD->status & E1000_RXD_STAT_DD)) {
+   if (!NEXTRD->status) {
       cprintf("No packets received %d\n", *rhead);
       return -E_PCKT_NONE;
    } 

@@ -1,7 +1,8 @@
 #include "ns.h"
 
-#define QSIZE 20
-#define QSTART 0x00811000
+#define QSIZE 50
+//#define QSTART 0x00811000
+#define QSTART 0x00900000
 
 static union Nsipc *queue[QSIZE] = {0};
 static int head = 0, tail = 0;
@@ -32,20 +33,21 @@ input(envid_t ns_envid)
 
    int r;
 
-   if (!queue[0])
-      init_queue();
+   init_queue();
 
-   // Spin until a packet is received
-   while ((r = sys_net_recv_pckt(queue[tail]->pkt.jp_data)) == -E_PCKT_NONE)
-      sys_yield();
+   while (1) {
+      // Spin until a packet is received
+      while ((r = sys_net_recv_pckt(queue[tail]->pkt.jp_data)) == -E_PCKT_NONE)
+         sys_yield();
    
-   if (r < 0)
-      panic("input: %e", r);
+      if (r < 0)
+         panic("input: %e", r);
 
-   queue[tail]->pkt.jp_len = r;
-   tail = (tail + 1) % QSIZE; 
+      queue[tail]->pkt.jp_len = r;
+      tail = (tail + 1) % QSIZE; 
 
-   ipc_send(ns_envid, NSREQ_INPUT, queue[head], PTE_U | PTE_W | PTE_P); 
-   head = (head + 1) % QSIZE;
+      ipc_send(ns_envid, NSREQ_INPUT, queue[head], PTE_U | PTE_W | PTE_P); 
+      head = (head + 1) % QSIZE;
+   }
 }
 
