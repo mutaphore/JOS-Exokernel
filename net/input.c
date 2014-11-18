@@ -19,15 +19,18 @@ input(envid_t ns_envid)
    static int head = 0, tail = 0;
 
    // Spin until a packet is received
-   while ((r = sys_net_recv_pckt(nsipcbuf.pkt.jp_data)) == -E_PCKT_NONE)
+   while ((r = sys_net_recv_pckt(queue[tail].pkt.jp_data)) == -E_PCKT_NONE)
       sys_yield();
+   
+   cprintf("Here\n");
 
    if (r < 0)
       panic("input: %e", r);
 
-   nsipcbuf.pkt.jp_len = r;
 
-   memcpy(queue[tail], nsipcbuf, sizeof(union Nsipc));
+   queue[tail].pkt.jp_len = r;
+
+   //memcpy(&queue[tail], &nsipcbuf, sizeof(union Nsipc));
    tail = (tail + 1) % 5; 
 
    ipc_send(ns_envid, NSREQ_INPUT, &queue[head] , PTE_U | PTE_W); 

@@ -190,5 +190,6 @@ int e1000_attach(struct pci_func *pcif);
 void trans_init();
 int trans_pckt(void *pckt, uint32_t len);
 void recv_init();
+int recv_pckt(void *store);
 
 #endif	// JOS_KERN_E1000_H

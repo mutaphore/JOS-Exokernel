@@ -132,7 +132,7 @@ sys_net_send_pckt(void *src, uint32_t len)
 int
 sys_net_recv_pckt(void *dstva)
 {
-   return syscall(SYS_net_recv_pckt, 1, (uint32_t)dstva, 0, 0, 0, 0);
+   return syscall(SYS_net_recv_pckt, 0, (uint32_t)dstva, 0, 0, 0, 0);
 }
 
 // Challenge

@@ -495,7 +495,7 @@ sys_net_recv_pckt(void *dstva)
    if ((uintptr_t)dstva >= UTOP)
       return -E_INVAL;
    // Check if user can write to this memory 
-   user_mem_assert(curenv, dstva, RBUFSIZE, PTE_U | PTE_W);
+   user_mem_assert(curenv, dstva, RBUFSIZE, PTE_U | PTE_W | PTE_P);
    
    return recv_pckt(dstva);
 }

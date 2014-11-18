@@ -61,6 +61,7 @@ int	sys_ipc_try_send(envid_t to_env, uint32_t value, void *pg, int perm);
 int	sys_ipc_recv(void *rcv_pg);
 int   sys_env_set_priority(envid_t env, int priority);
 int   sys_net_send_pckt(void *src, uint32_t len);
+int   sys_net_recv_pckt(void *dstva);
 unsigned int sys_time_msec(void);
 
 // This must be inlined.  Exercise for reader: why?

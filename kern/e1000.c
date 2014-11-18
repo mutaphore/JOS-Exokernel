@@ -145,30 +145,27 @@ void recv_init() {
 // Receive a packet and copy its contents to store
 // Returns the length of packet received or < 0 on error.
 int recv_pckt(void *store) {
+   uint32_t i, len = 0;
    void *buf;      
-   uint32_t len = 0;
 
-   // First time running 
-   while (CURRD->status == 0 && NEXTRNDX != *rhead)
-      *rtail = NEXTRNDX;
+   for (i = 0; i <= NUMRDS && !(CURRD->status & E1000_RXD_STAT_DD); i++)
+      *rtail = NEXTRNDX; 
 
    // Check if no more packets have been received
-   if (NEXTRNDX == *rhead && 
-      !(NEXTRD->status & E1000_RXD_STAT_DD)) { 
+   if (!(CURRD->status & E1000_RXD_STAT_DD)) { 
       // Tell the caller that no packets have been received
-      cprintf("No packets received\n");
+      cprintf("No packets received %d\n", *rhead);
       return -E_PCKT_NONE;
    } 
 
-   if (CURRD->status & E1000_RXD_STAT_DD &&
-       CURRD->status & E1000_RXD_STAT_EOP) {
-      buf = KADDR((physaddr_t)CURRD->buffer_addr);
-      len = CURRD->length; 
-      memcpy(store, buf, len);
-      CURRD->status &= 0;
-   }
-
+   buf = KADDR((physaddr_t)CURRD->buffer_addr);
+   len = CURRD->length; 
+   //cprintf("buf %08x store %08x len %d\n", buf, store, len);
+   memcpy(store, buf, len);
+   CURRD->status &= 0;
    *rtail = NEXTRNDX;
+
+   cprintf("Got a packet\n");
 
    return len; 
 }
