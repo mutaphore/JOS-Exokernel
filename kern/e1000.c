@@ -124,11 +124,13 @@ void recv_init() {
    for (i = 0; i < NUMRDS; i++) {
       // Receive Buffer address
       rdarr[i].buffer_addr = PADDR(rbuf[i]);
+      // Clean up status field
+      cprintf("%032x\n", rdarr[i]); 
    }
    
    // Save RD info into registers
    bar0[REG(E1000_RDBAL)] = page2pa(page);  
-   bar0[REG(E1000_RDLEN)] = NUMRDS << 7;
+   bar0[REG(E1000_RDLEN)] = NUMRDS * sizeof(struct rx_desc);
 
    // Setup head and tail regs
    rhead = &bar0[REG(E1000_RDH)];   
@@ -150,20 +152,21 @@ int recv_pckt(void *store) {
    uint32_t len = 0;
    void *buf;      
       
+   CURRD->status = 0;
+
    // Check if no more packets have been received
-   if (!NEXTRD->status) {
+   if (NEXTRNDX == *rhead && !(NEXTRD->status & E1000_RXD_STAT_DD)) {
       cprintf("No packets received head %d tail %d status %08x\n", 
        *rhead, *rtail, NEXTRD->status);
       return -E_PCKT_NONE;
    } 
-   cprintf("Packet received status %08x\n", CURRD->status);
+   cprintf("Packet received head %d tail %d status %08x\n", 
+    *rhead, *rtail, CURRD->status);
 
    *rtail = NEXTRNDX;
    buf = KADDR((physaddr_t)CURRD->buffer_addr);
    len = CURRD->length; 
-
    memcpy(store, buf, len);
-   //CURRD->status = 0;
    
    return len; 
 }
