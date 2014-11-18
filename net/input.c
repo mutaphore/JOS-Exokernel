@@ -1,6 +1,6 @@
 #include "ns.h"
 
-#define QSIZE 128
+#define QSIZE 64
 #define QSTART 0x00900000
 
 static union Nsipc *queue[QSIZE] = {0};
@@ -17,6 +17,8 @@ void init_queue() {
       if ((error = sys_page_alloc(0, queue[i], PTE_U | PTE_W | PTE_P)) < 0)
          panic("init_queue: %e", error);   
    }
+
+   cprintf("Init queue\n");
 }
 
 void
