@@ -149,19 +149,21 @@ void recv_init() {
 int recv_pckt(void *store) {
    uint32_t len = 0;
    void *buf;      
-
+      
    // Check if no more packets have been received
    if (!NEXTRD->status) {
-      cprintf("No packets received %d\n", *rhead);
+      cprintf("No packets received head %d tail %d status %08x\n", 
+       *rhead, *rtail, NEXTRD->status);
       return -E_PCKT_NONE;
    } 
+   cprintf("Packet received status %08x\n", CURRD->status);
 
    *rtail = NEXTRNDX;
    buf = KADDR((physaddr_t)CURRD->buffer_addr);
    len = CURRD->length; 
 
    memcpy(store, buf, len);
-   CURRD->status &= 0;
+   //CURRD->status = 0;
    
    return len; 
 }

@@ -1,7 +1,6 @@
 #include "ns.h"
 
-#define QSIZE 50
-//#define QSTART 0x00811000
+#define QSIZE 128
 #define QSTART 0x00900000
 
 static union Nsipc *queue[QSIZE] = {0};
@@ -12,6 +11,7 @@ extern union Nsipc nsipcbuf;
 void init_queue() {
    int i, error;
 
+   // Allocate pages for Nsipc queue
    for (i = 0; i < QSIZE; i++) {
       queue[i] = (union Nsipc *)(QSTART + i * 0x1000);
       if ((error = sys_page_alloc(0, queue[i], PTE_U | PTE_W | PTE_P)) < 0)

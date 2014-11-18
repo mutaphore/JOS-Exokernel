@@ -153,7 +153,7 @@ char tbuf[NUMTDS][PBUFSIZE];  // Transmit Packet Buffers
 
 #define RDSTART   0xF00E0000  // Arbitrary mem address of RD array
 #define RBUFSIZE  2048        // One of the standard HW buf sizes   
-#define NUMRDS 64             // Number of receive descriptors
+#define NUMRDS 64            // Number of receive descriptors
 
 struct rx_desc {
     uint64_t buffer_addr; /* Address of the descriptor's data buffer */
