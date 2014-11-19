@@ -124,8 +124,6 @@ void recv_init() {
    for (i = 0; i < NUMRDS; i++) {
       // Receive Buffer address
       rdarr[i].buffer_addr = PADDR(rbuf[i]);
-      // Clean up status field
-      cprintf("%032x\n", rdarr[i]); 
    }
    
    // Save RD info into registers
@@ -155,8 +153,8 @@ int recv_pckt(void *store) {
 
    // Check if no more packets have been received
    if (!(NEXTRD->status & E1000_RXD_STAT_DD)) {
-      cprintf("No packets received head %d tail %d status %08x\n", 
-       *rhead, *rtail, NEXTRD->status);
+      //cprintf("No packets received head %d tail %d status %08x\n", 
+      // *rhead, *rtail, NEXTRD->status);
       return -E_PCKT_NONE;
    } 
 //   cprintf("Packet received [1] head %d tail %d des %02x\n", 
