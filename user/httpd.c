@@ -76,14 +76,26 @@ send_header(struct http_request *req, int code)
 static int
 send_data(struct http_request *req, int fd)
 {
-	int r;
-	char buffer[BUFFSIZE];
-	int received = -1;
-
 	// LAB 6: Your code here.
-	panic("send_data not implemented");
-   if ((received = read(sock, buffer, BUFFSIZE)) < 0)
-      panic("failed to read fd");
+
+	int n, r, file_size;
+	char buf[BUFFSIZE];
+   struct Stat st;
+
+   // Get the file size
+   if ((r = fstat(fd, &st)) < 0)
+      return r;
+   file_size = st.st_size;
+
+   for (n = 0; n < file_size; n += r) { 
+      // Read from file
+      if ((r = read(fd, buf, BUFFSIZE)) < 0)
+         return n;
+      // Write to socket
+      write(req->sock, buf, r);
+   }
+
+   return n;
 }
 
 static int
@@ -237,11 +249,11 @@ send_file(struct http_request *req)
 
    // Get the file size
    if ((r = fstat(fd, &st)) < 0)
-      panic("stat: %e", r);
-   file_size = st->st_size;
+      goto end;
+   file_size = st.st_size;
 
    // Check if a directory
-   if (st->is_dir)
+   if (st.st_isdir)
       send_error(req, 404);
 
 	if ((r = send_header(req, 200)) < 0)
