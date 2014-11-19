@@ -246,12 +246,10 @@ send_file(struct http_request *req)
    // Open the request url
    if ((fd = open(req->url, O_RDONLY)) < 0)
       send_error(req, 404);
-
    // Get the file size
    if ((r = fstat(fd, &st)) < 0)
       goto end;
    file_size = st.st_size;
-
    // Check if a directory
    if (st.st_isdir)
       send_error(req, 404);
