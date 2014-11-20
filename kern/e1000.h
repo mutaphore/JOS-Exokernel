@@ -45,7 +45,53 @@
 #define E1000_RDLEN    0x02808  /* RX Descriptor Length - RW */
 #define E1000_RDH      0x02810  /* RX Descriptor Head - RW */
 #define E1000_RDT      0x02818  /* RX Descriptor Tail - RW */
+#define E1000_RXDCTL   0x02828  /* RX Descriptor Control queue 0 - RW */
 #define E1000_RDTR     0x02820  /* RX Delay Timer - RW */
+#define E1000_RDFH     0x02410  /* Receive data FIFO head */
+#define E1000_RDFT     0x02418  /* Receive data FIFO tail */
+#define E1000_RDFPC    0x02430  /* Receive data FIFO packet count */
+#define E1000_RNBC     0x040A0  /* RX No Buffers Count - R/clr */
+#define E1000_RUC      0x040A4  /* RX Undersize Count - R/clr */
+#define E1000_RFC      0x040A8  /* RX Fragment Count - R/clr */
+#define E1000_ROC      0x040AC  /* RX Oversize Count - R/clr */
+#define E1000_RJC      0x040B0  /* RX Jabber Count - R/clr */
+
+/* Interrupts */
+#define E1000_ICR      0x000C0  /* Interrupt Cause Read - R/clr */
+#define E1000_ICS      0x000C8  /* Interrupt Cause Set - WO */
+#define E1000_IMS      0x000D0  /* Interrupt Mask Set - RW */
+#define E1000_IMC      0x000D8  /* Interrupt Mask Clear - WO */
+
+/* Interrupt Cause Read */
+#define E1000_ICR_TXDW          0x00000001 /* Transmit desc written back */
+#define E1000_ICR_TXQE          0x00000002 /* Transmit Queue empty */
+#define E1000_ICR_LSC           0x00000004 /* Link Status Change */
+#define E1000_ICR_RXSEQ         0x00000008 /* rx sequence error */
+#define E1000_ICR_RXDMT0        0x00000010 /* rx desc min. threshold (0) */
+#define E1000_ICR_RXO           0x00000040 /* rx overrun */
+#define E1000_ICR_RXT0          0x00000080 /* rx timer intr (ring 0) */
+#define E1000_ICR_MDAC          0x00000200 /* MDIO access complete */
+#define E1000_ICR_RXCFG         0x00000400 /* RX /c/ ordered set */
+#define E1000_ICR_GPI_EN0       0x00000800 /* GP Int 0 */
+#define E1000_ICR_GPI_EN1       0x00001000 /* GP Int 1 */
+#define E1000_ICR_GPI_EN2       0x00002000 /* GP Int 2 */
+#define E1000_ICR_GPI_EN3       0x00004000 /* GP Int 3 */
+#define E1000_ICR_TXD_LOW       0x00008000
+#define E1000_ICR_SRPD          0x00010000
+#define E1000_ICR_ACK           0x00020000 /* Receive Ack frame */
+#define E1000_ICR_MNG           0x00040000 /* Manageability event */
+#define E1000_ICR_DOCK          0x00080000 /* Dock/Undock */
+#define E1000_ICR_INT_ASSERTED  0x80000000 /* If this bit asserted, the driver should claim the interrupt */
+#define E1000_ICR_RXD_FIFO_PAR0 0x00100000 /* queue 0 Rx descriptor FIFO parity error */
+#define E1000_ICR_TXD_FIFO_PAR0 0x00200000 /* queue 0 Tx descriptor FIFO parity error */
+#define E1000_ICR_HOST_ARB_PAR  0x00400000 /* host arb read buffer parity error */
+#define E1000_ICR_PB_PAR        0x00800000 /* packet buffer parity error */
+#define E1000_ICR_RXD_FIFO_PAR1 0x01000000 /* queue 1 Rx descriptor FIFO parity error */
+#define E1000_ICR_TXD_FIFO_PAR1 0x02000000 /* queue 1 Tx descriptor FIFO parity error */
+#define E1000_ICR_ALL_PARITY    0x03F00000 /* all parity error bits */
+#define E1000_ICR_DSW           0x00000020 /* FW changed the status of DISSW bit in the FWSM */
+#define E1000_ICR_PHYINT        0x00001000 /* LAN connected device generates an interrupt */
+#define E1000_ICR_EPRST         0x00100000 /* ME handware reset occurs */
 
 /* Transmit Control */
 #define E1000_TCTL_RST    0x00000001    /* software reset */
@@ -72,6 +118,11 @@
 #define E1000_RCTL_SZ_1024        0x00010000    /* rx buffer size 1024 */
 #define E1000_RCTL_SZ_512         0x00020000    /* rx buffer size 512 */
 #define E1000_RCTL_SZ_256         0x00030000    /* rx buffer size 256 */
+#define E1000_RCTL_VFE            0x00040000    /* vlan filter enable */
+#define E1000_RCTL_CFIEN          0x00080000    /* canonical form enable */
+#define E1000_RCTL_CFI            0x00100000    /* canonical form indicator */
+#define E1000_RCTL_DPF            0x00400000    /* discard pause frames */
+#define E1000_RCTL_PMCF           0x00800000    /* pass MAC control frames */
 #define E1000_RAH_AV  0x80000000        /* Receive descriptor valid */
 
 /* Transmit Descriptor bit definitions */

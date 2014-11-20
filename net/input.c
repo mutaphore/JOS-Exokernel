@@ -1,9 +1,9 @@
 #include "ns.h"
 
-#define QSIZE 64
+#define QSIZE 8
 #define QSTART 0x00900000
 
-static union Nsipc *queue[QSIZE] = {0};
+static union Nsipc *queue[QSIZE];
 static int head = 0, tail = 0;
 
 extern union Nsipc nsipcbuf;

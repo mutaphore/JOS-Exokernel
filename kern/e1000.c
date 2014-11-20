@@ -135,43 +135,73 @@ void recv_init() {
    rtail = &bar0[REG(E1000_RDT)];   
    *rhead = 0;
    *rtail = NUMRDS - 1;
-   
+
+   //??? Setup descriptor fetching threshold
+   //bar0[REG(E1000_RXDCTL)] = 20 | (1 << 24) | (1 << 16);
+
+   // Setup interrupts
+/*
+   bar0[REG(E1000_IMS)] = 0;
+   bar0[REG(E1000_ICS)] = 0;
+   bar0[REG(E1000_IMS)] |= E1000_ICR_RXO;
+   bar0[REG(E1000_ICS)] |= E1000_ICR_RXO;
+   bar0[REG(E1000_IMS)] |= E1000_ICR_RXT0;
+   bar0[REG(E1000_ICS)] |= E1000_ICR_RXT0;
+*/   
    // Setup RCTL
    bar0[REG(E1000_RCTL)] = 0;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
-   bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
-   bar0[REG(E1000_RCTL)] |= E1000_RCTL_SBP;
 }
 
+int recv_pckt(void *store) {
+   int len;   
+   void *buf;
+
+   cprintf("head %d tail %d\n", *rhead, *rtail);
+   if (NEXTRD->status & E1000_RXD_STAT_DD) {
+      *rtail = NEXTRNDX;
+      buf = KADDR((physaddr_t)CURRD->buffer_addr);
+      len = CURRD->length; 
+      memcpy(store, buf, len);
+      cprintf("Packet received!! %d\n", len);
+      CURRD->status = 0;
+      return len;
+   }
+   return -E_PCKT_NONE;
+}
+/*
 // Receive a packet and copy its contents to store
 // Returns the length of packet received or < 0 on error.
 int recv_pckt(void *store) {
    uint32_t len = 0;
    void *buf;      
 
+   cprintf("ICR %08x IMS %08x ICS %08x\n", 
+    bar0[REG(E1000_ICR)],
+    bar0[REG(E1000_IMS)],
+    bar0[REG(E1000_ICS)]);
+
    // Check if no more packets have been received
    if (!(NEXTRD->status & E1000_RXD_STAT_DD)) {
-      //cprintf("No packets received head %d tail %d status %08x\n", 
-      // *rhead, *rtail, NEXTRD->status);
+      cprintf("No packet received head %d tail %d stat %02x len %d addr %08x\n", 
+       *rhead, *rtail, NEXTRD->status, NEXTRD->length, NEXTRD->buffer_addr);
       return -E_PCKT_NONE;
    } 
-//   cprintf("Packet received [1] head %d tail %d des %02x\n", 
-//    *rhead, *rtail, CURRD->status);
+   cprintf("Packet received [1] head %d tail %d stat %02x len %d addr %08x\n", 
+    *rhead, *rtail, CURRD->status, CURRD->length, CURRD->buffer_addr);
    
    *rtail = NEXTRNDX;
    buf = KADDR((physaddr_t)CURRD->buffer_addr);
    len = CURRD->length; 
    memcpy(store, buf, len);
 
-//   cprintf("Packet received [2] head %d tail %d des %02x\n", 
-//    *rhead, *rtail, CURRD->status);
+   cprintf("Packet received [2] head %d tail %d stat %02x len %d addr %08x\n", 
+    *rhead, *rtail, CURRD->status, CURRD->length, CURRD->buffer_addr);
 
-   //CURRD->status = 0;
-   CURRD->status &= ~E1000_RXD_STAT_DD;
-   CURRD->length = 0;
+   CURRD->status = 0;
 
    return len; 
 }
-
+*/
