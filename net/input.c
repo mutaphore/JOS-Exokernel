@@ -45,8 +45,7 @@ input(envid_t ns_envid)
 
       queue[tail]->pkt.jp_len = r;
       tail = (tail + 1) % QSIZE; 
-
-      ipc_send(ns_envid, NSREQ_INPUT, queue[head], PTE_U | PTE_W | PTE_P); 
+      ipc_send(ns_envid, NSREQ_INPUT, queue[head], PTE_U | PTE_W | PTE_P);
       head = (head + 1) % QSIZE;
    }
 }

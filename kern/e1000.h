@@ -26,6 +26,17 @@
  * R/clr - register is read only and is cleared when read
  * A - register array
  */
+// General
+#define E1000_CTRL     0x00000  /* Device Control - RW */
+#define E1000_FCAL     0x00028  /* Flow Control Address Low - RW */
+#define E1000_FCAH     0x0002C  /* Flow Control Address High -RW */
+#define E1000_FCT      0x00030  /* Flow Control Type - RW */
+#define E1000_AIT      0x00458  /* Adaptive Interframe Spacing Throttle - RW */
+// Bits
+#define E1000_CTRL_FD       0x00000001  /* Full duplex.0=half; 1=full */
+#define E1000_CTRL_RFCE     0x08000000  /* Receive Flow Control enable */
+#define E1000_CTRL_TFCE     0x10000000  /* Transmit flow control enable */
+
 // TX
 #define E1000_STATUS   0x00008  /* Device Status - RO */
 #define E1000_TCTL     0x00400  /* TX Control - RW */
@@ -35,6 +46,7 @@
 #define E1000_TDLEN    0x03808  /* TX Descriptor Length - RW */
 #define E1000_TDH      0x03810  /* TX Descriptor Head - RW */
 #define E1000_TDT      0x03818  /* TX Descripotr Tail - RW */
+#define E1000_TXCW     0x00178  /* TX Configuration Word - RW */
 // RX
 #define E1000_RCTL     0x00100  /* RX Control - RW */
 #define E1000_RAL      0x05400  /* Receive Address Low - RW Array */
@@ -61,8 +73,7 @@
 #define E1000_ICS      0x000C8  /* Interrupt Cause Set - WO */
 #define E1000_IMS      0x000D0  /* Interrupt Mask Set - RW */
 #define E1000_IMC      0x000D8  /* Interrupt Mask Clear - WO */
-
-/* Interrupt Cause Read */
+// Bits
 #define E1000_ICR_TXDW          0x00000001 /* Transmit desc written back */
 #define E1000_ICR_TXQE          0x00000002 /* Transmit Queue empty */
 #define E1000_ICR_LSC           0x00000004 /* Link Status Change */
@@ -118,6 +129,9 @@
 #define E1000_RCTL_SZ_1024        0x00010000    /* rx buffer size 1024 */
 #define E1000_RCTL_SZ_512         0x00020000    /* rx buffer size 512 */
 #define E1000_RCTL_SZ_256         0x00030000    /* rx buffer size 256 */
+#define E1000_RCTL_RDMTS_HALF     0x00000000    /* rx desc min threshold size */
+#define E1000_RCTL_RDMTS_QUAT     0x00000100    /* rx desc min threshold size */
+#define E1000_RCTL_RDMTS_EIGTH    0x00000200    /* rx desc min threshold size */
 #define E1000_RCTL_VFE            0x00040000    /* vlan filter enable */
 #define E1000_RCTL_CFIEN          0x00080000    /* canonical form enable */
 #define E1000_RCTL_CFI            0x00100000    /* canonical form indicator */

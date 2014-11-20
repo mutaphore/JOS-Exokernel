@@ -1,4 +1,5 @@
 #include <kern/e1000.h>
+#include <kern/sched.h>
 
 // LAB 6: Your driver code here
 
@@ -70,9 +71,9 @@ void trans_init() {
 
    // Setup TIPG
    bar0[REG(E1000_TIPG)] = 0;
-   bar0[REG(E1000_TIPG)] |= 10;         //TIPG_IPGT
-   bar0[REG(E1000_TIPG)] |= 4 << 10;    //TIPG_IPGR1
-   bar0[REG(E1000_TIPG)] |= 6 << 20;    //TIPG_IPGR2
+   bar0[REG(E1000_TIPG)] = 10;           //TIPG_IPGT
+   bar0[REG(E1000_TIPG)] |= 6 << 10;     //TIPG_IPGR1
+   bar0[REG(E1000_TIPG)] |= 4 << 20;    //TIPG_IPGR2
 }
 
 int trans_pckt(void *pckt, uint32_t len) {
@@ -109,9 +110,17 @@ void recv_init() {
    bar0[REG(E1000_RAL)] = MACL;
    bar0[REG(E1000_RAH)] = MACH; 
    bar0[REG(E1000_RAH)] |= E1000_RAH_AV;   // Address valid 
+
    // Initialize Multicast table array
    bar0[REG(E1000_MTA)] = 0;
-
+/*
+   // Flow control setup
+   bar0[REG(E1000_FCAL)] = 0x00C28001;
+   bar0[REG(E1000_FCAH)] = 0x0100; 
+   bar0[REG(E1000_FCT)] = 0x8808;
+   bar0[REG(E1000_CTRL)] |= E1000_CTRL_RFCE;
+   bar0[REG(E1000_CTRL)] |= E1000_CTRL_FD;
+*/
    // Allocate memory for receive descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("rdarr alloc: out of memory");
@@ -136,72 +145,40 @@ void recv_init() {
    *rhead = 0;
    *rtail = NUMRDS - 1;
 
-   //??? Setup descriptor fetching threshold
-   //bar0[REG(E1000_RXDCTL)] = 20 | (1 << 24) | (1 << 16);
-
    // Setup interrupts
-/*
-   bar0[REG(E1000_IMS)] = 0;
-   bar0[REG(E1000_ICS)] = 0;
-   bar0[REG(E1000_IMS)] |= E1000_ICR_RXO;
-   bar0[REG(E1000_ICS)] |= E1000_ICR_RXO;
-   bar0[REG(E1000_IMS)] |= E1000_ICR_RXT0;
-   bar0[REG(E1000_ICS)] |= E1000_ICR_RXT0;
-*/   
+   bar0[REG(E1000_IMC)] = 0xFFFFFFFF;
+   bar0[REG(E1000_IMS)] = E1000_ICR_RXDMT0;
+   bar0[REG(E1000_ICS)] = E1000_ICR_RXDMT0;
+
    // Setup RCTL
    bar0[REG(E1000_RCTL)] = 0;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SZ_2048;
    bar0[REG(E1000_RCTL)] |= E1000_RCTL_SECRC;
-   bar0[REG(E1000_RCTL)] |= E1000_RCTL_EN;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_BAM;
+   bar0[REG(E1000_RCTL)] |= E1000_RCTL_RDMTS_HALF;    //Interrupt when 1/2 left
 }
 
+// Receive a packet and copy its contents to store
+// Returns the length of packet received or < 0 on error.
 int recv_pckt(void *store) {
-   int len;   
+   uint32_t len;   
    void *buf;
 
    cprintf("head %d tail %d\n", *rhead, *rtail);
+   cprintf("ICR %08x IMS %08x\n", 
+    bar0[REG(E1000_ICR)],
+    bar0[REG(E1000_IMS)]);
+
    if (NEXTRD->status & E1000_RXD_STAT_DD) {
       *rtail = NEXTRNDX;
       buf = KADDR((physaddr_t)CURRD->buffer_addr);
       len = CURRD->length; 
-      memcpy(store, buf, len);
       cprintf("Packet received!! %d\n", len);
-      CURRD->status = 0;
+      memcpy(store, buf, len);
+      CURRD->status &= ~E1000_RXD_STAT_DD;
+      CURRD->status &= ~E1000_RXD_STAT_EOP;
       return len;
    }
    return -E_PCKT_NONE;
 }
-/*
-// Receive a packet and copy its contents to store
-// Returns the length of packet received or < 0 on error.
-int recv_pckt(void *store) {
-   uint32_t len = 0;
-   void *buf;      
-
-   cprintf("ICR %08x IMS %08x ICS %08x\n", 
-    bar0[REG(E1000_ICR)],
-    bar0[REG(E1000_IMS)],
-    bar0[REG(E1000_ICS)]);
-
-   // Check if no more packets have been received
-   if (!(NEXTRD->status & E1000_RXD_STAT_DD)) {
-      cprintf("No packet received head %d tail %d stat %02x len %d addr %08x\n", 
-       *rhead, *rtail, NEXTRD->status, NEXTRD->length, NEXTRD->buffer_addr);
-      return -E_PCKT_NONE;
-   } 
-   cprintf("Packet received [1] head %d tail %d stat %02x len %d addr %08x\n", 
-    *rhead, *rtail, CURRD->status, CURRD->length, CURRD->buffer_addr);
-   
-   *rtail = NEXTRNDX;
-   buf = KADDR((physaddr_t)CURRD->buffer_addr);
-   len = CURRD->length; 
-   memcpy(store, buf, len);
-
-   cprintf("Packet received [2] head %d tail %d stat %02x len %d addr %08x\n", 
-    *rhead, *rtail, CURRD->status, CURRD->length, CURRD->buffer_addr);
-
-   CURRD->status = 0;
-
-   return len; 
-}
-*/

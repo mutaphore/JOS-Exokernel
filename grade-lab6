@@ -88,10 +88,10 @@ socket.setdefaulttimeout(5)
 # Basic tests
 #
 
-#@test(5)
-#def test_testtime():
-#    r.user_test("testtime", make_args=["INIT_CFLAGS=-DTEST_NO_NS"])
-#    r.match(r'starting count down: 5 4 3 2 1 0 ')
+@test(5)
+def test_testtime():
+    r.user_test("testtime", make_args=["INIT_CFLAGS=-DTEST_NO_NS"])
+    r.match(r'starting count down: 5 4 3 2 1 0 ')
 
 @test(5)
 def test_pci_attach():
