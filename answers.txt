@@ -4,8 +4,19 @@ dc3186
 Lab 6
 ------
 1)
-Currently my implementation is that if the transmit ring is full, meaning that the next index after tail is the head
+Currently my implementation is such that if the transmit ring is full, meaning that the next index after tail is the head
 but the DD bit shows that it's not been processed yet, the transmit packet function will simply return an error number
 indicating that the packet is dropped. However, in output() if the return of the packet send system call indicates that
 packet is dropped, it will yield and try resending the same packet again until it succeeds before fetching the next packet.
 
+2)
+I implemented the receive packet function to return a -E_PCKT_NONE error when the user requests to receive a packet 
+but there is none in the receiving queue. In input.c that calls this function, it yields the process if this error
+is received and try querying for a packet again until it receives something. If a packet is received, it returns the 
+length of the packet in bytes.
+
+3)
+The webpage says "This file came from JOS. Cheesy web page!".
+
+4)
+I spent about 20 hrs on this lab.
