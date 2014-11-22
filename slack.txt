@@ -8,3 +8,4 @@ Lab4B:   0
 Lab4C:   0
 Lab5:    0
 Lab6A:   0
+Lab6B:   18

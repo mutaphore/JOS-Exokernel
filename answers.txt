@@ -23,12 +23,12 @@ I spent about 30 hrs on this lab.
 
 
 Challenge:
-I modified the E1000 driver to be zero-copy. To do this I added extra functions buf_map in pmap.c and env_buf_map in
-env.c. buf_map() handles initial mapping of a buffer region in the kernel address space at boot time. env_buf_map()
+I modified the E1000 driver to be zero-copy. To do this I added extra functions: pmap.c/buf_map and env.c/env_buf_map. 
+buf_map() handles an initial mapping of a buffer region in the kernel address space at boot time. env_buf_map()
 is called whenever a new environment is allocated. It locates the physical pages of the buffer region in kernel
 space and inserts them into the new environment address space. The buffer region in kernel and user space are both
-predefined so the user can copy any data he wishes to share with the kernel. The E1000 initialization function will now
-directly set the buffer address in the transmit and receive descriptors to that of the mapped buffer memory region.
-I also preserved the API for the transmit and receive functions in case if the user does not want to use the
-shared buffer memory and provide his own buffer instead. If a NULL parameter is passed to the transmit/receive 
-functions, it is assumed that mapped buffer region will be used.
+predefined so the user can copy to it any data he wishes to share with the kernel. The E1000 initialization function
+directly sets the buffer address in the transmit and receive descriptors to that of the mapped buffer memory region.
+I preserved the API for the transmit and receive functions in case if the user does not want to use the shared buffer 
+memory and provide his own buffer instead. If a NULL parameter is passed to the transmit/receive functions, it is 
+assumed that mapped buffer region will be used in the descriptors.
