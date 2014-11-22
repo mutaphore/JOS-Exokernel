@@ -78,13 +78,7 @@ void trans_init() {
 
 int trans_pckt(void *pckt, uint32_t len) {
    void *buf;
-/* 
-   struct PageInfo *page; 
-   page = page_lookup(kern_pgdir, (void *)(TBUFMAP), NULL);
-   cprintf("kern at phys page %08x\n", page2pa(page));
-   page = page_lookup(curenv->env_pgdir, (void *)(UTBUFMAP), NULL);
-   cprintf("env %08x at phys page %08x\n", curenv->env_id, page2pa(page));
-*/
+
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
       return -E_PCKT_SIZE;
@@ -99,7 +93,8 @@ int trans_pckt(void *pckt, uint32_t len) {
    
    // Set the descriptor packet length
    CURTD->lower.flags.length = len;
-   // Copy packet into buffer
+
+   // Zero-copy if pckt is NULL
    if (pckt) {
       buf = KADDR((physaddr_t)CURTD->addr);
       memcpy(buf, pckt, len);
@@ -178,6 +173,7 @@ int recv_pckt(void *store) {
    if (NEXTRD->status & E1000_RXD_STAT_DD) {
       *rtail = NEXTRNDX;
       len = CURRD->length; 
+      // Zero-copy if store is NULL
       if (store) {
          buf = KADDR((physaddr_t)CURRD->buffer_addr);
          memcpy(store, buf, len);

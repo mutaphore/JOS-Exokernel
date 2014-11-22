@@ -23,7 +23,7 @@ output(envid_t ns_envid)
          // Alternative implementation to take advantage of zero-copy is
          // to copy data directly into mapped memory buffer at UTBUFMAP
          // in source process.
-         memcpy(tbuf, (void *)&nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len);
+         memcpy(tbuf, &nsipcbuf.pkt.jp_data, nsipcbuf.pkt.jp_len);
 
          while (sys_net_send_pckt(NULL, nsipcbuf.pkt.jp_len) != 0)
             sys_yield();   // Keep yielding until packet is sent
