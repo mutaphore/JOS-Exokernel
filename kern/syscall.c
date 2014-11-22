@@ -390,8 +390,6 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
 	// LAB 4: Your code here.
 
-   cprintf("I'm going to send %08x\n", srcva);
-   
    struct PageInfo *page;
    pte_t *ptEntry;
    struct Env *e;
@@ -484,7 +482,7 @@ static int
 sys_net_send_pckt(void *src, uint32_t len)
 {
    // Check if packet address is in user space and doesn't exceed buffer size 
-   if ((uintptr_t)src >= UTOP || len > PBUFSIZE)
+   if (src && ((uintptr_t)src >= UTOP || len > PBUFSIZE))
       return -E_INVAL; 
    
    return trans_pckt(src, len);

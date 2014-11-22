@@ -230,19 +230,19 @@ void env_buf_map(struct Env *e) {
    for (i = 0; i < NUMTDS; i++) { 
       if (!(page = page_lookup(kern_pgdir, \
           (void *)(TBUFMAP + i * PGSIZE), NULL)))
-         panic("env_rbuf_map: no page");
+         panic("env_buf_map: no page");
       if ((error = page_insert(e->env_pgdir, page, \
-          (void *)(UTBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
-         panic("env_rbuf_map: %e", error);
+          (void *)(UTBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P | PTE_SHARE)) < 0)
+         panic("env_buf_map: %e", error);
    }
    // Map receive buffers
    for (i = 0; i < NUMRDS; i++) { 
       if (!(page = page_lookup(kern_pgdir, \
           (void *)(RBUFMAP + i * PGSIZE), NULL)))
-         panic("env_rbuf_map: no page");
+         panic("env_buf_map: no page");
       if ((error = page_insert(e->env_pgdir, page, \
-          (void *)(URBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
-         panic("env_rbuf_map: %e", error);
+          (void *)(URBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P | PTE_SHARE)) < 0)
+         panic("env_buf_map: %e", error);
    }
 }  
 
@@ -317,9 +317,6 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// commit the allocation
 	env_free_list = e->env_link;
 	*newenv_store = e;
-
-	// cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
-	//cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
 	return 0;
 }

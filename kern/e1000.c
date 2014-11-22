@@ -43,19 +43,17 @@ void trans_init() {
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
       page = page_lookup(kern_pgdir, (void *)(TBUFMAP + i * PGSIZE), NULL);
-      tdarr[i].addr = page2pa(page) + sizeof(int);    // Nsipc jp_data offset
+      tdarr[i].addr = page2pa(page);
       // Buffer size
       tdarr[i].lower.flags.length = PBUFSIZE;
       // Report status when packet is transmitted
       tdarr[i].lower.data |= E1000_TXD_CMD_RS; 
       // Report end of packet
       tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
-      // Others
-      //tdarr[i].lower.data |= E1000_TXD_CMD_EOP; 
    }
 
    // Save TD info into registers
-   bar0[REG(E1000_TDBAL)] = page2pa(page);  
+   bar0[REG(E1000_TDBAL)] = page2pa(tdpage);  
    bar0[REG(E1000_TDLEN)] = NUMTDS * sizeof(struct tx_desc);
 
    // Setup head and tail regs
@@ -80,7 +78,13 @@ void trans_init() {
 
 int trans_pckt(void *pckt, uint32_t len) {
    void *buf;
-
+/* 
+   struct PageInfo *page; 
+   page = page_lookup(kern_pgdir, (void *)(TBUFMAP), NULL);
+   cprintf("kern at phys page %08x\n", page2pa(page));
+   page = page_lookup(curenv->env_pgdir, (void *)(UTBUFMAP), NULL);
+   cprintf("env %08x at phys page %08x\n", curenv->env_id, page2pa(page));
+*/
    // Cannot transmit packet larger than buffer
    if (len > PBUFSIZE)
       return -E_PCKT_SIZE;
@@ -96,24 +100,14 @@ int trans_pckt(void *pckt, uint32_t len) {
    // Set the descriptor packet length
    CURTD->lower.flags.length = len;
    // Copy packet into buffer
-   buf = KADDR((physaddr_t)CURTD->addr);
-   memcpy(buf, pckt, len);
+   if (pckt) {
+      buf = KADDR((physaddr_t)CURTD->addr);
+      memcpy(buf, pckt, len);
+   }
    // Move tail pointer forward
    *ttail = NEXTTNDX;
 
    return 0;   
-}
-
-// Save nsipc jp_data addr to descriptors buffer addr
-void buf2desc() {
-   union Nsipc *nsipcbuf;
-   int i;
- 
-   for (i = 0; i < NUMRDS; i++) {
-      nsipcbuf = (union Nsipc *)(RBUFMAP + i * sizeof(union Nsipc));
-      cprintf("addr %08x\n", PADDR(nsipcbuf->pkt.jp_data));
-      rdarr[i].buffer_addr = PADDR(nsipcbuf->pkt.jp_data);
-   }
 }
 
 void recv_init() {

@@ -66,8 +66,6 @@ ipc_send(envid_t to_env, uint32_t val, void *pg, int perm)
    if (pg == NULL)
       srcva = (void *)UTOP;   // Not sending a page, use an invalid addr
 
-   cprintf("ipc send %08x\n", srcva);
-
    // Keep trying until ipc succeeds or error
    while (1) {
       if ((error = sys_ipc_try_send(to_env, val, srcva, perm)) < 0) {

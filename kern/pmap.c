@@ -315,7 +315,6 @@ mem_init_mp(void)
 static void
 buf_map(void) 
 {
-#define PTE_COW      0x800
    struct PageInfo *page;
    int i;
 

@@ -3,6 +3,8 @@
 
 #include <kern/pci.h>
 #include <kern/pmap.h>
+#include <kern/env.h>
+
 #include <inc/string.h>
 #include <inc/error.h>
 #include <inc/ns.h>
@@ -189,7 +191,6 @@
 
 // Transmit Descriptors
 #define NUMTDS 8              // Number of transmit descriptors
-//#define TDSTART 0xF00D0000    // Arbitrary mem address of TD array
 #define PBUFSIZE 1518         // Buffer size in bytes = max size of a packet
 
 struct tx_desc {
@@ -242,9 +243,11 @@ volatile uint32_t *rtail;  // *tail is an index
 
 // Convert register byte offset to an index into bar0 array
 #define REG(byte) ((byte)/4)
+
 // Get the current descriptor pointed to by tail
 #define CURTD (tdarr + *ttail)
 #define CURRD (rdarr + *rtail)
+
 // Get the next descriptor after tail
 #define NEXTTNDX ((*ttail + 1) % NUMTDS)
 #define NEXTRNDX ((*rtail + 1) % NUMRDS)
@@ -254,7 +257,6 @@ volatile uint32_t *rtail;  // *tail is an index
 int e1000_attach(struct pci_func *pcif);
 void trans_init();
 int trans_pckt(void *pckt, uint32_t len);
-void buf2desc();
 void recv_init();
 int recv_pckt(void *store);
 

@@ -144,6 +144,8 @@ int	pipeisclosed(int pipefd);
 void	wait(envid_t env);
 
 // e1000.c
+#define NUMTDS    8
+#define TBUFSIZE  1518
 #define NUMRDS    128
 #define RBUFSIZE  2048
 
