@@ -103,6 +103,10 @@
 
 #define ULIM		(MMIOBASE)
 
+// E1000 buffers
+#define RBUFMAP   0xF0D00000
+#define URBUFMAP  0x0F0D0000
+
 /*
  * User read-only mappings! Anything below here til UTOP are readonly to user.
  * They are global pages mapped in at env allocation time.

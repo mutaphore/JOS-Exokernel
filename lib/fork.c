@@ -30,7 +30,7 @@ pgfault(struct UTrapframe *utf)
    // Check for a write and to a copy-on-write page
    if (!(err & FEC_WR && ptEntry & PTE_COW)) {
       cprintf("addr %08x err %08x COW? %d\n", addr, err, ptEntry & PTE_COW);
-      panic("Not a write and to a copy-on-write page");
+      panic("Not a write or a copy-on-write page");
    }
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
@@ -159,25 +159,8 @@ fork(void)
    // We're the parent
    
    // Copy address space (not including exception stack) to child
-   for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++) {
+   for (pn = 0; pn < PGNUM(UXSTACKTOP - PGSIZE); pn++)
       duppage(envid, pn);
-/*      
-      addr = (void *)(pn * PGSIZE);
-      pdEntry = uvpd[PDX(addr)]; 
-
-      if (pdEntry & PTE_P) {
-         ptEntry = uvpt[pn];
-
-         if (ptEntry & PTE_P && (ptEntry & PTE_W || ptEntry & PTE_COW))
-            duppage(envid, pn);
-         else if (ptEntry & PTE_P) {
-            // Just directly map pages that are present but not W or COW
-            if ((r = sys_page_map(0, addr, envid, addr, PTE_P | PTE_U)) < 0)
-               panic("duppage: sys_page_map to new env PTE_P %e", r);
-         }
-      }
-*/      
-   }
 
    // Create exception stack page for child
    addr = (void *)(UXSTACKTOP - PGSIZE);

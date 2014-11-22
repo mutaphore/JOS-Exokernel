@@ -10,6 +10,7 @@
 #include <kern/kclock.h>
 #include <kern/env.h>
 #include <kern/cpu.h>
+#include <kern/e1000.h>
 
 // These variables are set by i386_detect_memory()
 size_t npages;			// Amount of physical memory (in pages)
@@ -60,6 +61,7 @@ i386_detect_memory(void)
 // --------------------------------------------------------------
 
 static void mem_init_mp(void);
+static void rbuf_map(void);
 static void boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm);
 static void check_page_free_list(bool only_low_memory);
 static void check_page_alloc(void);
@@ -243,8 +245,11 @@ mem_init(void)
 	// Initialize the SMP-related parts of the memory map
 	mem_init_mp();
 
+   // Initialize receive buffer memory region
+   rbuf_map();
+
 	// Check that the initial page directory has been set up correctly.
-	check_kern_pgdir();
+	//check_kern_pgdir();
 
 	// Switch from the minimal entry page directory to the full kern_pgdir
 	// page table we just created.	Our instruction pointer should be
@@ -303,6 +308,23 @@ mem_init_mp(void)
       // Map it into kern_pgdir
       boot_map_region(kern_pgdir, kstktop_va, KSTKSIZE, 
        kstktop_pa, PTE_W | PTE_P);
+   }
+}
+
+// Initialize receive buffer region in kernel space
+static void
+rbuf_map(void) 
+{
+#define PTE_COW      0x800
+   struct PageInfo *page;
+   int i;
+
+   for (i = 0; i < NUMRDS; i++) {
+      if (!(page = page_alloc(ALLOC_ZERO)))
+         panic("Out of free memory");
+      if (page_insert(kern_pgdir, page, (void *)(RBUFMAP + i * PGSIZE), \
+          PTE_U | PTE_W | PTE_P) < 0)
+         panic("Cannot insert page");
    }
 }
 

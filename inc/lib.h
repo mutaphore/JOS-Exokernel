@@ -145,8 +145,9 @@ int	pipeisclosed(int pipefd);
 void	wait(envid_t env);
 
 // e1000.c
-#define NUMRDS 128
-#define RBUFSIZE 2048
+#define NUMRDS    128
+#define RBUFSIZE  2048
+#define RBUFMAP   0xF0D00000
 
 /* File open modes */
 #define	O_RDONLY	0x0000		/* open for reading only */

@@ -115,7 +115,8 @@ void buf2desc() {
 }
 
 void recv_init() {
-   struct PageInfo *page;
+   struct PageInfo *page, *rdpage;
+   union Nsipc *nsipcbuf;
    int i, error;
 
    // Setup mac address register
@@ -134,29 +135,21 @@ void recv_init() {
    bar0[REG(E1000_CTRL)] |= E1000_CTRL_FD;
 */
    // Allocate memory for receive descriptor array
-   if (!(page = page_alloc(ALLOC_ZERO)))
+   if (!(rdpage = page_alloc(ALLOC_ZERO)))
       panic("rdarr alloc: out of memory");
-   if ((error = page_insert(kern_pgdir, page, \
+   if ((error = page_insert(kern_pgdir, rdpage, \
        (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("rdarr alloc: %e", error);
 
    rdarr = (struct rx_desc *)RDSTART;
 
-   // Initialize receive descriptor buffer addresses
    for (i = 0; i < NUMRDS; i++) {
-      rdarr[i].buffer_addr = PADDR(rbuf[i]);
-/*
-      // Create mapped buffer region
-      if (!(page = page_alloc(ALLOC_ZERO)))
-         panic("Mapped rbuf alloc: out of memory");
-      if ((error = page_insert(kern_pgdir, page, \
-          (void *)(RBUFMAP + i * PGSIZE), PTE_W | PTE_P)) < 0)
-         panic("Mapped rbuf alloc: %e", error);
-*/
+      page = page_lookup(kern_pgdir, (void *)(RBUFMAP + i * PGSIZE), NULL);
+      rdarr[i].buffer_addr = page2pa(page) + sizeof(int);   // Nsipc jp_data offset
    } 
 
    // Save RD info into registers
-   bar0[REG(E1000_RDBAL)] = page2pa(page);  
+   bar0[REG(E1000_RDBAL)] = page2pa(rdpage);  
    bar0[REG(E1000_RDLEN)] = NUMRDS * sizeof(struct rx_desc);
 
    // Setup head and tail regs

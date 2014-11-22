@@ -14,6 +14,7 @@
 #include <kern/sched.h>
 #include <kern/cpu.h>
 #include <kern/spinlock.h>
+#include <kern/e1000.h>
 
 struct Env *envs = NULL;		// All environments
 static struct Env *env_free_list;	// Free environment list
@@ -214,8 +215,25 @@ env_setup_vm(struct Env *e)
 	// Permissions: kernel R, user R
 	e->env_pgdir[PDX(UVPT)] = PADDR(e->env_pgdir) | PTE_P | PTE_U;
 
+   // Map rbuf to user space
+   env_rbuf_map(e);
+
 	return 0;
 }
+
+void env_rbuf_map(struct Env *e) {
+   struct PageInfo *page;
+   int i, error;
+   
+   for (i = 0; i < NUMRDS; i++) { 
+      if (!(page = page_lookup(kern_pgdir, \
+          (void *)(RBUFMAP + i * PGSIZE), NULL)))
+         panic("env_rbuf_map: no page");
+      if ((error = page_insert(e->env_pgdir, page, \
+          (void *)(URBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
+         panic("env_rbuf_map: %e", error);
+   }
+}  
 
 //
 // Allocates and initializes a new environment.

@@ -390,6 +390,8 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
 	// LAB 4: Your code here.
 
+   cprintf("I'm going to send %08x\n", srcva);
+   
    struct PageInfo *page;
    pte_t *ptEntry;
    struct Env *e;
@@ -518,8 +520,8 @@ static int
 sys_net_recv_pckt(void *dstva)
 {
    // If dstva == NULL, must have mapped a buffer from user space
-   if (dstva == NULL && !rbuf_map)
-      return -E_INVAL;
+   //if (dstva == NULL && !rbuf_map)
+   //   return -E_INVAL;
 
    return recv_pckt(dstva);
 }
