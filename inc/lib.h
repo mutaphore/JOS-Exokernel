@@ -62,6 +62,7 @@ int	sys_ipc_recv(void *rcv_pg);
 int   sys_env_set_priority(envid_t env, int priority);
 int   sys_net_send_pckt(void *src, uint32_t len);
 int   sys_net_recv_pckt(void *dstva);
+int   sys_net_map_rbuf(void *buf[]);
 unsigned int sys_time_msec(void);
 
 // This must be inlined.  Exercise for reader: why?
@@ -142,6 +143,10 @@ int	pipeisclosed(int pipefd);
 
 // wait.c
 void	wait(envid_t env);
+
+// e1000.c
+#define NUMRDS 128
+#define RBUFSIZE 2048
 
 /* File open modes */
 #define	O_RDONLY	0x0000		/* open for reading only */

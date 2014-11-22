@@ -5,6 +5,7 @@
 #include <kern/pmap.h>
 #include <inc/string.h>
 #include <inc/error.h>
+#include <inc/ns.h>
 
 // Mac address (low to high from left to right)
 #define MACL 0x12005452
@@ -217,8 +218,9 @@ char tbuf[NUMTDS][PBUFSIZE];  // Transmit Packet Buffers
 // Receive Descriptors
 
 #define RDSTART   0xF00E0000  // Arbitrary mem address of RD array
+#define RBUFMAP   0xF0D00000  // Mapped buffer
 #define RBUFSIZE  2048        // One of the standard HW buf sizes   
-#define NUMRDS 8            // Number of receive descriptors
+#define NUMRDS 128            // Number of receive descriptors
 
 struct rx_desc {
     uint64_t buffer_addr; /* Address of the descriptor's data buffer */
@@ -230,6 +232,7 @@ struct rx_desc {
 };
 
 struct rx_desc *rdarr;        // Receive Descriptors
+__attribute__((__aligned__(PGSIZE)))
 char rbuf[NUMRDS][RBUFSIZE];  // Receive Packet Buffers
 
 // Register addresses
@@ -254,6 +257,7 @@ volatile uint32_t *rtail;  // *tail is an index
 int e1000_attach(struct pci_func *pcif);
 void trans_init();
 int trans_pckt(void *pckt, uint32_t len);
+void buf2desc();
 void recv_init();
 int recv_pckt(void *store);
 

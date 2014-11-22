@@ -135,6 +135,12 @@ sys_net_recv_pckt(void *dstva)
    return syscall(SYS_net_recv_pckt, 0, (uint32_t)dstva, 0, 0, 0, 0);
 }
 
+int
+sys_net_map_rbuf(void *rbuf[])
+{
+   return syscall(SYS_net_map_rbuf, 0, (uint32_t)rbuf, 0, 0, 0, 0);
+}
+
 // Challenge
 int
 sys_env_set_priority(envid_t envid, int priority)

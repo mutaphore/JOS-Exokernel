@@ -102,6 +102,18 @@ int trans_pckt(void *pckt, uint32_t len) {
    return 0;   
 }
 
+// Save nsipc jp_data addr to descriptors buffer addr
+void buf2desc() {
+   union Nsipc *nsipcbuf;
+   int i;
+ 
+   for (i = 0; i < NUMRDS; i++) {
+      nsipcbuf = (union Nsipc *)(RBUFMAP + i * sizeof(union Nsipc));
+      cprintf("addr %08x\n", PADDR(nsipcbuf->pkt.jp_data));
+      rdarr[i].buffer_addr = PADDR(nsipcbuf->pkt.jp_data);
+   }
+}
+
 void recv_init() {
    struct PageInfo *page;
    int i, error;
@@ -124,17 +136,25 @@ void recv_init() {
    // Allocate memory for receive descriptor array
    if (!(page = page_alloc(ALLOC_ZERO)))
       panic("rdarr alloc: out of memory");
-   if ((error = page_insert(kern_pgdir, page, (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
+   if ((error = page_insert(kern_pgdir, page, \
+       (void *)RDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("rdarr alloc: %e", error);
 
    rdarr = (struct rx_desc *)RDSTART;
 
-   // Initialize receive descriptor fields
+   // Initialize receive descriptor buffer addresses
    for (i = 0; i < NUMRDS; i++) {
-      // Receive Buffer address
       rdarr[i].buffer_addr = PADDR(rbuf[i]);
-   }
-   
+/*
+      // Create mapped buffer region
+      if (!(page = page_alloc(ALLOC_ZERO)))
+         panic("Mapped rbuf alloc: out of memory");
+      if ((error = page_insert(kern_pgdir, page, \
+          (void *)(RBUFMAP + i * PGSIZE), PTE_W | PTE_P)) < 0)
+         panic("Mapped rbuf alloc: %e", error);
+*/
+   } 
+
    // Save RD info into registers
    bar0[REG(E1000_RDBAL)] = page2pa(page);  
    bar0[REG(E1000_RDLEN)] = NUMRDS * sizeof(struct rx_desc);
@@ -165,19 +185,14 @@ int recv_pckt(void *store) {
    uint32_t len;   
    void *buf;
 
-   cprintf("head %d tail %d\n", *rhead, *rtail);
-   cprintf("ICR %08x IMS %08x\n", 
-    bar0[REG(E1000_ICR)],
-    bar0[REG(E1000_IMS)]);
-
    if (NEXTRD->status & E1000_RXD_STAT_DD) {
       *rtail = NEXTRNDX;
-      buf = KADDR((physaddr_t)CURRD->buffer_addr);
       len = CURRD->length; 
-      cprintf("Packet received!! %d\n", len);
-      memcpy(store, buf, len);
-      CURRD->status &= ~E1000_RXD_STAT_DD;
-      CURRD->status &= ~E1000_RXD_STAT_EOP;
+      if (store) {
+         buf = KADDR((physaddr_t)CURRD->buffer_addr);
+         memcpy(store, buf, len);
+      }
+      CURRD->status = 0;   // Clear status telling e1000 its ready for reuse
       return len;
    }
    return -E_PCKT_NONE;
