@@ -26,22 +26,24 @@ int e1000_attach(struct pci_func *pcif) {
 }
 
 void trans_init() {
-   struct PageInfo *page;
+   struct PageInfo *page, *tdpage;
    int i, error;
 
    // All mem addresses must be physical!
 
    // Allocate mem for transmit descriptor array
-   if (!(page = page_alloc(ALLOC_ZERO)))
+   if (!(tdpage = page_alloc(ALLOC_ZERO)))
       panic("tdarr_alloc: out of memory");
-   if ((error = page_insert(kern_pgdir, page, (void *)TDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
+   if ((error = page_insert(kern_pgdir, tdpage, \
+       (void *)TDSTART, PTE_PCD | PTE_W | PTE_P)) < 0)
       panic("tdarr_alloc: %e", error);
    
    tdarr = (struct tx_desc *)TDSTART;
    // Initialize transmit descriptor fields
    for (i = 0; i < NUMTDS; i++) {
       // Buffer address
-      tdarr[i].addr = PADDR(tbuf[i]);
+      page = page_lookup(kern_pgdir, (void *)(TBUFMAP + i * PGSIZE), NULL);
+      tdarr[i].addr = page2pa(page) + sizeof(int);    // Nsipc jp_data offset
       // Buffer size
       tdarr[i].lower.flags.length = PBUFSIZE;
       // Report status when packet is transmitted
@@ -143,6 +145,7 @@ void recv_init() {
 
    rdarr = (struct rx_desc *)RDSTART;
 
+   // Set buffer addr to descriptors
    for (i = 0; i < NUMRDS; i++) {
       page = page_lookup(kern_pgdir, (void *)(RBUFMAP + i * PGSIZE), NULL);
       rdarr[i].buffer_addr = page2pa(page) + sizeof(int);   // Nsipc jp_data offset

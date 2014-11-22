@@ -215,16 +215,27 @@ env_setup_vm(struct Env *e)
 	// Permissions: kernel R, user R
 	e->env_pgdir[PDX(UVPT)] = PADDR(e->env_pgdir) | PTE_P | PTE_U;
 
-   // Map rbuf to user space
-   env_rbuf_map(e);
+   // Map buffer region to user space
+   env_buf_map(e);
 
 	return 0;
 }
 
-void env_rbuf_map(struct Env *e) {
+// Map shared buffer region to user space
+void env_buf_map(struct Env *e) {
    struct PageInfo *page;
    int i, error;
    
+   // Map transmit buffers
+   for (i = 0; i < NUMTDS; i++) { 
+      if (!(page = page_lookup(kern_pgdir, \
+          (void *)(TBUFMAP + i * PGSIZE), NULL)))
+         panic("env_rbuf_map: no page");
+      if ((error = page_insert(e->env_pgdir, page, \
+          (void *)(UTBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
+         panic("env_rbuf_map: %e", error);
+   }
+   // Map receive buffers
    for (i = 0; i < NUMRDS; i++) { 
       if (!(page = page_lookup(kern_pgdir, \
           (void *)(RBUFMAP + i * PGSIZE), NULL)))

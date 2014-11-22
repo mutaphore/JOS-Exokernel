@@ -61,7 +61,7 @@ i386_detect_memory(void)
 // --------------------------------------------------------------
 
 static void mem_init_mp(void);
-static void rbuf_map(void);
+static void buf_map(void);
 static void boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm);
 static void check_page_free_list(bool only_low_memory);
 static void check_page_alloc(void);
@@ -245,8 +245,8 @@ mem_init(void)
 	// Initialize the SMP-related parts of the memory map
 	mem_init_mp();
 
-   // Initialize receive buffer memory region
-   rbuf_map();
+   // Initialize transmit/receive buffer memory region
+   buf_map();
 
 	// Check that the initial page directory has been set up correctly.
 	//check_kern_pgdir();
@@ -311,14 +311,23 @@ mem_init_mp(void)
    }
 }
 
-// Initialize receive buffer region in kernel space
+// Initialize buffer region in kernel space
 static void
-rbuf_map(void) 
+buf_map(void) 
 {
 #define PTE_COW      0x800
    struct PageInfo *page;
    int i;
 
+   // Map transmit buffers
+   for (i = 0; i < NUMTDS; i++) {
+      if (!(page = page_alloc(ALLOC_ZERO)))
+         panic("Out of free memory");
+      if (page_insert(kern_pgdir, page, (void *)(TBUFMAP + i * PGSIZE), \
+          PTE_U | PTE_W | PTE_P) < 0)
+         panic("Cannot insert page");
+   }
+   // Map receive buffers
    for (i = 0; i < NUMRDS; i++) {
       if (!(page = page_alloc(ALLOC_ZERO)))
          panic("Out of free memory");

@@ -492,36 +492,12 @@ sys_net_send_pckt(void *src, uint32_t len)
 
 // Lab6 Challenge: map user page to kernel address space for zero-copy
 
-static int rbuf_map = 0;  // Buffer mapped?
-
-static int
-sys_net_map_rbuf(void *buf[])
-{
-   struct PageInfo *page;
-   int i, error;
-
-   for (i = 0; i < NUMRDS; i++) {
-      // Check if user has permissions in this area of memory
-      user_mem_assert(curenv, buf[i], RBUFSIZE, PTE_U | PTE_W | PTE_P);
-      if (!(page = page_lookup(curenv->env_pgdir, buf[i], NULL)))
-         return -E_INVAL;
-      if ((error = page_insert(kern_pgdir, page, \
-          (void *)(RBUFMAP + i * PGSIZE), PTE_U | PTE_W | PTE_P)) < 0)
-         return error;    
-   }
-
-   buf2desc();
-   rbuf_map = 1;
-
-   return 0;
-}
-
 static int
 sys_net_recv_pckt(void *dstva)
 {
-   // If dstva == NULL, must have mapped a buffer from user space
-   //if (dstva == NULL && !rbuf_map)
-   //   return -E_INVAL;
+   // If dstva == NULL, use mapped buffer
+   if (dstva != NULL)
+      user_mem_assert(curenv, dstva, RBUFSIZE, PTE_U | PTE_W | PTE_P);
 
    return recv_pckt(dstva);
 }
@@ -611,9 +587,6 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       break;
    case SYS_net_recv_pckt:
       ret = sys_net_recv_pckt((void *)a1);
-      break;
-   case SYS_net_map_rbuf:   
-      ret = sys_net_map_rbuf((void **)a1);
       break;
    default:
 		return -E_INVAL;

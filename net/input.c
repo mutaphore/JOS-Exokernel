@@ -15,7 +15,6 @@ input(envid_t ns_envid)
    int r, tail = 0;
    static union Nsipc *nsipcbuf;
 
-
    while (1) {
       // Spin until a packet is received
       while ((r = sys_net_recv_pckt(NULL)) == -E_PCKT_NONE)

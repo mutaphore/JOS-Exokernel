@@ -189,7 +189,7 @@
 
 // Transmit Descriptors
 #define NUMTDS 8              // Number of transmit descriptors
-#define TDSTART 0xF00D0000    // Arbitrary mem address of TD array
+//#define TDSTART 0xF00D0000    // Arbitrary mem address of TD array
 #define PBUFSIZE 1518         // Buffer size in bytes = max size of a packet
 
 struct tx_desc {
@@ -216,9 +216,6 @@ struct tx_desc *tdarr;        // Transmit Descriptors
 char tbuf[NUMTDS][PBUFSIZE];  // Transmit Packet Buffers
 
 // Receive Descriptors
-
-#define RDSTART   0xF00E0000  // Arbitrary mem address of RD array
-#define RBUFMAP   0xF0D00000  // Mapped buffer
 #define RBUFSIZE  2048        // One of the standard HW buf sizes   
 #define NUMRDS 128            // Number of receive descriptors
 

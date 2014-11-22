@@ -103,9 +103,14 @@
 
 #define ULIM		(MMIOBASE)
 
-// E1000 buffers
-#define RBUFMAP   0xF0D00000
-#define URBUFMAP  0x0F0D0000
+// E1000 
+#define TDSTART   0xF00D0000  // Arbitrary mem address of TD array
+#define TBUFMAP   0xF0C00000  // Transmit buffer mapped - kernel
+#define UTBUFMAP  0x0F0C0000  // Transmit buffer mapped - user
+
+#define RDSTART   0xF00E0000  // Arbitrary mem address of RD array
+#define RBUFMAP   0xF0D00000  // Receive buffer mapped - kernel
+#define URBUFMAP  0x0F0D0000  // Receive buffer mapped - user
 
 /*
  * User read-only mappings! Anything below here til UTOP are readonly to user.
