@@ -13,6 +13,7 @@
 #include <kern/sched.h>
 #include <kern/time.h>
 #include <kern/e1000.h>
+#include <kern/flexsc.h>
 
 // Print a string to the system console.
 // The string is exactly 'len' characters long.
@@ -520,6 +521,39 @@ sys_env_set_priority(envid_t envid, int priority)
    return 0;   
 }
 
+// FlexSC system calls:
+
+// A process must register a syscall page with this syscall in order
+// to use the FlexSC facility.
+int flexsc_register(void *va)
+{
+   struct PageInfo *page;
+   void *scpage = scpage_alloc();
+
+   user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U);
+
+   // Map syscall page into user-space memory address
+   if (!(page = page_lookup(kern_pgdir, scpage, NULL)))
+      return -E_INVAL;
+   if (!(page = page_alloc(ALLOC_ZERO))) 
+      return -E_NO_MEM;
+   if ((error = page_insert(curenv->env_pgdir, page, va, PTE_W | PTE_U | PTE_P)) < 0) {
+      page_free(page);  // Free the page!
+      return error;   
+
+   // Spawn syscall threads based on number syscall pages entries
+}
+
+// Process uses this system call to tell kernel that it cannot progress 
+// further and is waiting on pending system calls to be processed.
+// Puts the user thread to sleep. FlexSC will later wake up this
+// process when at least 1 of the posted system calls are complete.
+int flexsc_wait()
+{
+
+}
+
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -586,6 +620,12 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
    case SYS_net_recv_pckt:
       ret = sys_net_recv_pckt((void *)a1);
       break;
+   case FLEXSC_register:
+      ret = flexsc_register();
+      break;
+   case FLEXSC_wait:
+      ret = flexsc_wait();
+      break; 
    default:
 		return -E_INVAL;
 	}

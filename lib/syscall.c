@@ -142,20 +142,14 @@ sys_env_set_priority(envid_t envid, int priority)
    return syscall(SYS_env_set_priority, 1, envid, priority, 0, 0, 0);
 }
 
-// ---- FlexSC ----
-
-// A process must register with this syscall to use the flexsc facility
-int flexsc_register()
+// FlexSC System calls:
+int flexsc_register(void *va)
 {
-   // Map syscall page into user-space memory address
-
-   // Spawn syscall threads based on number syscall pages entries
+   return syscall(FLEXSC_register, 0, (uint32_t)va, 0, 0, 0, 0);
 }
 
-// 
 int flexsc_wait()
 {
-
+   return syscall(FLEXSC_wait, 0, 0, 0, 0, 0, 0);
 }
-
 

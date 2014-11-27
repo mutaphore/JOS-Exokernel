@@ -63,6 +63,9 @@ int   sys_env_set_priority(envid_t env, int priority);
 int   sys_net_send_pckt(void *src, uint32_t len);
 int   sys_net_recv_pckt(void *dstva);
 unsigned int sys_time_msec(void);
+// FlexSC system calls
+int   flexsc_register(void *va);
+int   flexsc_wait();
 
 // This must be inlined.  Exercise for reader: why?
 static __inline envid_t __attribute__((always_inline))

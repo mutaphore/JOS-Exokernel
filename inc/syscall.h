@@ -21,6 +21,8 @@ enum {
    SYS_net_send_pckt,
    SYS_net_recv_pckt,
    SYS_env_set_priority,   // Challenge
+   FLEXSC_register,        // FlexSC
+   FLEXSC_wait,            // FlexSC
 	NSYSCALLS
 };
 
