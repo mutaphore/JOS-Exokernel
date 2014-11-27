@@ -529,14 +529,13 @@ int flexsc_register(void *va)
 {
    struct PageInfo *page;
    void *scpage = scpage_alloc();
+   int error;
 
-   user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U);
+   user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U | PTE_P);
 
    // Map syscall page into user-space memory address
    if (!(page = page_lookup(kern_pgdir, scpage, NULL)))
       return -E_INVAL;
-   if (!(page = page_alloc(ALLOC_ZERO))) 
-      return -E_NO_MEM;
    if ((error = page_insert(curenv->env_pgdir, page, va, PTE_W | PTE_U | PTE_P)) < 0) {
       page_free(page);  // Free the page!
       return error;   
