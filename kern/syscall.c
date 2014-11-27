@@ -527,8 +527,10 @@ sys_env_set_priority(envid_t envid, int priority)
 // to use the FlexSC facility.
 int flexsc_register(void *va)
 {
+   int num = MAXSCPAGES;
    struct PageInfo *page;
-   void *scpage = scpage_alloc();
+   //void *scpage = scpage_alloc();
+   void *scpage = (void *)5;
    int error;
 
    user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U | PTE_P);
@@ -539,8 +541,11 @@ int flexsc_register(void *va)
    if ((error = page_insert(curenv->env_pgdir, page, va, PTE_W | PTE_U | PTE_P)) < 0) {
       page_free(page);  // Free the page!
       return error;   
+   }
+   // Spawn syscall threads to serve syscall entries
+   //scthread_spawn();
 
-   // Spawn syscall threads based on number syscall pages entries
+   return 0;
 }
 
 // Process uses this system call to tell kernel that it cannot progress 
@@ -549,7 +554,8 @@ int flexsc_register(void *va)
 // process when at least 1 of the posted system calls are complete.
 int flexsc_wait()
 {
-
+	sched_yield();
+   return 0;
 }
 
 
@@ -620,7 +626,7 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
       ret = sys_net_recv_pckt((void *)a1);
       break;
    case FLEXSC_register:
-      ret = flexsc_register();
+      ret = flexsc_register((void *)a1);
       break;
    case FLEXSC_wait:
       ret = flexsc_wait();
