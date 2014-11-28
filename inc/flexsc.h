@@ -28,9 +28,9 @@ enum {
 };
 
 struct FscThread {
-   struct Trapframe thr_tf;    // Saved registers
-   pde_t *thr_pgdir;           // Page dir cloned from registering process
-   unsigned thr_status;
+   struct Trapframe thr_tf;   // Saved registers
+   pde_t *thr_pgdir;          // Page dir cloned from registering process
+   unsigned thr_state;        // Thread state
 };
 
 // Number of flexsc entries per syscall page

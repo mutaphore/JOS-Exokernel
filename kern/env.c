@@ -476,6 +476,26 @@ env_create(uint8_t *binary, enum EnvType type)
    load_icode(e, binary); 
 }
 
+void env_create_spec(void *func)
+{
+   struct Env *e;
+   int r;
+
+   if ((r = env_alloc(&e, 0)) < 0)
+      panic("env_create: %e\n", r);
+   
+	e->env_tf.tf_ds = GD_KD;
+	e->env_tf.tf_es = GD_KD;
+	e->env_tf.tf_ss = GD_KD;
+	e->env_tf.tf_cs = GD_KT;
+
+   // Map user stack memory
+	e->env_tf.tf_esp = USTACKTOP;
+   region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
+
+   e->env_tf.tf_eip = (uint32_t)func;
+}
+
 //
 // Frees env e and all memory it uses.
 //

@@ -9,7 +9,9 @@ void flexsc_init() {
    struct FscThread *walker;
 
    for (walker = scthreads; walker < scthreads + NSCTHREADS; walker++)
-      walker->thr_status = THR_FREE;
+      walker->thr_state = THR_FREE;
+
+
 
    return; 
 }

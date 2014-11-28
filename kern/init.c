@@ -32,6 +32,13 @@ test_backtrace(int x)
 	cprintf("leaving test_backtrace %d\n", x);
 }
 
+void test_flex()
+{
+   int i = 0;
+   //for (i = 0; i < 100; i++)
+      cprintf("%d Hello World! I'm flexsc\n", i);
+}
+
 void
 i386_init(void)
 {
@@ -87,11 +94,10 @@ i386_init(void)
 #else
 	// Touch all you want.
 	ENV_CREATE(user_hello, ENV_TYPE_USER);
-	//ENV_CREATE(user_icode, ENV_TYPE_USER);
-	//ENV_CREATE(user_primes, ENV_TYPE_USER);
-	//ENV_CREATE(user_yield, ENV_TYPE_USER);
-   //ENV_CREATE(user_dumbfork, ENV_TYPE_USER);
 #endif // TEST*
+
+   // TEST FlexSC
+   env_create_spec(test_flex);
 
 	// Should not be necessary - drains keyboard because interrupt has given up.
 	kbd_intr();
