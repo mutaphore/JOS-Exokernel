@@ -4,11 +4,13 @@
 #include <inc/flexsc.h>
 #include <inc/mmu.h>
 
-// Maximum syscall pages (flexsc processes) allowed
-#define MAXSCPAGES 5
+#define NSCPAGES 5
+#define NSCTHREADS 30
+
+extern struct FscThread *scthreads;
 
 __attribute__((__aligned__(PGSIZE)))
-char scpages[MAXSCPAGES][PGSIZE];
+char scpages[NSCPAGES][PGSIZE];
 
 void flexsc_init();
 void *scpage_alloc();

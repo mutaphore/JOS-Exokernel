@@ -474,8 +474,6 @@ env_create(uint8_t *binary, enum EnvType type)
 
    e->env_type = type;
    load_icode(e, binary); 
-
-   //assert(read_eflags() & FL_IF);
 }
 
 //

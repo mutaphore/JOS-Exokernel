@@ -527,10 +527,8 @@ sys_env_set_priority(envid_t envid, int priority)
 // to use the FlexSC facility.
 int flexsc_register(void *va)
 {
-   int num = MAXSCPAGES;
    struct PageInfo *page;
-   //void *scpage = scpage_alloc();
-   void *scpage = (void *)5;
+   void *scpage = scpage_alloc();   // Retrieve a syscall page
    int error;
 
    user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U | PTE_P);
@@ -542,8 +540,9 @@ int flexsc_register(void *va)
       page_free(page);  // Free the page!
       return error;   
    }
+
    // Spawn syscall threads to serve syscall entries
-   //scthread_spawn();
+   scthread_spawn();
 
    return 0;
 }
