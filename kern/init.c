@@ -35,8 +35,15 @@ test_backtrace(int x)
 void test_flex()
 {
    int i = 0;
-   //for (i = 0; i < 100; i++)
-      cprintf("%d Hello World! I'm flexsc\n", i);
+   struct Env *e;
+
+   envid2env(0, &e, 0);
+
+   for (i = 0; i < 100; i++)
+      cprintf("%d Hello World! I'm flexsc %08x, stack at %08x\n", 
+              i, e->env_id, e->env_tf.tf_esp);
+
+   env_destroy(0);
 }
 
 void

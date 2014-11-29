@@ -474,6 +474,7 @@ env_create(uint8_t *binary, enum EnvType type)
 
    e->env_type = type;
    load_icode(e, binary); 
+   cprintf("ENV pgdir %08x\n", &e->env_pgdir);
 }
 
 void env_create_spec(void *func)
@@ -488,12 +489,14 @@ void env_create_spec(void *func)
 	e->env_tf.tf_es = GD_KD;
 	e->env_tf.tf_ss = GD_KD;
 	e->env_tf.tf_cs = GD_KT;
+	e->env_tf.tf_regs.reg_ebp = USTACKTOP;
 
    // Map user stack memory
-	e->env_tf.tf_esp = USTACKTOP;
    region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 
    e->env_tf.tf_eip = (uint32_t)func;
+
+   cprintf("FlexSC pgdir %08x\n", &e->env_pgdir);
 }
 
 //
