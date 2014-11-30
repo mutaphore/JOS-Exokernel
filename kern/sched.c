@@ -37,8 +37,14 @@ sched_yield(void)
    }
    
    do {
-      if (envs[envx].env_status == ENV_RUNNABLE)
-         env_run(envs + envx);  // Found a runnable env
+      if (envs[envx].env_status == ENV_RUNNABLE) {
+         if (envs[envx].env_type == ENV_TYPE_FLEX) {
+            cprintf("Running flex env\n");
+            env_run_flex(envs + envx);
+         }
+         else
+            env_run(envs + envx);  // Found a runnable env
+      }
       if (++envx >= NENV)
          envx = 0;    // Wrap around when we reached the end
    } while (envx != penvx);

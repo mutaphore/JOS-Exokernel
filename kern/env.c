@@ -15,6 +15,7 @@
 #include <kern/cpu.h>
 #include <kern/spinlock.h>
 #include <kern/e1000.h>
+#include <kern/flexsc.h>
 
 struct Env *envs = NULL;		// All environments
 static struct Env *env_free_list;	// Free environment list
@@ -37,7 +38,7 @@ static struct Env *env_free_list;	// Free environment list
 // definition of gdt specifies the Descriptor Privilege Level (DPL)
 // of that descriptor: 0 for kernel and 3 for user.
 //
-struct Segdesc gdt[NCPU + 5] =
+struct Segdesc gdt[1 + NCPU + 5] =
 {
 	// 0x0 - unused (always faults -- for trapping NULL far pointers)
 	SEG_NULL,
@@ -63,7 +64,10 @@ struct Segdesc gdt[NCPU + 5] =
    [(GD_TSS0 >> 3) + 4] = SEG_NULL,
    [(GD_TSS0 >> 3) + 5] = SEG_NULL,
    [(GD_TSS0 >> 3) + 6] = SEG_NULL,
-   [(GD_TSS0 >> 3) + 7] = SEG_NULL
+   [(GD_TSS0 >> 3) + 7] = SEG_NULL,
+   
+   // TSS for kernel threads
+   [(GD_TSS0 >> 3) + 8] = SEG_NULL
 };
 
 struct Pseudodesc gdt_pd = {
@@ -474,10 +478,9 @@ env_create(uint8_t *binary, enum EnvType type)
 
    e->env_type = type;
    load_icode(e, binary); 
-   cprintf("ENV pgdir %08x\n", &e->env_pgdir);
 }
 
-void env_create_spec(void *func)
+void env_create_flex(void *func)
 {
    struct Env *e;
    int r;
@@ -489,14 +492,40 @@ void env_create_spec(void *func)
 	e->env_tf.tf_es = GD_KD;
 	e->env_tf.tf_ss = GD_KD;
 	e->env_tf.tf_cs = GD_KT;
-	e->env_tf.tf_regs.reg_ebp = USTACKTOP;
+
+   e->env_type = ENV_TYPE_FLEX;
 
    // Map user stack memory
    region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 
-   e->env_tf.tf_eip = (uint32_t)func;
+   e->env_tf.tf_eip = (uint32_t)flex_start;
+}
 
-   cprintf("FlexSC pgdir %08x\n", &e->env_pgdir);
+
+void env_run_flex(struct Env *e)
+{
+
+   if (curenv && (curenv->env_status == ENV_RUNNING))
+      curenv->env_status = ENV_RUNNABLE;
+        
+   curenv = e; 
+   curenv->env_status = ENV_RUNNING;
+   curenv->env_runs++; 
+	lcr3(PADDR(curenv->env_pgdir)); 
+   
+   // Unlock kernel before switching back to user mode
+   unlock_kernel();
+
+	curenv->env_cpunum = cpunum();
+
+	__asm __volatile("movl %0,%%esp\n"
+		"\tpopal\n"
+		"\tpopl %%es\n"
+		"\tpopl %%ds\n"
+		"\taddl $0x8,%%esp\n" /* skip tf_trapno and tf_errcode */
+      "\tiret"
+		: : "g" (&curenv->env_tf) : "memory");
+	panic("iret failed");  /* mostly to placate the compiler */
 }
 
 //
@@ -516,7 +545,7 @@ env_free(struct Env *e)
 		lcr3(PADDR(kern_pgdir));
 
 	// Note the environment's demise.
-	//cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+	cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
 	// Flush all mapped pages in the user portion of the address space
 	static_assert(UTOP % PTSIZE == 0);

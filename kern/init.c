@@ -17,6 +17,7 @@
 #include <kern/time.h>
 #include <kern/pci.h>
 #include <kern/e1000.h>
+#include <kern/flexsc.h>
 
 static void boot_aps(void);
 
@@ -30,20 +31,6 @@ test_backtrace(int x)
 	else
 		mon_backtrace(0, 0, 0);
 	cprintf("leaving test_backtrace %d\n", x);
-}
-
-void test_flex()
-{
-   int i = 0;
-   struct Env *e;
-
-   envid2env(0, &e, 0);
-
-   for (i = 0; i < 100; i++)
-      cprintf("%d Hello World! I'm flexsc %08x, stack at %08x\n", 
-              i, e->env_id, e->env_tf.tf_esp);
-
-   env_destroy(0);
 }
 
 void
@@ -68,6 +55,9 @@ i386_init(void)
 	// Lab 3 user environment initialization functions
 	env_init();
 	trap_init();
+
+   // FlexSC initialization
+   flexsc_init();
 
 	// Lab 4 multiprocessor initialization functions
 	mp_init();
@@ -104,7 +94,7 @@ i386_init(void)
 #endif // TEST*
 
    // TEST FlexSC
-   env_create_spec(test_flex);
+   env_create_flex(test_flex);
 
 	// Should not be necessary - drains keyboard because interrupt has given up.
 	kbd_intr();

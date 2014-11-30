@@ -388,6 +388,14 @@ trap(struct Trapframe *tf)
 		// The trapframe on the stack should be ignored from here on.
 		tf = &curenv->env_tf;
 	}
+  
+   // Handle kernel thread 
+   if ((tf->tf_cs & 3) == 0 && tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER) {
+      lock_kernel();
+      cprintf("in flex trap %d\n", tf->tf_trapno);
+      curenv->env_tf = *tf;
+		tf = &curenv->env_tf;
+   }
 
 	// Record that tf is the last real trapframe so
 	// print_trapframe can print some additional information.
