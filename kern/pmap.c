@@ -171,7 +171,7 @@ mem_init(void)
       memset(envs + n, 0, sizeof(struct Env));
 
 	//////////////////////////////////////////////////////////////////////
-   // Allocate array of syscall threads for the FlexSC facility (LAB7)
+   // Allocate memory for syscall threads to use the FlexSC facility (LAB7)
    scthreads = boot_alloc(NSCTHREADS * sizeof(struct FscThread));
    for (n = 0; n < NSCTHREADS; n++)
       memset(scthreads + n, 0, sizeof(struct FscThread));

@@ -488,17 +488,11 @@ void env_create_flex(void *func)
    if ((r = env_alloc(&e, 0)) < 0)
       panic("env_create: %e\n", r);
    
-	e->env_tf.tf_ds = GD_KD;
-	e->env_tf.tf_es = GD_KD;
-	e->env_tf.tf_ss = GD_KD;
-	e->env_tf.tf_cs = GD_KT;
-
    e->env_type = ENV_TYPE_FLEX;
 
-   // Map user stack memory
-   region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
-
-   e->env_tf.tf_eip = (uint32_t)flex_start;
+   scthreads[0].thr_eflags |= FL_IF;            // Enable interrupts
+   scthreads[0].thr_esp = THRSTKTOP;            // Set stack location
+   scthreads[0].thr_eip = (uint32_t)test_flex;  // Entry point
 }
 
 
@@ -511,21 +505,36 @@ void env_run_flex(struct Env *e)
    curenv = e; 
    curenv->env_status = ENV_RUNNING;
    curenv->env_runs++; 
-	lcr3(PADDR(curenv->env_pgdir)); 
    
    // Unlock kernel before switching back to user mode
    unlock_kernel();
 
 	curenv->env_cpunum = cpunum();
 
+   // Move EIP
+
+   __asm __volatile("movl  %%esp, %%edx\n"          // Save current stack pointer
+      "\tmovl  %0, %%esp\n"         // Switch to trap-time stack
+      "\tpushl %1\n"                // Push eip onto trap-time stack
+      "\tmovl  %%edx, %%esp"          // Restore stack pointer
+
+	__asm __volatile(""
+      "\tmovl %0,%%esp\n"
+		"\tpopal\n"
+      "\tpopfl\n"
+      "\tpopl %%esp\n"
+      "\tret"
+		: : "g" (&scthreads[0]) : "memory");
+/*
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
 		"\tpopl %%es\n"
 		"\tpopl %%ds\n"
-		"\taddl $0x8,%%esp\n" /* skip tf_trapno and tf_errcode */
+		"\taddl $0x8,%%esp\n"
       "\tiret"
 		: : "g" (&curenv->env_tf) : "memory");
-	panic("iret failed");  /* mostly to placate the compiler */
+	panic("iret failed");
+*/
 }
 
 //

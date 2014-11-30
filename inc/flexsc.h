@@ -5,6 +5,11 @@
 #include <inc/trap.h>
 #include <inc/memlayout.h>
 
+// Number of flexsc entries per syscall page
+#define SCENTRIES (PGSIZE / sizeof(struct ScEntry))
+
+#define THRSTKTOP 0xFEED0000  // Kernel thread stack top
+
 enum FscStatus {
    FSC_FREE = 0,
    FSC_SUBMITTED,
@@ -28,12 +33,12 @@ enum {
 };
 
 struct FscThread {
-   struct Trapframe thr_tf;   // Saved registers
-   pde_t *thr_pgdir;          // Page dir cloned from registering process
-   unsigned thr_state;        // Thread state
+   struct PushRegs thr_regs;
+   uint32_t thr_eflags;
+   uintptr_t thr_esp;
+   uintptr_t thr_eip;
+   unsigned thr_status; 
 };
 
-// Number of flexsc entries per syscall page
-#define SCENTRIES (PGSIZE / sizeof(struct ScEntry))
 
 #endif
