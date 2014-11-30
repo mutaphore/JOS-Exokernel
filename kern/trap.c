@@ -14,6 +14,7 @@
 #include <kern/cpu.h>
 #include <kern/spinlock.h>
 #include <kern/time.h>
+#include <kern/flexsc.h>
 
 static struct Taskstate ts;
 
@@ -395,6 +396,12 @@ trap(struct Trapframe *tf)
       cprintf("in flex trap %d\n", tf->tf_trapno);
       curenv->env_tf = *tf;
 		tf = &curenv->env_tf;
+      // Save thread state
+      scthreads[0].thr_regs = tf->tf_regs;
+      scthreads[0].thr_eflags = tf->tf_eflags;
+      scthreads[0].thr_esp = tf->tf_esp;
+      scthreads[0].thr_eip = tf->tf_eip;
+      scthreads[0].thr_status = THR_RUNNABLE;
    }
 
 	// Record that tf is the last real trapframe so

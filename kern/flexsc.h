@@ -3,14 +3,19 @@
 
 #include <inc/flexsc.h>
 #include <inc/stdio.h>
+#include <inc/string.h>
 
 #include <kern/env.h>
+#include <kern/pmap.h>
 
 #define NSCPAGES 5
 #define NSCTHREADS 30
 
-extern struct FscThread *scthreads;
 extern struct Segdesc gdt[];
+
+struct FscThread *scthreads;
+struct FscThread *fsc_free_list;
+struct Taskstate fsc_ts;
 
 __attribute__((__aligned__(PGSIZE)))
 char scpages[NSCPAGES][PGSIZE];

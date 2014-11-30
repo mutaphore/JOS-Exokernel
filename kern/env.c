@@ -511,15 +511,18 @@ void env_run_flex(struct Env *e)
 
 	curenv->env_cpunum = cpunum();
 
-   // Move EIP
+   scthreads[0].thr_status = THR_RUNNING;
 
-   __asm __volatile("movl  %%esp, %%edx\n"          // Save current stack pointer
-      "\tmovl  %0, %%esp\n"         // Switch to trap-time stack
-      "\tpushl %1\n"                // Push eip onto trap-time stack
-      "\tmovl  %%edx, %%esp"          // Restore stack pointer
+   // Get ready to switch stacks
+   __asm __volatile("movl  %%esp, %%edx\n"         // Save current stack pointer
+      "\tmovl  %1, %%esp\n"                        // Switch to thread stack
+      "\tpushl %2\n"                               // Push eip onto thread stack
+      "\tmovl %%esp, %0\n"                         // Save new esp
+      "\tmovl  %%edx, %%esp"                       // Restore kernel stack pointer
+      : "=g" (scthreads[0].thr_esp) 
+      : "g" (scthreads[0].thr_esp), "g" (scthreads[0].thr_eip));
 
-	__asm __volatile(""
-      "\tmovl %0,%%esp\n"
+	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
       "\tpopfl\n"
       "\tpopl %%esp\n"

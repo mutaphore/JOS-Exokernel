@@ -2,10 +2,6 @@
 
 #include <kern/flexsc.h>
 
-struct FscThread *scthreads;
-static struct FscThread *fsc_free_list;
-struct Taskstate fsc_ts;
-
 void test_flex()
 {
    int i = 0;
@@ -26,7 +22,7 @@ void test_flex()
 
 void flexsc_init() {
    struct FscThread *walker;
-   struct PageInfo *page
+   struct PageInfo *page;
    int r;
 
    for (walker = scthreads; walker < scthreads + NSCTHREADS; walker++) {
