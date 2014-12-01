@@ -11,21 +11,18 @@
 #define NSCPAGES 5
 #define NSCTHREADS 3
 
-extern struct Segdesc gdt[];
-
 struct FscThread scthreads[NSCTHREADS];
-struct FscThread *fsc_free_list;
-
 unsigned char thrstacks[NSCTHREADS][KSTKSIZE];
-
+struct FscThread *fsc_free_list;
 __attribute__((__aligned__(PGSIZE)))
 char scpages[NSCPAGES][PGSIZE];
 
 void flex_start();
 
 void test_flex();
+
 void flexsc_init();
 void *scpage_alloc();
-void scthread_spawn();
+void scthread_sched();
 
 #endif

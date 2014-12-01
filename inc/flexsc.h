@@ -6,7 +6,6 @@
 #include <inc/memlayout.h>
 
 // Number of flexsc entries per syscall page
-#define SCENTRIES (PGSIZE / sizeof(struct ScEntry))
 
 #define THRSTKTOP 0xFEED0000  // Kernel thread stack top
 
@@ -26,6 +25,8 @@ struct FscEntry {
    int8_t _pad[28];           // Pad it up to 64 bytes
 };
 
+#define NSCENTRIES (PGSIZE / sizeof(struct FscEntry))
+
 enum {
    THR_FREE = 0,
    THR_RUNNABLE,
@@ -38,6 +39,7 @@ struct FscThread {
    uintptr_t thr_esp;
    uintptr_t thr_eip;
    unsigned thr_status; 
+   uint32_t thr_id;
 };
 
 

@@ -466,7 +466,8 @@ sys_ipc_recv(void *dstva)
   
    // Block this env
    curenv->env_status = ENV_NOT_RUNNABLE; 
-   sched_yield();
+   // Yield to the syscall thread scheduler!
+   scthread_sched();
 
 	return 0;
 }
@@ -525,8 +526,7 @@ sys_env_set_priority(envid_t envid, int priority)
 
 // A process must register a syscall page with this syscall in order
 // to use the FlexSC facility.
-static int 
-flexsc_register(void *va)
+int flexsc_register(void *va)
 {
    struct PageInfo *page;
    void *scpage = scpage_alloc();   // Retrieve a syscall page
@@ -537,11 +537,14 @@ flexsc_register(void *va)
    // Map syscall page into user-space memory address
    if (!(page = page_lookup(kern_pgdir, scpage, NULL)))
       return -E_INVAL;
-   if ((error = page_insert(curenv->env_pgdir, page, 
-        va, PTE_W | PTE_U | PTE_P)) < 0) {
+   if ((error = page_insert(curenv->env_pgdir, page, va, PTE_W | PTE_U | PTE_P)) < 0) {
       page_free(page);  // Free the page!
       return error;   
    }
+
+   // Spawn syscall threads to serve syscall entries
+   scthread_spawn();
+
    return 0;
 }
 
@@ -549,13 +552,13 @@ flexsc_register(void *va)
 // further and is waiting on pending system calls to be processed.
 // Puts the user thread to sleep. FlexSC will later wake up this
 // process when at least 1 of the posted system calls are complete.
-static int 
-flexsc_wait()
+int flexsc_wait()
 {
    // Put this user process to sleep
    curenv->env_status = ENV_NOT_RUNNABLE;
-   // Run syscall scheduler
-   scthread_sched(); 
+
+   // Pass to syscall thread scheduler
+   scthread_sched();
    
    return 0;
 }
