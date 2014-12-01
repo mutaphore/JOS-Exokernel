@@ -9,13 +9,14 @@
 #include <kern/pmap.h>
 
 #define NSCPAGES 5
-#define NSCTHREADS 30
+#define NSCTHREADS 3
 
 extern struct Segdesc gdt[];
 
-struct FscThread *scthreads;
+struct FscThread scthreads[NSCTHREADS];
 struct FscThread *fsc_free_list;
-struct Taskstate fsc_ts;
+
+unsigned char thrstacks[NSCTHREADS][KSTKSIZE];
 
 __attribute__((__aligned__(PGSIZE)))
 char scpages[NSCPAGES][PGSIZE];

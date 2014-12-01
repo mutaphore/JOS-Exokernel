@@ -553,7 +553,10 @@ int flexsc_register(void *va)
 // process when at least 1 of the posted system calls are complete.
 int flexsc_wait()
 {
+   // Put this user process to sleep
 	sched_yield();
+   // Run syscall scheduler
+   
    return 0;
 }
 

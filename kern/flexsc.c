@@ -22,20 +22,12 @@ void test_flex()
 
 void flexsc_init() {
    struct FscThread *walker;
-   struct PageInfo *page;
-   int r;
 
    for (walker = scthreads; walker < scthreads + NSCTHREADS; walker++) {
       memset(walker, 0, sizeof(struct FscThread));
       walker->thr_status = THR_FREE;
    }
    
-   // Set up thread stack in kernel address space
-   if (!(page = page_alloc(ALLOC_ZERO)))
-      panic("flexsc_init page alloc error");
-   if ((r = page_insert(kern_pgdir, page, THRSTKTOP - PGSIZE, PTE_W | PTE_P)) < 0)
-      panic("flexsc_init: %e", r);
-
    return; 
 }
 

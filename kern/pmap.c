@@ -62,6 +62,7 @@ i386_detect_memory(void)
 // --------------------------------------------------------------
 
 static void mem_init_mp(void);
+static void thrstk_map(void);
 static void buf_map(void);
 static void boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm);
 static void check_page_free_list(bool only_low_memory);
@@ -171,10 +172,10 @@ mem_init(void)
       memset(envs + n, 0, sizeof(struct Env));
 
 	//////////////////////////////////////////////////////////////////////
-   // Allocate memory for syscall threads to use the FlexSC facility (LAB7)
-   scthreads = boot_alloc(NSCTHREADS * sizeof(struct FscThread));
-   for (n = 0; n < NSCTHREADS; n++)
-      memset(scthreads + n, 0, sizeof(struct FscThread));
+   // FlexSC: Allocate memory for kernel syscall threads (LAB7)
+   //scthreads = boot_alloc(NSCTHREADS * sizeof(struct FscThread));
+   //for (n = 0; n < NSCTHREADS; n++)
+   //   memset(scthreads + n, 0, sizeof(struct FscThread));
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -252,6 +253,9 @@ mem_init(void)
 	// Initialize the SMP-related parts of the memory map
 	mem_init_mp();
 
+   // Initialize syscall thread stack region
+   thrstk_map();
+ 
    // Initialize transmit/receive buffer memory region
    buf_map();
 
@@ -315,6 +319,21 @@ mem_init_mp(void)
       // Map it into kern_pgdir
       boot_map_region(kern_pgdir, kstktop_va, KSTKSIZE, 
        kstktop_pa, PTE_W | PTE_P);
+   }
+}
+
+static void 
+thrstk_map(void)
+{
+   size_t i;
+   uintptr_t thrstk_va;
+   physaddr_t  thrstk_pa; 
+
+   for (i = 0; i < NSCTHREADS; i++) {
+      thrstk_pa = PADDR(thrstacks[i]); 
+      thrstk_va = THRSTKTOP - (i + 1) * KSTKSIZE; 
+      boot_map_region(kern_pgdir, thrstk_va, KSTKSIZE,
+       thrstk_pa, PTE_W | PTE_P);
    }
 }
 

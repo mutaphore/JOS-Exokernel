@@ -1,5 +1,5 @@
 #define FSC_ENTRY(x)
-   .text; _ALIGN_TEXT; .globl x; .type x,@function; x:
+   .text; .globl x; .type x,@function; x:
 
 FSC_ENTRY(flex_start)
    popal
@@ -7,8 +7,8 @@ FSC_ENTRY(flex_start)
    popl %esp
    ret
 
-//.globl flex_start;							\
-//flex_start:								\
+//.globl flex_start;
+//flex_start:
 //   movl $0xeebfe000, %esp
 //   call test_flex 
 

@@ -39,7 +39,7 @@ sched_yield(void)
    do {
       if (envs[envx].env_status == ENV_RUNNABLE) {
          if (envs[envx].env_type == ENV_TYPE_FLEX) {
-            cprintf("Running flex env\n");
+            cprintf("sched_yield: Running flex env\n");
             env_run_flex(envs + envx);
          }
          else

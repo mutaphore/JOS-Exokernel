@@ -490,9 +490,9 @@ void env_create_flex(void *func)
    
    e->env_type = ENV_TYPE_FLEX;
 
-   scthreads[0].thr_eflags |= FL_IF;            // Enable interrupts
-   scthreads[0].thr_esp = THRSTKTOP;            // Set stack location
-   scthreads[0].thr_eip = (uint32_t)test_flex;  // Entry point
+   scthreads[0].thr_eflags |= FL_IF;               // Enable interrupts
+   scthreads[0].thr_esp = (uint32_t)THRSTKTOP;            // Set stack location
+   scthreads[0].thr_eip = (uint32_t)test_flex;     // Entry point
 }
 
 
@@ -522,22 +522,15 @@ void env_run_flex(struct Env *e)
       : "=g" (scthreads[0].thr_esp) 
       : "g" (scthreads[0].thr_esp), "g" (scthreads[0].thr_eip));
 
+   cprintf("scthreads0 esp %08x eip %08x\n",
+           scthreads[0].thr_esp, scthreads[0].thr_eip);
+
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
       "\tpopfl\n"
       "\tpopl %%esp\n"
       "\tret"
 		: : "g" (&scthreads[0]) : "memory");
-/*
-	__asm __volatile("movl %0,%%esp\n"
-		"\tpopal\n"
-		"\tpopl %%es\n"
-		"\tpopl %%ds\n"
-		"\taddl $0x8,%%esp\n"
-      "\tiret"
-		: : "g" (&curenv->env_tf) : "memory");
-	panic("iret failed");
-*/
 }
 
 //

@@ -402,6 +402,8 @@ trap(struct Trapframe *tf)
       scthreads[0].thr_esp = tf->tf_esp;
       scthreads[0].thr_eip = tf->tf_eip;
       scthreads[0].thr_status = THR_RUNNABLE;
+      cprintf("Trap saved thread state esp %08x eip %08x\n",
+              scthreads[0].thr_esp, scthreads[0].thr_eip);
    }
 
 	// Record that tf is the last real trapframe so
