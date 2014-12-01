@@ -2,7 +2,7 @@
 
 #include <kern/flexsc.h>
 
-static uint32_t cur_thr = -1;
+static struct FscThread cur_thr = NULL;
 
 void test_flex()
 {
@@ -36,7 +36,7 @@ void *scpage_alloc()
    if (sc_pgnum >= NSCPAGES)
       return NULL;   // Out of syscall pages to allocate
 
-   entry = (struct FscEntry *)scpages[sc_pgnum];
+   entry = scpages[sc_pgnum];
    for (i = 0; i < NSCENTRIES; i++) {
       memset(entry + i, 0, sizeof(struct FscEntry));
       entry->status = FSC_FREE;
@@ -45,39 +45,48 @@ void *scpage_alloc()
    return scpages[sc_pgnum++];
 }
 
-int scthread_task() 
+int scthread_task(FscEntry *scpage) 
 {
-   int i;
+   struct FscEntry *entry = scpage;
 
    while (1) {
-      for (i = 0; i < NSCENTRIES; i++) {
-      
-
-      } 
-      i
+      if (entry->status == FSC_SUBMITTED) {
+         entry->status = FSC_BUSY;
+         entry->ret = syscall(entry->sc_num, entry->args[0], entry->args[1], 
+                              entry->args[2], entry->args[3], entry->args[4]);
+         entry->status = FSC_DONE;
+      }
+      entry++;
    }
-      
 }
 
-void scthread_run(uint32_t thr_id) {
+void scthread_run(uint32_t thr_id) 
+{
+   
+   if (cur_thr->thr_status == THR_RUNNING)
+      cur_thr->thr_status = THR_RUNNABLE; 
 
+   cur_thr = scthreads[thr_id]; 
+   cur_thr->thr_status = THR_RUNNING;
+      
 }
 
 void scthread_sched() 
 {
-   uint32_t prev_thr = 0;
+   uint32_t cur = 0, prev = 0;
  
-   if (cur_thr >= 0)
-      prev_thr = cur_thr;
+   if (cur_thr) {
+      prev = cur_thr->thr_id;
+      cur = (prev + 1) % NSCTHREADS;
+   }
 
-   cur_thr = (cur_thr + 1) % NSCTHREADS;
-   
    do {
-      if (scthreads[cur_thr].thr_status == THR_FREE)
-         scthread_run(cur_thr)
-      cur_thr = (cur_thr + 1) % NSCTHREADS;
-   } while(cur_thr != prev_thr);
+      if (scthreads[cur].thr_status == THR_FREE ||
+          scthreads[cur].thr_status == THR_RUNNABLE)
+         scthread_run(cur)
+      cur = (cur + 1) % NSCTHREADS;
+   } while(cur != prev);
    
-   if (scthreads[prev_thr].thr_status == THR_RUNNING)
-      scthread_run(prev_thr); 
+   if (scthreads[prev].thr_status == THR_RUNNING)
+      scthread_run(prev); 
 }

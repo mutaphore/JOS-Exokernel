@@ -5,8 +5,6 @@
 #include <inc/trap.h>
 #include <inc/memlayout.h>
 
-// Number of flexsc entries per syscall page
-
 #define THRSTKTOP 0xFEED0000  // Kernel thread stack top
 
 enum FscStatus {
@@ -25,6 +23,7 @@ struct FscEntry {
    int8_t _pad[28];           // Pad it up to 64 bytes
 };
 
+// Number of flexsc entries per syscall page
 #define NSCENTRIES (PGSIZE / sizeof(struct FscEntry))
 
 enum {

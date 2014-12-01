@@ -7,6 +7,7 @@
 
 #include <kern/env.h>
 #include <kern/pmap.h>
+#include <kern/syscall.h>
 
 #define NSCPAGES 5
 #define NSCTHREADS 3
@@ -14,13 +15,12 @@
 struct FscThread scthreads[NSCTHREADS];
 unsigned char thrstacks[NSCTHREADS][KSTKSIZE];
 struct FscThread *fsc_free_list;
+
 __attribute__((__aligned__(PGSIZE)))
-char scpages[NSCPAGES][PGSIZE];
+struct FscEntry scpages[NSCPAGES][NSCENTRIES];
 
 void flex_start();
-
 void test_flex();
-
 void flexsc_init();
 void *scpage_alloc();
 void scthread_sched();
