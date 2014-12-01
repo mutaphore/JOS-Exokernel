@@ -49,9 +49,14 @@ int scthread_task()
 {
    int i;
 
-   for    
+   while (1) {
+      for (i = 0; i < NSCENTRIES; i++) {
       
 
+      } 
+      i
+   }
+      
 }
 
 void scthread_run(uint32_t thr_id) {
