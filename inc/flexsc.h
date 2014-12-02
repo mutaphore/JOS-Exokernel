@@ -23,6 +23,10 @@ struct FscEntry {
    int8_t _pad[28];           // Pad it up to 64 bytes
 };
 
+struct FscPage {
+   struct FscEntry entry[64];
+}
+
 // Number of flexsc entries per syscall page
 #define NSCENTRIES (PGSIZE / sizeof(struct FscEntry))
 
