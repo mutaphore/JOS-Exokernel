@@ -542,6 +542,10 @@ flexsc_register(void *va)
       page_free(page);  // Free the page!
       return error;   
    }
+
+   // Spawn a syscall thread
+   scthread_spawn(curenv);
+
    return 0;
 }
 

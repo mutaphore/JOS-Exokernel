@@ -27,6 +27,7 @@ void flexsc_init()
    return; 
 }
 
+// Allocates a system call page
 void *scpage_alloc() 
 {
    static int sc_pgnum = 0; 
@@ -43,6 +44,41 @@ void *scpage_alloc()
    }
 
    return scpages[sc_pgnum++];
+}
+
+// Creates a system call thread that shares address space
+// with parent. Has a separate stack. This is similar to
+// fork/sfork or clone in Linux.
+void scthread_spawn(struct Env *parent)
+{
+   struct PageInfo *page;
+   pte_t ptEntry;
+   struct Env *e;
+   uint32_t pn;
+   int r, perm;
+   
+   if ((r = env_alloc(&e, parent->env_id)) < 0)
+      return r;
+
+   // Copy all pages below USTACKTOP to thread environment
+   for (pn = 0; pn < PGNUM(USTACKTOP - PGSIZE); pn++) {
+      addr = (void *)(pn * PGSIZE);
+      if (!(page = page_lookup(parent->env_pgdir, addr, &ptEntry)))
+         return -E_INVAL;
+      perm = *ptEntry & 0xFFF; 
+      if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
+         return r;
+   } 
+
+   // Create exception stack page
+   addr = (void *)(UXSTACKTOP - PGSIZE);
+   if (!(page = page_alloc(ALLOC_ZERO)))
+      return -E_NO_MEM; 
+   if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
+      return r;
+
+   // Set the thread runnable
+   e->env_status = ENV_RUNNABLE;
 }
 
 int scthread_task(FscEntry *scpage) 

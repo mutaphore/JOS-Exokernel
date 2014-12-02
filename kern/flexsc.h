@@ -17,7 +17,7 @@ unsigned char thrstacks[NSCTHREADS][KSTKSIZE];
 struct FscThread *fsc_free_list;
 
 __attribute__((__aligned__(PGSIZE)))
-struct FscEntry scpages[NSCPAGES][NSCENTRIES];
+struct FscPage scpages[NSCPAGES];
 
 void flex_start();
 void test_flex();

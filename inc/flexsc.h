@@ -6,6 +6,7 @@
 #include <inc/memlayout.h>
 
 #define THRSTKTOP 0xFEED0000  // Kernel thread stack top
+#define NSCENTRIES 64
 
 enum FscStatus {
    FSC_FREE = 0,
@@ -24,11 +25,10 @@ struct FscEntry {
 };
 
 struct FscPage {
-   struct FscEntry entry[64];
-}
+   struct FscEntry entry[NSCENTRIES];
+};
 
 // Number of flexsc entries per syscall page
-#define NSCENTRIES (PGSIZE / sizeof(struct FscEntry))
 
 enum {
    THR_FREE = 0,
