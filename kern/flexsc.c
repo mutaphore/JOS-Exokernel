@@ -47,15 +47,16 @@ void *scpage_alloc()
 }
 
 // Creates a system call thread that shares address space
-// with parent. Has a separate stack. This is similar to
-// fork/sfork or clone in Linux.
-void scthread_spawn(struct Env *parent)
+// with parent. Has a separate stack. In many ways this 
+// is similar to fork/sfork or clone in Linux.
+int scthread_spawn(struct Env *parent)
 {
    struct PageInfo *page;
    pte_t ptEntry;
    struct Env *e;
    uint32_t pn;
    int r, perm;
+   void *addr;
    
    if ((r = env_alloc(&e, parent->env_id)) < 0)
       return r;
@@ -76,9 +77,17 @@ void scthread_spawn(struct Env *parent)
       return -E_NO_MEM; 
    if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
       return r;
-
+   
+   // Set env type for debugging
+   e->env_type = ENV_TYPE_FLEX;
+   // Copy the page fault handler from parent
+   e->env_pgfault_upcall = parent->env_pgfault_upcall;
+   // Syscall thread will start at syscall task function
+   e->env_tf.tf_eip =    
    // Set the thread runnable
    e->env_status = ENV_RUNNABLE;
+   
+   return e->env_id;  
 }
 
 int scthread_task(FscEntry *scpage) 
