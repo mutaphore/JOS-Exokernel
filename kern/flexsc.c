@@ -95,7 +95,7 @@ int scthread_spawn(struct Env *parent, struct FscPage *scpage)
 // This is the function that every syscall thread starts at.
 int scthread_task(FscPage *scpage) 
 {
-   struct FscEntry *entry = scpage;
+   struct FscEntry *entry = scpage->entries;
 
    while (1) {
       if (entry->status == FSC_SUBMITTED) {

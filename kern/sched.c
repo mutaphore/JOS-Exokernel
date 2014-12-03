@@ -37,16 +37,9 @@ sched_yield(void)
    }
    
    do {
-      if (envs[envx].env_status == ENV_RUNNABLE) {
-         if (envs[envx].env_type == ENV_TYPE_FLEX) {
-            cprintf("sched_yield: Running flex env\n");
-            env_run_flex(envs + envx);
-         }
-         else
-            env_run(envs + envx);  // Found a runnable env
-      }
-      if (++envx >= NENV)
-         envx = 0;    // Wrap around when we reached the end
+      if (envs[envx].env_status == ENV_RUNNABLE)
+         env_run(envs + envx);  // Found a runnable env
+      envx = (envx + 1) % NENV; // Wrap around when we reached the end
    } while (envx != penvx);
 
    // No envs are runnable, if there was a prev env on this CPU just run it

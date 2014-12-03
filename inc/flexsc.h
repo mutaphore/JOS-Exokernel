@@ -25,7 +25,7 @@ struct FscEntry {
 };
 
 struct FscPage {
-   struct FscEntry entry[NSCENTRIES];
+   struct FscEntry entries[NSCENTRIES];
 };
 
 // Number of flexsc entries per syscall page
