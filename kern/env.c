@@ -611,6 +611,36 @@ env_destroy(struct Env *e)
 }
 
 
+// Since FlexSC threads run at kernel level, we cannot use 'iret'
+// because it doesn't pop stack pointer or SS off the stack when
+// there is no privilege level change. So we have to do some hacks 
+// to make sure it is returning to the appropriate stack.
+env_pop_tf_flex(struct Trapframe *tf)
+{
+   __asm __volatile(
+      "movl  %%esp, %%edx\n\t"         // Save current stack pointer
+      "movl  %1, %%esp\n\t"                        // Switch to thread stack
+      "pushl %2\n\t"                               // Push eip onto thread stack
+      "movl %%esp, %0\n\t"                         // Save the adjusted esp
+      "movl  %%edx, %%esp"                       // Restore previous stack pointer
+      : "=g" (tf->tf_esp) 
+      : "g" (tf->tf_esp), "g" (tf->tf_eip));
+
+	__asm __volatile(
+      "movl %0,%%esp\n\t"
+		"popal\n\t"
+		"popl %%es\n\t"
+		"popl %%ds\n\t"
+		"addl $0x10,%%esp\n\t" /* skip tf_trapno, tf_errcode, tf_eip and tf_cs */
+      "popfl\n\t"
+      "popl %%esp\n\t"
+		"ret"
+      : : "g" (tf) 
+      : "memory");
+	panic("ret failed");  /* mostly to placate the compiler */
+}
+
+
 //
 // Restores the register values in the Trapframe with the 'iret' instruction.
 // This exits the kernel and starts executing some environment's code.
@@ -627,7 +657,6 @@ env_pop_tf(struct Trapframe *tf)
 		"\tpopal\n"
 		"\tpopl %%es\n"
 		"\tpopl %%ds\n"
-
 		"\taddl $0x8,%%esp\n" /* skip tf_trapno and tf_errcode */
 		"\tiret"
 		: : "g" (tf) : "memory");
@@ -672,6 +701,10 @@ env_run(struct Env *e)
    
    // Unlock kernel before switching back to user mode
    unlock_kernel();
+
+   // Return back to FlexSC kernel thread
+   if (curenv->env_type == ENV_TYPE_FLEX)
+      env_pop_tf_flex(&curenv->env_tf);
 
    // Pop registers back to user env and execute there
    env_pop_tf(&curenv->env_tf);

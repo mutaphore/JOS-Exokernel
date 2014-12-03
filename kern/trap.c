@@ -387,7 +387,7 @@ trap(struct Trapframe *tf)
 		// will restart at the trap point.
 		curenv->env_tf = *tf;
 
-      // Handle FlexSC kernel thread 
+      // Handle FlexSC kernel thread case
       if (curenv->env_type == ENV_TYPE_FLEX) {
          // Since no stack switch occured (got interrupted in ring 0), 
          // the stack pointer before we got interrupted is just right 
