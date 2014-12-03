@@ -85,7 +85,7 @@ int scthread_spawn(struct Env *parent, struct FscPage *scpage)
    // Syscall thread will start at syscall task function
    e->env_tf.tf_eip = (uint32_t)scthread_task;
    // Push argument on the stack that thread will be running on
-   *(uint32_t *)(e->env_tf.tf_esp - sizeof(struct FscPage *)) = scpage;
+   *(struct FscPage *)(e->env_tf.tf_esp - sizeof(struct FscPage *)) = scpage;
    // Set the thread runnable
    e->env_status = ENV_RUNNABLE;
    
