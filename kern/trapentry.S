@@ -99,5 +99,5 @@ _alltraps:
    movw     $GD_KD, %ax    // Change to kernel segment
    movw     %ax, %ds
    movw     %ax, %es 
-   pushl    %esp
+   pushl    %esp           // %esp is the Trapframe argument passed to trap
    call     trap

@@ -543,7 +543,7 @@ flexsc_register(void *va)
       return error;   
    }
 
-   // Spawn a syscall thread
+   // Spawn a syscall thread to serve the syscall page
    scthread_spawn(curenv, scpage);
 
    return 0;

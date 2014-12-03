@@ -12,10 +12,6 @@
 #define NSCPAGES 5
 #define NSCTHREADS 3
 
-struct FscThread scthreads[NSCTHREADS];
-unsigned char thrstacks[NSCTHREADS][KSTKSIZE];
-struct FscThread *fsc_free_list;
-
 __attribute__((__aligned__(PGSIZE)))
 struct FscPage scpages[NSCPAGES];
 
@@ -25,6 +21,6 @@ void test_flex();
 void flexsc_init();
 void *scpage_alloc();
 int scthread_spawn(struct Env *parent, struct FscPage *scpage);
-int scthread_task(FscPage *scpage);
+int scthread_task(struct FscPage *scpage);
 
 #endif

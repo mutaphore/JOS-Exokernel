@@ -366,7 +366,7 @@ trap(struct Trapframe *tf)
 	// the interrupt path.
 	assert(!(read_eflags() & FL_IF));
 
-	if ((tf->tf_cs & 3) == 3) {
+	if ((tf->tf_cs & 3) == 3 || curenv->env_type == ENV_TYPE_FLEX) {
 		// Trapped from user mode.
 		// Acquire the big kernel lock before doing any
 		// serious kernel work.
@@ -386,26 +386,20 @@ trap(struct Trapframe *tf)
 		// into 'curenv->env_tf', so that running the environment
 		// will restart at the trap point.
 		curenv->env_tf = *tf;
+
+      // Handle FlexSC kernel thread 
+      if (curenv->env_type == ENV_TYPE_FLEX) {
+         // Since no stack switch occured (got interrupted in ring 0), 
+         // the stack pointer before we got interrupted is just right 
+         // above the pushed trap frame. We subtract 8 because %esp and
+         // %ss are not pushed onto the stack when no privilege level change.
+		   curenv->env_tf.tf_esp = (uintptr_t)tf + sizeof(struct Trapframe) - 8;
+      } 
+
 		// The trapframe on the stack should be ignored from here on.
 		tf = &curenv->env_tf;
 	}
   
-   // Handle kernel thread 
-   if ((tf->tf_cs & 3) == 0 && tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER) {
-      lock_kernel();
-      cprintf("in flex trap %d\n", tf->tf_trapno);
-      curenv->env_tf = *tf;
-		tf = &curenv->env_tf;
-      // Save thread state
-      scthreads[0].thr_regs = tf->tf_regs;
-      scthreads[0].thr_eflags = tf->tf_eflags;
-      scthreads[0].thr_esp = tf->tf_esp;
-      scthreads[0].thr_eip = tf->tf_eip;
-      scthreads[0].thr_status = THR_RUNNABLE;
-      cprintf("Trap saved thread state esp %08x eip %08x\n",
-              scthreads[0].thr_esp, scthreads[0].thr_eip);
-   }
-
 	// Record that tf is the last real trapframe so
 	// print_trapframe can print some additional information.
 	last_tf = tf;
