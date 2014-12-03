@@ -21,8 +21,10 @@ struct FscPage scpages[NSCPAGES];
 
 void flex_start();
 void test_flex();
+
 void flexsc_init();
 void *scpage_alloc();
-void scthread_sched();
+int scthread_spawn(struct Env *parent, struct FscPage *scpage);
+int scthread_task(FscPage *scpage);
 
 #endif

@@ -544,7 +544,7 @@ flexsc_register(void *va)
    }
 
    // Spawn a syscall thread
-   scthread_spawn(curenv);
+   scthread_spawn(curenv, scpage);
 
    return 0;
 }

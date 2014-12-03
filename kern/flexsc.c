@@ -46,10 +46,10 @@ void *scpage_alloc()
    return scpages[sc_pgnum++];
 }
 
-// Creates a system call thread that shares address space
+// Creates a syscall thread that shares address space
 // with parent. Has a separate stack. In many ways this 
 // is similar to fork/sfork or clone in Linux.
-int scthread_spawn(struct Env *parent)
+int scthread_spawn(struct Env *parent, struct FscPage *scpage)
 {
    struct PageInfo *page;
    pte_t ptEntry;
@@ -83,14 +83,17 @@ int scthread_spawn(struct Env *parent)
    // Copy the page fault handler from parent
    e->env_pgfault_upcall = parent->env_pgfault_upcall;
    // Syscall thread will start at syscall task function
-   e->env_tf.tf_eip =    
+   e->env_tf.tf_eip = (uint32_t)scthread_task;
+   // Push argument on the stack that thread will be running on
+   *(uint32_t *)(e->env_tf.tf_esp - sizeof(struct FscPage *)) = scpage;
    // Set the thread runnable
    e->env_status = ENV_RUNNABLE;
    
    return e->env_id;  
 }
 
-int scthread_task(FscEntry *scpage) 
+// This is the function that every syscall thread starts at.
+int scthread_task(FscPage *scpage) 
 {
    struct FscEntry *entry = scpage;
 
@@ -103,35 +106,4 @@ int scthread_task(FscEntry *scpage)
       }
       entry++;
    }
-}
-
-void scthread_run(uint32_t thr_id) 
-{
-   
-   if (cur_thr->thr_status == THR_RUNNING)
-      cur_thr->thr_status = THR_RUNNABLE; 
-
-   cur_thr = scthreads[thr_id]; 
-   cur_thr->thr_status = THR_RUNNING;
-      
-}
-
-void scthread_sched() 
-{
-   uint32_t cur = 0, prev = 0;
- 
-   if (cur_thr) {
-      prev = cur_thr->thr_id;
-      cur = (prev + 1) % NSCTHREADS;
-   }
-
-   do {
-      if (scthreads[cur].thr_status == THR_FREE ||
-          scthreads[cur].thr_status == THR_RUNNABLE)
-         scthread_run(cur)
-      cur = (cur + 1) % NSCTHREADS;
-   } while(cur != prev);
-   
-   if (scthreads[prev].thr_status == THR_RUNNING)
-      scthread_run(prev); 
 }
