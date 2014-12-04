@@ -9,9 +9,9 @@ void test_flex(int num)
 
    for (i = 0; i < 100; i++) {
       cprintf("Flex Thread running %d, %08x\n", i, num);
-      lock_kernel();
+      //lock_kernel();
       // Before yielding save return point!!
-      sched_yield();
+      //sched_yield();
    }
 
    // We must lock when returning from function because we
@@ -51,15 +51,16 @@ void *kstk_alloc(void)
    static uint32_t kstkno = 0; 
    
    if (kstkno < NSCTHREADS)
-      return kthrstacks[kstkno++] + KSTKSIZE;
+      return THRSTKTOP - kstkno++ * KSTKSIZE; 
    
    return NULL;
 }
 
 // Creates a syscall thread that shares address space
 // with parent. Has a separate stack. In many ways this 
-// is similar to fork/sfork or clone in Linux.
-int scthread_spawn(struct Env *parent, struct FscPage *scpage)
+// is similar to fork/sfork or clone in Linux. Returns
+// the env_id of the syscall thread, < 0 on error.
+int scthread_spawn(struct Env *parent)
 {
    struct PageInfo *page;
    pte_t *ptEntry;
@@ -94,17 +95,28 @@ int scthread_spawn(struct Env *parent, struct FscPage *scpage)
    e->env_pgfault_upcall = parent->env_pgfault_upcall;
    // Syscall thread will start at syscall task function
    e->env_tf.tf_eip = (uint32_t)scthread_task;
-   // Push argument on the stack that thread will be running on
-   e->env_tf.tf_esp -= sizeof(struct FscPage *);
-   *(uint32_t *)e->env_tf.tf_esp = (uint32_t)scpage;
-   // Set the thread runnable
-   e->env_status = ENV_RUNNABLE;
-   
+   // Allocate kernel stack   
+   e->env_tf.tf_esp = kstk_alloc();
+   // This thread starts off asleep 
+   e->env_status = ENV_NOT_RUNNABLE;
+ 
    return e->env_id;  
 }
 
+void scthread_yield()
+{
+   return;
+}
+
+// Wakes up a scthread
+void scthread_run(struct Env *thr)
+{
+   // Set the thread runnable
+   thr->status = ENV_RUNNABLE;
+}
+
 // This is the function that every syscall thread starts at.
-int scthread_task(struct FscPage *scpage) 
+void scthread_task()
 {
    struct FscEntry *entry = scpage->entries;
 

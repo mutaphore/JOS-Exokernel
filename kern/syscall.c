@@ -529,22 +529,32 @@ static int
 flexsc_register(void *va)
 {
    struct PageInfo *page;
-   void *scpage = scpage_alloc();   // Retrieve a syscall page
-   int error;
+   void *scpage;
+   int r;
 
    user_mem_assert(curenv, va, PGSIZE, PTE_W | PTE_U | PTE_P);
+   
+   if (!(scpage = scpage_alloc()))
+      panic("Cannot allocate syscall page!");
 
    // Map syscall page into user-space memory address
    if (!(page = page_lookup(kern_pgdir, scpage, NULL)))
       return -E_INVAL;
-   if ((error = page_insert(curenv->env_pgdir, page, 
+   if ((r = page_insert(curenv->env_pgdir, page, 
         va, PTE_W | PTE_U | PTE_P)) < 0) {
-      page_free(page);  // Free the page!
-      return error;   
+      page_free(page);  // If we cannot insert, free the page!
+      return r;   
    }
 
-   // Spawn a syscall thread to serve the syscall page
-   scthread_spawn(curenv, scpage);
+   // Save syscall page for this user process
+   curenv->scpage = scpage;
+
+   // Spawn a syscall thread to work on the page
+   if ((r = scthread_spawn(curenv)) < 0)
+      panic("Cannot spawn a syscall thread!");
+   
+   curenv->scthread = &envs[ENVX(r)];
+   curenv->scthread->scpage = scpage;
 
    return 0;
 }
@@ -556,11 +566,13 @@ flexsc_register(void *va)
 static int 
 flexsc_wait()
 {
+   // Wake up the syscall thread for this process
+   scthread_run(curenv->scthread);
+
    // Put this user process to sleep
    curenv->env_status = ENV_NOT_RUNNABLE;
-   // Run syscall scheduler
-   //scthread_sched(); 
-   
+   sched_yield();
+
    return 0;
 }
 

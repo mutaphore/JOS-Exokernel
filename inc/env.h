@@ -6,6 +6,7 @@
 #include <inc/types.h>
 #include <inc/trap.h>
 #include <inc/memlayout.h>
+#include <inc/flexsc.h>
 
 typedef int32_t envid_t;
 
@@ -80,6 +81,10 @@ struct Env {
 
    // Lab 4 Challenge: Fixed priority scheduling
    enum EnvPriority env_priority;
+
+   // FlexSC
+   struct FscPage *scpage;    // Page where syscalls will be posted on
+   struct Env *scthread;      // Syscall threads that will serve the page 
 };
 
 #endif // !JOS_INC_ENV_H
