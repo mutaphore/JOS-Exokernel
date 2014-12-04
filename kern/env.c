@@ -480,8 +480,8 @@ env_create(uint8_t *binary, enum EnvType type)
    load_icode(e, binary); 
 }
 
-
-void env_create_flex(void *func)
+// Create a FlexSC kernel thread environment
+void env_create_flex(void *func, uintptr_t arg)
 {
    struct Env *e;
    int r;
@@ -490,50 +490,19 @@ void env_create_flex(void *func)
       panic("env_create: %e\n", r);
    
    e->env_type = ENV_TYPE_FLEX;
-   e->env_tf.tf_esp = (uint32_t)(THRSTKTOP - KSTKSIZE);     // Entry point
+	e->env_tf.tf_ds = GD_KD;
+	e->env_tf.tf_es = GD_KD;
    e->env_tf.tf_cs = GD_KT;
+	e->env_tf.tf_ss = GD_KD;
+   e->env_tf.tf_esp = (uint32_t)THRSTKTOP - KSTKSIZE;
    e->env_tf.tf_eip = (uint32_t)func;     // Entry point
 
+   if (arg) {
+      e->env_tf.tf_esp -= sizeof(uintptr_t); 
+      *(uint32_t *)(e->env_tf.tf_esp) = 0x1234;
+      //cprintf("DEBUG no is %08x\n", *(uint32_t *)(e->env_tf.tf_esp));
+   }
 }
-
-/*
-void env_run_flex(struct Env *e)
-{
-
-   if (curenv && (curenv->env_status == ENV_RUNNING))
-      curenv->env_status = ENV_RUNNABLE;
-        
-   curenv = e; 
-   curenv->env_status = ENV_RUNNING;
-   curenv->env_runs++; 
-   
-   // Unlock kernel before switching back to user mode
-   unlock_kernel();
-
-	curenv->env_cpunum = cpunum();
-
-   scthreads[0].thr_status = THR_RUNNING;
-
-   // Get ready to switch stacks
-   __asm __volatile("movl  %%esp, %%edx\n"         // Save current stack pointer
-      "\tmovl  %1, %%esp\n"                        // Switch to thread stack
-      "\tpushl %2\n"                               // Push eip onto thread stack
-      "\tmovl %%esp, %0\n"                         // Save new esp
-      "\tmovl  %%edx, %%esp"                       // Restore kernel stack pointer
-      : "=g" (scthreads[0].thr_esp) 
-      : "g" (scthreads[0].thr_esp), "g" (scthreads[0].thr_eip));
-
-   cprintf("scthreads0 esp %08x eip %08x\n",
-           scthreads[0].thr_esp, scthreads[0].thr_eip);
-
-	__asm __volatile("movl %0,%%esp\n"
-		"\tpopal\n"
-      "\tpopfl\n"
-      "\tpopl %%esp\n"
-      "\tret"
-		: : "g" (&scthreads[0]) : "memory");
-}
-*/
 
 //
 // Frees env e and all memory it uses.
@@ -620,13 +589,12 @@ env_destroy(struct Env *e)
 void
 env_pop_tf_flex(struct Trapframe *tf)
 {
-   cprintf("DEBUG Popping %08x\n", tf->tf_esp);
    __asm __volatile(
-      "movl  %%esp, %%edx\n\t"         // Save current stack pointer
+      "movl  %%esp, %%edx\n\t"                     // Save current stack pointer
       "movl  %1, %%esp\n\t"                        // Switch to thread stack
       "pushl %2\n\t"                               // Push eip onto thread stack
       "movl %%esp, %0\n\t"                         // Save the adjusted esp
-      "movl  %%edx, %%esp"                       // Restore previous stack pointer
+      "movl  %%edx, %%esp"                         // Restore previous stack pointer
       : "=g" (tf->tf_esp) 
       : "g" (tf->tf_esp), "g" (tf->tf_eip));
 
@@ -697,16 +665,16 @@ env_run(struct Env *e)
 
    if (curenv && (curenv->env_status == ENV_RUNNING))
       curenv->env_status = ENV_RUNNABLE;
-        
+
    curenv = e; 
    curenv->env_status = ENV_RUNNING;
    curenv->env_runs++; 
-	lcr3(PADDR(curenv->env_pgdir)); 
-   
+	lcr3(PADDR(curenv->env_pgdir));
+
    // Unlock kernel before switching back to user mode
    unlock_kernel();
 
-   // Return back to FlexSC kernel thread
+   // Run FlexSC kernel thread, does not return
    if (curenv->env_type == ENV_TYPE_FLEX)
       env_pop_tf_flex(&curenv->env_tf);
 

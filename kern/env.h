@@ -24,9 +24,8 @@ int	envid2env(envid_t envid, struct Env **env_store, bool checkperm);
 // The following two functions do not return
 void	env_run(struct Env *e) __attribute__((noreturn));
 void	env_pop_tf(struct Trapframe *tf) __attribute__((noreturn));
-
-void env_create_flex(void *func);
-void env_run_flex(struct Env *e);
+void	env_pop_tf_flex(struct Trapframe *tf) __attribute__((noreturn));
+void  env_create_flex(void *func, uintptr_t arg);
 
 // Without this extra macro, we couldn't pass macros like TEST to
 // ENV_CREATE because of the C pre-processor's argument prescan rule.

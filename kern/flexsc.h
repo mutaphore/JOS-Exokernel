@@ -9,6 +9,8 @@
 #include <kern/env.h>
 #include <kern/pmap.h>
 #include <kern/syscall.h>
+#include <kern/sched.h>
+#include <kern/spinlock.h>
 
 #define THRSTKTOP 0xFEED0000  // Kernel thread stack top
 #define NSCTHREADS 5          // Number of syscall threads
@@ -20,10 +22,11 @@ __attribute__((__aligned__(PGSIZE)))
 char kthrstacks[NSCTHREADS][KSTKSIZE];
 
 void flex_start();
-void test_flex(char *msg);
+void test_flex(int num);
 
 void flexsc_init(void);
-struct FscPage *scpage_alloc();
+struct FscPage *scpage_alloc(void);
+void *kstk_alloc(void);
 int scthread_spawn(struct Env *parent, struct FscPage *scpage);
 int scthread_task(struct FscPage *scpage);
 

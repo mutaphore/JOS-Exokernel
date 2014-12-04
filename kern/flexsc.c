@@ -2,15 +2,23 @@
 
 #include <kern/flexsc.h>
 
-//static struct FscThread cur_thr = NULL;
-
-void test_flex(char *msg)
+void test_flex(int num)
 {
    int i = 0;
    struct Env *e; 
 
-   while (1)
-      cprintf("Flex Thread running, msg %s\n", msg);
+   for (i = 0; i < 100; i++) {
+      cprintf("Flex Thread running %d, %08x\n", i, num);
+      lock_kernel();
+      // Before yielding save return point!!
+      sched_yield();
+   }
+
+   // We must lock when returning from function because we
+   // were running unlocked in ring 0 previously.
+   lock_kernel();
+   curenv->env_status = ENV_DYING;
+   sched_yield();
 }
 
 void flexsc_init(void)
@@ -35,6 +43,17 @@ struct FscPage *scpage_alloc(void)
    }
 
    return &scpages[sc_pgnum++];
+}
+
+// Allocates a kernel stack
+void *kstk_alloc(void) 
+{
+   static uint32_t kstkno = 0; 
+   
+   if (kstkno < NSCTHREADS)
+      return kthrstacks[kstkno++] + KSTKSIZE;
+   
+   return NULL;
 }
 
 // Creates a syscall thread that shares address space
