@@ -5,8 +5,7 @@
 #include <inc/trap.h>
 #include <inc/memlayout.h>
 
-#define THRSTKTOP 0xFEED0000  // Kernel thread stack top
-#define NSCENTRIES 64
+#define NSCENTRIES 64         // Number of syscall entries per syscall page
 
 enum FscStatus {
    FSC_FREE = 0,
@@ -27,23 +26,5 @@ struct FscEntry {
 struct FscPage {
    struct FscEntry entries[NSCENTRIES];
 };
-
-// Number of flexsc entries per syscall page
-
-enum {
-   THR_FREE = 0,
-   THR_RUNNABLE,
-   THR_RUNNING
-};
-
-struct FscThread {
-   struct PushRegs thr_regs;
-   uint32_t thr_eflags;
-   uintptr_t thr_esp;
-   uintptr_t thr_eip;
-   unsigned thr_status; 
-   uint32_t thr_id;
-};
-
 
 #endif

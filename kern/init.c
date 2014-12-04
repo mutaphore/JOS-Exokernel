@@ -53,7 +53,7 @@ i386_init(void)
 	mem_init();
 
    // Lab 7 FlexSC initialization
-   flexsc_init();
+   //flexsc_init();
 
 	// Lab 3 user environment initialization functions
 	env_init();

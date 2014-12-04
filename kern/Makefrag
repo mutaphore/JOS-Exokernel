@@ -45,8 +45,7 @@ KERN_SRCFILES +=	kern/e100.c \
 			kern/time.c
 
 # Source files for FlexSC LAB7
-KERN_SRCFILES +=	kern/flexsc.c \
-         kern/flexentry.S
+KERN_SRCFILES +=	kern/flexsc.c
 
 # Only build files if they exist.
 KERN_SRCFILES := $(wildcard $(KERN_SRCFILES))

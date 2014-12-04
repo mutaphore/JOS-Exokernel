@@ -559,7 +559,7 @@ flexsc_wait()
    // Put this user process to sleep
    curenv->env_status = ENV_NOT_RUNNABLE;
    // Run syscall scheduler
-   scthread_sched(); 
+   //scthread_sched(); 
    
    return 0;
 }

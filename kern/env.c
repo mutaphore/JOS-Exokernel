@@ -480,6 +480,7 @@ env_create(uint8_t *binary, enum EnvType type)
    load_icode(e, binary); 
 }
 
+
 void env_create_flex(void *func)
 {
    struct Env *e;
@@ -489,13 +490,13 @@ void env_create_flex(void *func)
       panic("env_create: %e\n", r);
    
    e->env_type = ENV_TYPE_FLEX;
+   e->env_tf.tf_esp = (uint32_t)(THRSTKTOP - KSTKSIZE);     // Entry point
+   e->env_tf.tf_cs = GD_KT;
+   e->env_tf.tf_eip = (uint32_t)func;     // Entry point
 
-   scthreads[0].thr_eflags |= FL_IF;               // Enable interrupts
-   scthreads[0].thr_esp = (uint32_t)THRSTKTOP;            // Set stack location
-   scthreads[0].thr_eip = (uint32_t)test_flex;     // Entry point
 }
 
-
+/*
 void env_run_flex(struct Env *e)
 {
 
@@ -532,6 +533,7 @@ void env_run_flex(struct Env *e)
       "\tret"
 		: : "g" (&scthreads[0]) : "memory");
 }
+*/
 
 //
 // Frees env e and all memory it uses.
@@ -615,8 +617,10 @@ env_destroy(struct Env *e)
 // because it doesn't pop stack pointer or SS off the stack when
 // there is no privilege level change. So we have to do some hacks 
 // to make sure it is returning to the appropriate stack.
+void
 env_pop_tf_flex(struct Trapframe *tf)
 {
+   cprintf("DEBUG Popping %08x\n", tf->tf_esp);
    __asm __volatile(
       "movl  %%esp, %%edx\n\t"         // Save current stack pointer
       "movl  %1, %%esp\n\t"                        // Switch to thread stack

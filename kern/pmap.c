@@ -62,7 +62,7 @@ i386_detect_memory(void)
 // --------------------------------------------------------------
 
 static void mem_init_mp(void);
-static void thrstk_map(void);
+static void kthrstk_map(void);
 static void buf_map(void);
 static void boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm);
 static void check_page_free_list(bool only_low_memory);
@@ -172,12 +172,6 @@ mem_init(void)
       memset(envs + n, 0, sizeof(struct Env));
 
 	//////////////////////////////////////////////////////////////////////
-   // FlexSC: Allocate memory for kernel syscall threads (LAB7)
-   //scthreads = boot_alloc(NSCTHREADS * sizeof(struct FscThread));
-   //for (n = 0; n < NSCTHREADS; n++)
-   //   memset(scthreads + n, 0, sizeof(struct FscThread));
-
-	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
 	// up the list of free physical pages. Once we've done so, all further
 	// memory management will go through the page_* functions. In
@@ -253,10 +247,10 @@ mem_init(void)
 	// Initialize the SMP-related parts of the memory map
 	mem_init_mp();
 
-   // Initialize syscall thread stack region
-   thrstk_map();
+   // Initialize FlexSC syscall thread stacks region
+   kthrstk_map();
  
-   // Initialize transmit/receive buffer memory region
+   // Initialize network shared transmit/receive buffer memory region
    buf_map();
 
 	// Check that the initial page directory has been set up correctly.
@@ -323,17 +317,16 @@ mem_init_mp(void)
 }
 
 static void 
-thrstk_map(void)
+kthrstk_map(void)
 {
    size_t i;
-   uintptr_t thrstk_va;
-   physaddr_t  thrstk_pa; 
+   uintptr_t stk_va;
+   physaddr_t  stk_pa; 
 
    for (i = 0; i < NSCTHREADS; i++) {
-      thrstk_pa = PADDR(thrstacks[i]); 
-      thrstk_va = THRSTKTOP - (i + 1) * KSTKSIZE; 
-      boot_map_region(kern_pgdir, thrstk_va, KSTKSIZE,
-       thrstk_pa, PTE_W | PTE_P);
+      stk_pa = PADDR(kthrstacks[i]); 
+      stk_va = THRSTKTOP - (i + 1) * KSTKSIZE; 
+      boot_map_region(kern_pgdir, stk_va, KSTKSIZE, stk_pa, PTE_W | PTE_P);
    }
 }
 

@@ -2,33 +2,24 @@
 
 #include <kern/flexsc.h>
 
-static struct FscThread cur_thr = NULL;
+//static struct FscThread cur_thr = NULL;
 
-void test_flex()
+void test_flex(char *msg)
 {
    int i = 0;
    struct Env *e; 
 
    while (1)
-      cprintf("Flex Thread running\n");
+      cprintf("Flex Thread running, msg %s\n", msg);
 }
 
-void flexsc_init() 
+void flexsc_init(void)
 {
-   struct FscThread *thr;
-   int i = 0;
-
-   for (thr = scthreads; thr < scthreads + NSCTHREADS; walker++) {
-      memset(thr, 0, sizeof(struct FscThread));
-      thr->thr_status = THR_FREE;
-      thr->thr_id = i++;
-   }
-   
    return; 
 }
 
 // Allocates a system call page
-void *scpage_alloc() 
+struct FscPage *scpage_alloc(void) 
 {
    static int sc_pgnum = 0; 
    struct FscEntry *entry;
@@ -37,13 +28,13 @@ void *scpage_alloc()
    if (sc_pgnum >= NSCPAGES)
       return NULL;   // Out of syscall pages to allocate
 
-   entry = scpages[sc_pgnum];
+   entry = scpages[sc_pgnum].entries;
    for (i = 0; i < NSCENTRIES; i++) {
       memset(entry + i, 0, sizeof(struct FscEntry));
       entry->status = FSC_FREE;
    }
 
-   return scpages[sc_pgnum++];
+   return &scpages[sc_pgnum++];
 }
 
 // Creates a syscall thread that shares address space
@@ -52,7 +43,7 @@ void *scpage_alloc()
 int scthread_spawn(struct Env *parent, struct FscPage *scpage)
 {
    struct PageInfo *page;
-   pte_t ptEntry;
+   pte_t *ptEntry;
    struct Env *e;
    uint32_t pn;
    int r, perm;
