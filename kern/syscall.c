@@ -551,7 +551,7 @@ flexsc_register(void *va)
 
    // Spawn a syscall thread to work on the page
    if ((r = scthread_spawn(curenv)) < 0)
-      panic("Cannot spawn a syscall thread!");
+      panic("Cannot spawn a syscall thread: %e", r);
    
    curenv->scthread = &envs[ENVX(r)];
    curenv->scthread->scpage = scpage;

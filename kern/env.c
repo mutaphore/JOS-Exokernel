@@ -494,7 +494,7 @@ void env_create_flex(void *func, uintptr_t arg)
 	e->env_tf.tf_es = GD_KD;
    e->env_tf.tf_cs = GD_KT;
 	e->env_tf.tf_ss = GD_KD;
-   e->env_tf.tf_esp = (uint32_t)THRSTKTOP - KSTKSIZE;
+   e->env_tf.tf_esp = (uint32_t)kstk_alloc();
    e->env_tf.tf_eip = (uint32_t)func;     // Entry point
 
    if (arg) {

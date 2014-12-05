@@ -21,8 +21,6 @@
 
 static void boot_aps(void);
 
-char *test_str = "This is a test string\n";
-
 // Test the stack backtrace function (lab 1 only)
 void
 test_backtrace(int x)
@@ -96,7 +94,7 @@ i386_init(void)
 #endif // TEST*
 
    // TEST FlexSC
-   env_create_flex(test_flex, 0x12345);
+   //env_create_flex(test_flex, 0x12345);
 
 	// Should not be necessary - drains keyboard because interrupt has given up.
 	kbd_intr();

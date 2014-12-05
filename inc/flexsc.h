@@ -23,6 +23,7 @@ struct FscEntry {
    int8_t _pad[28];           // Pad it up to 64 bytes
 };
 
+// Syscall page is 4K bytes
 struct FscPage {
    struct FscEntry entries[NSCENTRIES];
 };

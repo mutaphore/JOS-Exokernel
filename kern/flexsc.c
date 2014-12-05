@@ -1,14 +1,22 @@
+///////////////////////
+//
+// FlexSC + JOS
+// Author: Dewei Chen
+// 
+//
+
 // FlexSC kernel functions
 
 #include <kern/flexsc.h>
 
+// For debugging
 void test_flex(int num)
 {
    int i = 0;
    struct Env *e; 
 
    for (i = 0; i < 100; i++) {
-      cprintf("Flex Thread running %d, %08x\n", i, num);
+      cprintf("Test FlexSC Thread running %d, args %08x\n", i, num);
       //lock_kernel();
       // Before yielding save return point!!
       //sched_yield();
@@ -36,10 +44,14 @@ struct FscPage *scpage_alloc(void)
    if (sc_pgnum >= NSCPAGES)
       return NULL;   // Out of syscall pages to allocate
 
+   // Initialize entries in syscall page
    entry = scpages[sc_pgnum].entries;
    for (i = 0; i < NSCENTRIES; i++) {
       memset(entry + i, 0, sizeof(struct FscEntry));
       entry->status = FSC_FREE;
+      //DEBUG
+      entry->sc_num = 1234;
+      entry->status = FSC_DONE;
    }
 
    return &scpages[sc_pgnum++];
@@ -51,7 +63,7 @@ void *kstk_alloc(void)
    static uint32_t kstkno = 0; 
    
    if (kstkno < NSCTHREADS)
-      return THRSTKTOP - kstkno++ * KSTKSIZE; 
+      return (void *)(THRSTKTOP - kstkno++ * KSTKSIZE);
    
    return NULL;
 }
@@ -66,7 +78,7 @@ int scthread_spawn(struct Env *parent)
    pte_t *ptEntry;
    struct Env *e;
    uint32_t pn;
-   int r, perm;
+   int r, perm = 0;
    void *addr;
    
    if ((r = env_alloc(&e, parent->env_id)) < 0)
@@ -76,7 +88,7 @@ int scthread_spawn(struct Env *parent)
    for (pn = 0; pn < PGNUM(USTACKTOP - PGSIZE); pn++) {
       addr = (void *)(pn * PGSIZE);
       if (!(page = page_lookup(parent->env_pgdir, addr, &ptEntry)))
-         return -E_INVAL;
+         continue;
       perm = *ptEntry & 0xFFF; 
       if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
          return r;
@@ -88,15 +100,15 @@ int scthread_spawn(struct Env *parent)
       return -E_NO_MEM; 
    if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
       return r;
-   
+
    // Set env type for debugging
    e->env_type = ENV_TYPE_FLEX;
    // Copy the page fault handler from parent
    e->env_pgfault_upcall = parent->env_pgfault_upcall;
    // Syscall thread will start at syscall task function
-   e->env_tf.tf_eip = (uint32_t)scthread_task;
+   e->env_tf.tf_eip = (uintptr_t)scthread_task;
    // Allocate kernel stack   
-   e->env_tf.tf_esp = kstk_alloc();
+   e->env_tf.tf_esp = (uintptr_t)kstk_alloc();
    // This thread starts off asleep 
    e->env_status = ENV_NOT_RUNNABLE;
  
@@ -112,14 +124,19 @@ void scthread_yield()
 void scthread_run(struct Env *thr)
 {
    // Set the thread runnable
-   thr->status = ENV_RUNNABLE;
+   thr->env_status = ENV_RUNNABLE;
 }
 
 // This is the function that every syscall thread starts at.
 void scthread_task()
 {
-   struct FscEntry *entry = scpage->entries;
+   struct FscEntry *entry = curenv->scpage->entries;
 
+   cprintf("Hello World I'm FlexSC\n");
+
+   cprintf("DEBUG Flex sc_num %d\n", curenv->scpage->entries[0].sc_num);
+
+   /*
    while (1) {
       if (entry->status == FSC_SUBMITTED) {
          entry->status = FSC_BUSY;
@@ -129,4 +146,8 @@ void scthread_task()
       }
       entry++;
    }
+   */
+   lock_kernel();
+   curenv->env_status = ENV_DYING;
+   sched_yield();
 }
