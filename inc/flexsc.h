@@ -9,13 +9,13 @@
 
 enum FscStatus {
    FSC_FREE = 0,
-   FSC_SUBMITTED,
+   FSC_SUBMIT,
    FSC_BUSY, 
    FSC_DONE
 };
 
 struct FscEntry {
-   int32_t sc_num;            // Syscall number  
+   int32_t syscall;           // Syscall number  
    uint32_t num_args;         // Number of arguments
    uint32_t args[5];          // Arguments
    enum FscStatus status;     // Syscall status 

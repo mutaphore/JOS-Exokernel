@@ -24,6 +24,7 @@ char kthrstacks[NSCTHREADS][KSTKSIZE];
 void flex_start();
 void test_flex(int num);
 
+// Core FlexSC functions
 void flexsc_init(void);
 struct FscPage *scpage_alloc(void);
 void *kstk_alloc(void);

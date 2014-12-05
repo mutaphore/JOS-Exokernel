@@ -84,7 +84,7 @@ struct Env {
 
    // FlexSC
    struct FscPage *scpage;    // Page where syscalls will be posted on
-   struct Env *scthread;      // Syscall threads that will serve the page 
+   struct Env *link;          // Links user process and its syscall thread
 };
 
 #endif // !JOS_INC_ENV_H

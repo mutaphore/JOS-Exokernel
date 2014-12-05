@@ -47,11 +47,8 @@ struct FscPage *scpage_alloc(void)
    // Initialize entries in syscall page
    entry = scpages[sc_pgnum].entries;
    for (i = 0; i < NSCENTRIES; i++) {
-      memset(entry + i, 0, sizeof(struct FscEntry));
-      entry->status = FSC_FREE;
-      //DEBUG
-      entry->sc_num = 1234;
-      entry->status = FSC_DONE;
+      memset(&entry[i], 0, sizeof(struct FscEntry));
+      entry[i].status = FSC_FREE;
    }
 
    return &scpages[sc_pgnum++];
@@ -117,6 +114,11 @@ int scthread_spawn(struct Env *parent)
 
 void scthread_yield()
 {
+   lock_kernel();
+
+   curenv->env_status = ENV_DYING;
+   sched_yield();
+
    return;
 }
 
@@ -131,23 +133,20 @@ void scthread_run(struct Env *thr)
 void scthread_task()
 {
    struct FscEntry *entry = curenv->scpage->entries;
+   int i = 0;
 
-   cprintf("Hello World I'm FlexSC\n");
-
-   cprintf("DEBUG Flex sc_num %d\n", curenv->scpage->entries[0].sc_num);
-
-   /*
    while (1) {
-      if (entry->status == FSC_SUBMITTED) {
+      entry += i;
+      if (entry->status == FSC_SUBMIT) {
          entry->status = FSC_BUSY;
-         entry->ret = syscall(entry->sc_num, entry->args[0], entry->args[1], 
+         entry->ret = syscall(entry->syscall, entry->args[0], entry->args[1], 
                               entry->args[2], entry->args[3], entry->args[4]);
          entry->status = FSC_DONE;
       }
-      entry++;
+      i = (i + 1) % NSCENTRIES;
    }
-   */
-   lock_kernel();
-   curenv->env_status = ENV_DYING;
-   sched_yield();
+   
+   curenv->link->env_status = ENV_RUNNABLE;
+   
+   scthread_yield(); 
 }

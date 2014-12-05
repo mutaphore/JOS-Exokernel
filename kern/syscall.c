@@ -529,6 +529,7 @@ static int
 flexsc_register(void *va)
 {
    struct PageInfo *page;
+   struct Env *scthread;
    void *scpage;
    int r;
 
@@ -546,15 +547,17 @@ flexsc_register(void *va)
       return r;   
    }
 
-   // Save syscall page for this user process
-   curenv->scpage = scpage;
-
    // Spawn a syscall thread to work on the page
    if ((r = scthread_spawn(curenv)) < 0)
       panic("Cannot spawn a syscall thread: %e", r);
    
-   curenv->scthread = &envs[ENVX(r)];
-   curenv->scthread->scpage = scpage;
+   scthread = &envs[ENVX(r)];
+   scthread->scpage = scpage;
+   scthread->link = curenv;
+   
+   // Link the user process and its scthread
+   curenv->link = scthread;
+   curenv->scpage = scpage;
 
    return 0;
 }
@@ -567,7 +570,7 @@ static int
 flexsc_wait()
 {
    // Wake up the syscall thread for this process
-   scthread_run(curenv->scthread);
+   scthread_run(curenv->link);
 
    // Put this user process to sleep
    curenv->env_status = ENV_NOT_RUNNABLE;
