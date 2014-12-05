@@ -6,6 +6,8 @@
 #include <inc/memlayout.h>
 
 #define NSCENTRIES 64         // Number of syscall entries per syscall page
+#define NSCTHREADS 5          // Number of syscall threads
+#define NSCPAGES NSCTHREADS   // Number of syscall pages
 
 enum FscStatus {
    FSC_FREE = 0,

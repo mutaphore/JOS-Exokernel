@@ -143,8 +143,17 @@ sys_env_set_priority(envid_t envid, int priority)
 }
 
 // FlexSC System calls:
-int flexsc_register(void *va)
+int flexsc_register()
 {
+   static int sc_pgnum = 0;
+   void *va;
+
+   // Allocate a syscall page from the free list
+   if (sc_pgnum >= NSCPAGES)
+      return -E_INVAL;
+
+   va = &scpages[sc_pgnum++];
+  
    return syscall(FLEXSC_register, 0, (uint32_t)va, 0, 0, 0, 0);
 }
 

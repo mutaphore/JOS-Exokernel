@@ -13,8 +13,8 @@
 #include <kern/spinlock.h>
 
 #define THRSTKTOP 0xFEED0000  // Kernel thread stack top
-#define NSCTHREADS 5          // Number of syscall threads
-#define NSCPAGES NSCTHREADS   // Number of syscall pages
+//#define NSCTHREADS 5          // Number of syscall threads
+//#define NSCPAGES NSCTHREADS   // Number of syscall pages
 
 __attribute__((__aligned__(PGSIZE)))
 struct FscPage scpages[NSCPAGES];

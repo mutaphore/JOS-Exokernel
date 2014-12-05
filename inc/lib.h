@@ -22,6 +22,7 @@
 #include <inc/args.h>
 #include <inc/malloc.h>
 #include <inc/ns.h>
+#include <inc/flexsc.h>
 
 #define USED(x)		(void)(x)
 
@@ -63,9 +64,31 @@ int   sys_env_set_priority(envid_t env, int priority);
 int   sys_net_send_pckt(void *src, uint32_t len);
 int   sys_net_recv_pckt(void *dstva);
 unsigned int sys_time_msec(void);
-// FlexSC system calls
-int   flexsc_register(void *va);
+
+// FlexSC
+__attribute__((__aligned__(PGSIZE)))
+struct FscPage scpages[NSCPAGES];
+int   flexsc_register();
 int   flexsc_wait();
+// FlexSC Exception-less system calls
+void     flex_cputs(const char *string, size_t len);
+int      flex_cgetc(void);
+envid_t  flex_getenvid(void);
+int      flex_env_destroy(envid_t);
+void     flex_yield(void);
+static envid_t flex_exofork(void);
+int      flex_env_set_status(envid_t env, int status);
+int   flex_env_set_trapframe(envid_t env, struct Trapframe *tf);
+int   flex_env_set_pgfault_upcall(envid_t env, void *upcall);
+int   flex_page_alloc(envid_t env, void *pg, int perm);
+int   flex_page_map(envid_t src_env, void *src_pg,
+           envid_t dst_env, void *dst_pg, int perm);
+int   flex_page_unmap(envid_t env, void *pg);
+int   flex_ipc_try_send(envid_t to_env, uint32_t value, void *pg, int perm);
+int   flex_ipc_recv(void *rcv_pg);
+int   flex_net_send_pckt(void *src, uint32_t len);
+int   flex_net_recv_pckt(void *dstva);
+unsigned int flex_time_msec(void);
 
 // This must be inlined.  Exercise for reader: why?
 static __inline envid_t __attribute__((always_inline))
