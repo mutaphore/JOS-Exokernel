@@ -1,9 +1,9 @@
-///////////////////////
+//////////////////////////////////////////////
 //
-// FlexSC + JOS
+// JOS + FlexSC
 // Author: Dewei Chen
 // 
-//
+//////////////////////////////////////////////
 
 // FlexSC kernel functions
 
@@ -112,7 +112,13 @@ int scthread_spawn(struct Env *parent)
    return e->env_id;  
 }
 
-void scthread_yield()
+void scthread_yield(void)
+{
+   return;
+}
+
+// Kills a scthread
+void scthread_kill(void)
 {
    lock_kernel();
 
@@ -125,12 +131,13 @@ void scthread_yield()
 // Wakes up a scthread
 void scthread_run(struct Env *thr)
 {
-   // Set the thread runnable
    thr->env_status = ENV_RUNNABLE;
+
+   return;
 }
 
 // This is the function that every syscall thread starts at.
-void scthread_task()
+void scthread_task(void)
 {
    struct FscEntry *entry = curenv->scpage->entries;
    int i = 0;
@@ -143,10 +150,16 @@ void scthread_task()
                               entry->args[2], entry->args[3], entry->args[4]);
          entry->status = FSC_DONE;
       }
+
+      if (entry->status == FSC_DONE)
+         break;
+
       i = (i + 1) % NSCENTRIES;
    }
    
    curenv->link->env_status = ENV_RUNNABLE;
    
-   scthread_yield(); 
+   scthread_kill(); 
+
+   return;
 }

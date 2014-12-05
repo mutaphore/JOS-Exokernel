@@ -90,10 +90,10 @@ i386_init(void)
 	ENV_CREATE(TEST, ENV_TYPE_USER);
 #else
 	// Touch all you want.
-	ENV_CREATE(user_hello, ENV_TYPE_USER);
+	ENV_CREATE(user_flexsc, ENV_TYPE_USER);
 #endif // TEST*
 
-   // TEST FlexSC
+   // Test FlexSC
    //env_create_flex(test_flex, 0x12345);
 
 	// Should not be necessary - drains keyboard because interrupt has given up.
