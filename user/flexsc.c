@@ -1,4 +1,3 @@
-// hello, world
 #include <inc/lib.h>
 
 __attribute__((__aligned__(PGSIZE)))
@@ -9,11 +8,8 @@ char *test_str = "This is a test string\n";
 void
 umain(int argc, char **argv)
 {
-   int i, r;
-/*
-   for (i = 0; i < 100; i++)
-      cprintf("I am user environment %08x\n", thisenv->env_id);
-*/
+   int r;
+
    if ((r = flexsc_register(&scpage)) < 0)
       panic("Failed to register with FlexSC: %e");
 
