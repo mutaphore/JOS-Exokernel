@@ -3,23 +3,24 @@
 
 // Exception-less system call interface
 
-struct FscEntry *free_syscall_entry
-
 static inline int32_t
 flex_syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 {
    static int en = 0;    // Keeps track of the syscall entry we're on
+   struct FscPage *scp = (struct FscPage *)USCPAGE;
 
-   scpage.entries[en].syscall = num;
-   scpage.entries[en].args[0] = a0;
-   scpage.entries[en].args[1] = a1;
-   scpage.entries[en].args[2] = a2;
-   scpage.entries[en].args[3] = a3;
-   scpage.entries[en].args[4] = a4;
-   scpage.entries[en].status = FSC_SUBMIT;
+   scp->entries[en].syscall = num;
+   scp->entries[en].args[0] = a1;
+   scp->entries[en].args[1] = a2;
+   scp->entries[en].args[2] = a3;
+   scp->entries[en].args[3] = a4;
+   scp->entries[en].args[4] = a5;
+   scp->entries[en].status = FSC_SUBMIT;
 
-   while (scpage.entries[en].status != FSC_DONE)
-      ;
+//   while (scp->entries[en].status != FSC_DONE)
+//      ;
+
+   return scp->entries[en++].ret;
 }
 
 void

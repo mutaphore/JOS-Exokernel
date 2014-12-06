@@ -66,8 +66,6 @@ int   sys_net_recv_pckt(void *dstva);
 unsigned int sys_time_msec(void);
 
 // FlexSC
-__attribute__((__aligned__(PGSIZE)))
-struct FscPage scpages[NSCPAGES];
 int   flexsc_register();
 int   flexsc_wait();
 // FlexSC Exception-less system calls

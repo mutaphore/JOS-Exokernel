@@ -552,12 +552,13 @@ flexsc_register(void *va)
       panic("Cannot spawn a syscall thread: %e", r);
    
    scthread = &envs[ENVX(r)];
+
+   // Set syscall page for process and its syscall thread
    scthread->scpage = scpage;
-   scthread->link = curenv;
-   
-   // Link the user process and its scthread
-   curenv->link = scthread;
    curenv->scpage = scpage;
+   // Link the user process and its syscall thread
+   curenv->link = scthread;
+   scthread->link = curenv;
 
    return 0;
 }

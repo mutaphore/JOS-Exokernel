@@ -118,11 +118,11 @@ void scthread_yield(void)
 }
 
 // Kills a scthread
-void scthread_kill(void)
+void scthread_sleep(void)
 {
    lock_kernel();
 
-   curenv->env_status = ENV_DYING;
+   curenv->env_status = ENV_NOT_RUNNABLE;
    sched_yield();
 
    return;
@@ -140,26 +140,29 @@ void scthread_run(struct Env *thr)
 void scthread_task(void)
 {
    struct FscEntry *entry = curenv->scpage->entries;
-   int i = 0;
-
-   while (1) {
-      entry += i;
-      if (entry->status == FSC_SUBMIT) {
-         entry->status = FSC_BUSY;
-         entry->ret = syscall(entry->syscall, entry->args[0], entry->args[1], 
-                              entry->args[2], entry->args[3], entry->args[4]);
-         entry->status = FSC_DONE;
+   int i = 0, j, count = 1;
+   
+   while(1) {
+      if (entry[i].status == FSC_SUBMIT) {
+         entry[i].status = FSC_BUSY;
+         entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 
+                              entry[i].args[2], entry[i].args[3], entry[i].args[4]);
+         entry[i].status = FSC_DONE;
       }
 
-      if (entry->status == FSC_DONE)
-         break;
+      // Count how many pages not completed
+      count = 0;
+      for (j = 0; j < NSCENTRIES; j++)
+         if (entry[j].status == FSC_BUSY || entry[j].status == FSC_SUBMIT)
+            count++;
+
+      if (count = 0) {
+         curenv->link->env_status = ENV_RUNNABLE;
+         scthread_sleep(); 
+      } 
 
       i = (i + 1) % NSCENTRIES;
    }
-   
-   curenv->link->env_status = ENV_RUNNABLE;
-   
-   scthread_kill(); 
 
    return;
 }
