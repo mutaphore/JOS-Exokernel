@@ -1,52 +1,95 @@
 #include <inc/lib.h>
 #include <inc/flexsc.h>
 
-// Exception-less system call interface
+// FlexSC Exception-less system call interface
 
-static inline int32_t
-flex_syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
+static inline void
+flex_syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5, struct FscEntry *entry)
 {
-   static int en = 0;    // Keeps track of the syscall entry we're on
-   struct FscPage *scp = (struct FscPage *)USCPAGE;
+   entry->syscall = num;
+   entry->args[0] = a1;
+   entry->args[1] = a2;
+   entry->args[2] = a3;
+   entry->args[3] = a4;
+   entry->args[4] = a5;
+   entry->status = FSC_SUBMIT;
+}
 
-   scp->entries[en].syscall = num;
-   scp->entries[en].args[0] = a1;
-   scp->entries[en].args[1] = a2;
-   scp->entries[en].args[2] = a3;
-   scp->entries[en].args[3] = a4;
-   scp->entries[en].args[4] = a5;
-   scp->entries[en].status = FSC_SUBMIT;
+// Allocates the next free entry to use on syscall page
+struct FscEntry *
+entry_alloc()
+{
+   struct FscEntry *entry = (struct FscEntry *)USCPAGE;
+   int i;
 
-//   while (scp->entries[en].status != FSC_DONE)
-//      ;
-
-   return scp->entries[en++].ret;
+   for (i = 0; i < NSCENTRIES; i++) {
+      if (entry[i].status == FSC_FREE) {
+         entry[i].status = FSC_ALLOC;
+         break;
+      }
+   }
+   if (i == NSCENTRIES)
+      panic("Ran out of syscall entries!");
+   
+   return &entry[i];
 }
 
 void
 flex_cputs(const char *s, size_t len)
 {
-   flex_syscall(SYS_cputs, 0, (uint32_t)s, len, 0, 0, 0);
+   struct FscEntry *entry = entry_alloc();
+
+   flex_syscall(SYS_cputs, 0, (uint32_t)s, len, 0, 0, 0, entry);
 }
 
 int
 flex_cgetc(void)
 {
-   return flex_syscall(SYS_cgetc, 0, 0, 0, 0, 0, 0);
+   struct FscEntry *entry = entry_alloc();
+   int ret;
+
+   flex_syscall(SYS_cgetc, 0, 0, 0, 0, 0, 0, entry);
+
+   while (entry->status != FSC_DONE)
+      ;
+   ret = entry->ret;
+   entry->status = FSC_FREE;
+
+   return ret;
 }
 
 int
 flex_env_destroy(envid_t envid)
 {
-   return flex_syscall(SYS_env_destroy, 1, envid, 0, 0, 0, 0);
+   struct FscEntry *entry = entry_alloc();
+   int ret;
+
+   flex_syscall(SYS_env_destroy, 1, envid, 0, 0, 0, 0, entry);
+
+   while (entry->status != FSC_DONE)
+      ;
+   ret = entry->ret;
+   entry->status = FSC_FREE;
+
+   return ret;
 }
 
 envid_t
 flex_getenvid(void)
 {
-    return flex_syscall(SYS_getenvid, 0, 0, 0, 0, 0, 0);
-}
+   struct FscEntry *entry = entry_alloc();
+   int ret;   
 
+   flex_syscall(SYS_getenvid, 0, 0, 0, 0, 0, 0, entry);
+
+   while (entry->status != FSC_DONE)
+      ;
+   ret = entry->ret;
+   entry->status = FSC_FREE;
+   
+   return ret;
+}
+/*
 void
 flex_yield(void)
 {
@@ -120,4 +163,4 @@ flex_net_recv_pckt(void *dstva)
 {
    return flex_syscall(SYS_net_recv_pckt, 0, (uint32_t)dstva, 0, 0, 0, 0);
 }
-
+*/

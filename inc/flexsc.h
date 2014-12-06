@@ -10,6 +10,7 @@
 
 enum FscStatus {
    FSC_FREE = 0,
+   FSC_ALLOC,
    FSC_SUBMIT,
    FSC_BUSY, 
    FSC_DONE
@@ -24,7 +25,7 @@ struct FscEntry {
    int8_t _pad[28];           // Pad it up to 64 bytes
 };
 
-// Syscall page is 4K bytes
+// Syscall page size is 4 Kb
 struct FscPage {
    struct FscEntry entries[NSCENTRIES];
 };

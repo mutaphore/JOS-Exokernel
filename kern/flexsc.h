@@ -30,7 +30,6 @@ struct FscPage *scpage_alloc(void);
 void *kstk_alloc(void);
 int scthread_spawn(struct Env *parent);
 void scthread_run(struct Env *thr);
-void scthread_yield(void);
 void scthread_sleep(void);
 void scthread_task(void);
 

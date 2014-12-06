@@ -112,12 +112,7 @@ int scthread_spawn(struct Env *parent)
    return e->env_id;  
 }
 
-void scthread_yield(void)
-{
-   return;
-}
-
-// Kills a scthread
+// Puts a syscall thread to sleep
 void scthread_sleep(void)
 {
    lock_kernel();
@@ -131,7 +126,8 @@ void scthread_sleep(void)
 // Wakes up a scthread
 void scthread_run(struct Env *thr)
 {
-   thr->env_status = ENV_RUNNABLE;
+   if (thr->env_type == ENV_TYPE_FLEX)
+      thr->env_status = ENV_RUNNABLE;
 
    return;
 }
@@ -140,8 +136,9 @@ void scthread_run(struct Env *thr)
 void scthread_task(void)
 {
    struct FscEntry *entry = curenv->scpage->entries;
-   int i = 0, j, count = 1;
+   int i = 0, j, count;
    
+   // Always working
    while(1) {
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
@@ -155,14 +152,12 @@ void scthread_task(void)
       for (j = 0; j < NSCENTRIES; j++)
          if (entry[j].status == FSC_BUSY || entry[j].status == FSC_SUBMIT)
             count++;
-
-      if (count = 0) {
+      // If all calls complete, wake up user process
+      if (count == 0) {
          curenv->link->env_status = ENV_RUNNABLE;
-         scthread_sleep(); 
+         //scthread_sleep(); 
       } 
 
       i = (i + 1) % NSCENTRIES;
    }
-
-   return;
 }

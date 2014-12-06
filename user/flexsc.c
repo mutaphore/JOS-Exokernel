@@ -29,7 +29,9 @@ umain(int argc, char **argv)
 
    cprintf("Waiting for system calls to complete... \n");
 
-//   flexsc_wait();
+   //flexsc_wait();
+
+   cprintf("My envid is %d", flex_getenvid());
 
    while (1)
       sys_yield();
