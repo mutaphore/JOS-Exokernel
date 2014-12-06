@@ -451,11 +451,13 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 static int
 sys_ipc_recv(void *dstva)
 {
-   // FlexSC case only handle passing ipc values for now
+   // FlexSC IPC only handle passing values for now
    if (curenv->env_type == ENV_TYPE_FLEX) {
+      // Tell them we're ready to receive
       curenv->link->env_ipc_recving = 1;
+      // Put user process to sleep
       curenv->link->env_status = ENV_NOT_RUNNABLE;
-      return 0;
+      return -E_BLOCKED;
    } 
 
 	// LAB 4: Your code here.

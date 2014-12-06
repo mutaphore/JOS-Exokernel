@@ -1,4 +1,3 @@
-#
 # Makefile fragment for JOS kernel.
 # This is NOT a complete makefile;
 # you must run GNU make in the top-level directory
@@ -112,6 +111,7 @@ KERN_BINFILES +=	user/testpteshare \
 
 # Binary files for FlexSC LAB7
 KERN_BINFILES +=	user/flexsc \
+         user/flexscipc
 
 KERN_OBJFILES := $(patsubst %.c, $(OBJDIR)/%.o, $(KERN_SRCFILES))
 KERN_OBJFILES := $(patsubst %.S, $(OBJDIR)/%.o, $(KERN_OBJFILES))

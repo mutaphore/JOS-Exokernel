@@ -226,17 +226,15 @@ int
 flex_ipc_recv(void *dstva)
 {
    struct FscEntry *entry = entry_alloc();
-   int ret;
    
    flex_syscall(SYS_ipc_recv, 1, (uint32_t)dstva, 0, 0, 0, 0, entry);
 
-   while (entry->status != FSC_DONE)
+   while (entry->status != FSC_BLOCKED)
       sys_yield();
 
-   ret = entry->ret;
    entry->status = FSC_FREE;
 
-   return ret;
+   return 0;
 }
 
 unsigned int

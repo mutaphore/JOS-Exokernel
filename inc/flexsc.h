@@ -13,6 +13,7 @@ enum FscStatus {
    FSC_ALLOC,
    FSC_SUBMIT,
    FSC_BUSY, 
+   FSC_BLOCKED, 
    FSC_DONE
 };
 

@@ -31,6 +31,8 @@ enum {
    E_PCKT_SIZE  ,    // Exceeded maximum size per packet
    E_PCKT_NONE  ,    // No packets received
 
+   // FlexSC
+	E_BLOCKED	,	// Used by FlexSC only: we're blocked on I/O
 	MAXERROR
 };
 

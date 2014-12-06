@@ -42,7 +42,7 @@ umain(int argc, char **argv)
 
       flex_cputs(test_str, strlen(test_str));
       r = flex_getenvid();
-      cprintf("I'm the parent, my envid is %08x\n", r);
+      cprintf("I'm the parent %08x\n", r);
 
       // Parent send a value to child
       while (flex_ipc_try_send(who, 0x8888, (void *)UTOP, 0) == -E_IPC_NOT_RECV)
@@ -58,7 +58,7 @@ umain(int argc, char **argv)
    flexsc_wait();
 
    r = flex_getenvid();
-   cprintf("I'm the child, my envid is %08x\n", r);
+   cprintf("I'm the child %08x\n", r);
 
    if (flex_ipc_recv((void *)UTOP) == 0)
       cprintf("%08x Received %08x via IPC!\n", thisenv->env_id, thisenv->env_ipc_value);

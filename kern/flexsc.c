@@ -140,18 +140,22 @@ void scthread_task(void)
    while(1) {
       //cprintf("Thread %08x entry %d status %d\n", curenv->env_id, 
       //        i, entry[i].status);
-
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
          entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 
                               entry[i].args[2], entry[i].args[3], entry[i].args[4]);
-         entry[i].status = FSC_DONE;
+         if (entry[i].ret == -E_BLOCKED)
+            entry[i].status = FSC_BLOCKED;
+         else
+            entry[i].status = FSC_DONE;
       }
 
       // Count how many pages not completed
       count = 0;
       for (j = 0; j < NSCENTRIES; j++)
-         if (entry[j].status == FSC_BUSY || entry[j].status == FSC_SUBMIT)
+         if (entry[j].status == FSC_BUSY || 
+             entry[j].status == FSC_SUBMIT ||
+             entry[j].status == FSC_BLOCKED)
             count++;
       // If all calls complete, wake up user process
       if (count == 0)
