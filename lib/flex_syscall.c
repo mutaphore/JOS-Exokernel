@@ -52,6 +52,7 @@ flex_cgetc(void)
 
    while (entry->status != FSC_DONE)
       ;
+
    ret = entry->ret;
    entry->status = FSC_FREE;
 
@@ -83,7 +84,8 @@ flex_getenvid(void)
    flex_syscall(SYS_getenvid, 0, 0, 0, 0, 0, 0, entry);
 
    while (entry->status != FSC_DONE)
-      ;
+      sys_yield();
+
    ret = entry->ret;
    entry->status = FSC_FREE;
    

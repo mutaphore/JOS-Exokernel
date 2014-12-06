@@ -7,9 +7,8 @@
 
 // FlexSC kernel functions
 
-#include <kern/flexsc.h>
-
-// For debugging
+#include <kern/flexsc.h> 
+// For debugging 
 void test_flex(int num)
 {
    int i = 0;
@@ -140,6 +139,7 @@ void scthread_task(void)
    
    // Always working
    while(1) {
+      //cprintf("DEBUG thread at %d status %d\n", i, entry[i].status);
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
          entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 

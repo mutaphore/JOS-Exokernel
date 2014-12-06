@@ -3,7 +3,7 @@
 //__attribute__((__aligned__(PGSIZE)))
 //struct FscPage scpage;
 
-char *test_str = "This is a test string\n";
+char *test_str = "This is a FlexSC test\n";
 
 void
 umain(int argc, char **argv)
@@ -19,34 +19,13 @@ umain(int argc, char **argv)
    flex_cputs(test_str, strlen(test_str));
 
    cprintf("Waiting for system calls to complete... \n");
-
    flexsc_wait();
 
-   flex_cputs(test_str, strlen(test_str));
-   flex_cputs(test_str, strlen(test_str));
-   flex_cputs(test_str, strlen(test_str));
-   flex_cputs(test_str, strlen(test_str));
+   cprintf("More system calls... \n");
 
-   cprintf("Waiting for system calls to complete... \n");
+   r = flex_getenvid();
+   cprintf("My envid is %08x\n", r);
 
-   //flexsc_wait();
-
-   cprintf("My envid is %d", flex_getenvid());
-
-   while (1)
-      sys_yield();
-/*
-   scpage.entries[0].syscall = SYS_cputs;
-   scpage.entries[0].num_args = 2;
-   scpage.entries[0].args[0] = (uintptr_t)test_str;
-   scpage.entries[0].args[1] = strlen(test_str);
-   scpage.entries[0].status = FSC_SUBMIT;
-
-   cprintf("Waiting for system calls to complete... \n");
-   flexsc_wait();
-
-   while (scpage.entries[0].status != FSC_DONE)
-      sys_yield();
-*/
-
+//   while (1)
+//      sys_yield();
 }
