@@ -2,12 +2,14 @@
 //
 // JOS + FlexSC
 // Author: Dewei Chen
-// 
+// Date: 12/6/14 
+//
 //////////////////////////////////////////////
 
 // FlexSC kernel functions
 
 #include <kern/flexsc.h> 
+
 // For debugging 
 void test_flex(int num)
 {
@@ -98,7 +100,7 @@ int scthread_spawn(struct Env *parent)
       return r;
 
    // The syscall thread is the parent of its parent. We need
-   // this in order to manipulate system structures
+   // this in order to manipulate user process system structures
    parent->env_parent_id = e->env_id;
 
    // Set env type for debugging
@@ -142,8 +144,6 @@ void scthread_task(void)
    int i = 0, j, count;
    
    while(1) {
-      //cprintf("Thread %08x entry %d status %d\n", curenv->env_id, 
-      //        i, entry[i].status);
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
          entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 
@@ -153,7 +153,6 @@ void scthread_task(void)
          else
             entry[i].status = FSC_DONE;
       }
-
       // Count how many pages not completed
       count = 0;
       for (j = 0; j < NSCENTRIES; j++)

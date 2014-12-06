@@ -1,3 +1,11 @@
+//////////////////////////////////////////////
+//
+// JOS + FlexSC
+// Author: Dewei Chen
+// Date: 12/6/14 
+//
+//////////////////////////////////////////////
+
 #include <inc/lib.h>
 #include <inc/flexsc.h>
 
@@ -15,7 +23,7 @@ flex_syscall(int num, int check, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t
    entry->status = FSC_SUBMIT;
 }
 
-// Allocates the next free entry to use on syscall page
+// Allocates the next free entry to use from syscall page
 struct FscEntry *
 entry_alloc()
 {
@@ -151,8 +159,6 @@ flex_page_unmap(envid_t envid, void *va)
 
    return ret;
 }
-
-// sys_exofork is inlined in lib.h
 
 int
 flex_env_set_status(envid_t envid, int status)
