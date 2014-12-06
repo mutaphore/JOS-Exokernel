@@ -107,7 +107,7 @@ int scthread_spawn(struct Env *parent)
    e->env_tf.tf_esp = (uintptr_t)kstk_alloc();
    // This thread starts off asleep 
    e->env_status = ENV_NOT_RUNNABLE;
- 
+
    return e->env_id;  
 }
 
@@ -138,6 +138,9 @@ void scthread_task(void)
    int i = 0, j, count;
    
    while(1) {
+      //cprintf("Thread %08x entry %d status %d\n", curenv->env_id, 
+      //        i, entry[i].status);
+
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
          entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 

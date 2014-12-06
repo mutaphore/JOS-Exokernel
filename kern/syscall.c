@@ -43,6 +43,9 @@ sys_cgetc(void)
 static envid_t
 sys_getenvid(void)
 {
+   if (curenv->env_type == ENV_TYPE_FLEX)
+      return curenv->link->env_id;
+
 	return curenv->env_id;
 }
 
@@ -234,7 +237,6 @@ sys_page_alloc(envid_t envid, void *va, int perm)
    struct PageInfo *page;
    int error;
 
-
    // Check if va >= UTOP and not page-aligned
    if ((uintptr_t)va >= UTOP || (uintptr_t)va & 0xFFF)
       return -E_INVAL;
@@ -252,8 +254,6 @@ sys_page_alloc(envid_t envid, void *va, int perm)
       page_free(page);  // Free the page!
       return error;   
    }
-
-   cprintf("sys page alloc %08x\n", e->env_id);
 
    return 0;
 }
@@ -389,6 +389,7 @@ sys_page_unmap(envid_t envid, void *va)
 static int
 sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
+   cprintf("DEBUG sys_ipc_try_send\n");
 	// LAB 4: Your code here.
 
    struct PageInfo *page;
@@ -451,6 +452,13 @@ sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 static int
 sys_ipc_recv(void *dstva)
 {
+   // FlexSC case only handle passing ipc values for now
+   if (curenv->env_type == ENV_TYPE_FLEX) {
+      curenv->link->env_ipc_recving = 1;
+      curenv->link->env_status = ENV_NOT_RUNNABLE;
+      return 0;
+   } 
+
 	// LAB 4: Your code here.
    
    curenv->env_ipc_recving = 1;
@@ -463,7 +471,7 @@ sys_ipc_recv(void *dstva)
 
    // Simulate a 0 return value sometime in the future
    curenv->env_tf.tf_regs.reg_eax = 0;
-  
+
    // Block this env
    curenv->env_status = ENV_NOT_RUNNABLE; 
    sched_yield();
@@ -550,7 +558,8 @@ flexsc_register(void *va)
    // Spawn a syscall thread to work on the page
    if ((r = scthread_spawn(curenv)) < 0)
       panic("Cannot spawn a syscall thread: %e", r);
-   
+
+   cprintf("I'm syscall thread %08x\n", r);
    scthread = &envs[ENVX(r)];
 
    // Set syscall page for process and its syscall thread
