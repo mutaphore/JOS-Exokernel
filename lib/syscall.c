@@ -142,7 +142,7 @@ sys_env_set_priority(envid_t envid, int priority)
    return syscall(SYS_env_set_priority, 1, envid, priority, 0, 0, 0);
 }
 
-// FlexSC System calls:
+// FlexSC System calls
 int flexsc_register()
 {
    sys_page_alloc(0, (void *)USCPAGE, PTE_W | PTE_U | PTE_P);

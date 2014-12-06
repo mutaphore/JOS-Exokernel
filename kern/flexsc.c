@@ -137,9 +137,7 @@ void scthread_task(void)
    struct FscEntry *entry = curenv->scpage->entries;
    int i = 0, j, count;
    
-   // Always working
    while(1) {
-      //cprintf("DEBUG thread at %d status %d\n", i, entry[i].status);
       if (entry[i].status == FSC_SUBMIT) {
          entry[i].status = FSC_BUSY;
          entry[i].ret = syscall(entry[i].syscall, entry[i].args[0], entry[i].args[1], 
@@ -153,10 +151,8 @@ void scthread_task(void)
          if (entry[j].status == FSC_BUSY || entry[j].status == FSC_SUBMIT)
             count++;
       // If all calls complete, wake up user process
-      if (count == 0) {
+      if (count == 0)
          curenv->link->env_status = ENV_RUNNABLE;
-         //scthread_sleep(); 
-      } 
 
       i = (i + 1) % NSCENTRIES;
    }

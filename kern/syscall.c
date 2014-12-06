@@ -234,6 +234,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
    struct PageInfo *page;
    int error;
 
+
    // Check if va >= UTOP and not page-aligned
    if ((uintptr_t)va >= UTOP || (uintptr_t)va & 0xFFF)
       return -E_INVAL;
@@ -251,6 +252,8 @@ sys_page_alloc(envid_t envid, void *va, int perm)
       page_free(page);  // Free the page!
       return error;   
    }
+
+   cprintf("sys page alloc %08x\n", e->env_id);
 
    return 0;
 }

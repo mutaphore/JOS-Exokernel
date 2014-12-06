@@ -51,7 +51,7 @@ flex_cgetc(void)
    flex_syscall(SYS_cgetc, 0, 0, 0, 0, 0, 0, entry);
 
    while (entry->status != FSC_DONE)
-      ;
+      sys_yield();
 
    ret = entry->ret;
    entry->status = FSC_FREE;
@@ -68,7 +68,7 @@ flex_env_destroy(envid_t envid)
    flex_syscall(SYS_env_destroy, 1, envid, 0, 0, 0, 0, entry);
 
    while (entry->status != FSC_DONE)
-      ;
+      sys_yield;
    ret = entry->ret;
    entry->status = FSC_FREE;
 
@@ -91,25 +91,50 @@ flex_getenvid(void)
    
    return ret;
 }
-/*
+
 void
 flex_yield(void)
 {
-   flex_syscall(SYS_yield, 0, 0, 0, 0, 0, 0);
+   struct FscEntry *entry = entry_alloc();
+
+   flex_syscall(SYS_yield, 0, 0, 0, 0, 0, 0, entry);
 }
 
 int
 flex_page_alloc(envid_t envid, void *va, int perm)
 {
-   return flex_syscall(SYS_page_alloc, 1, envid, (uint32_t) va, perm, 0, 0);
+   struct FscEntry *entry = entry_alloc();
+   int ret;
+   
+   flex_syscall(SYS_page_alloc, 1, envid, (uint32_t) va, perm, 0, 0, entry);
+
+   while (entry->status != FSC_DONE)
+      sys_yield();
+
+   ret = entry->ret;
+   entry->status = FSC_FREE;
+   
+   return ret;
 }
 
 int
 flex_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
 {
-   return flex_syscall(SYS_page_map, 1, srcenv, (uint32_t) srcva, dstenv, (uint32_t) dstva, perm);
-}
+   struct FscEntry *entry = entry_alloc();
+   int ret;
 
+   flex_syscall(SYS_page_map, 1, srcenv, (uint32_t) srcva, dstenv, 
+                (uint32_t) dstva, perm, entry);
+
+   while (entry->status != FSC_DONE)
+      sys_yield();
+
+   ret = entry->ret;
+   entry->status = FSC_FREE;
+
+   return ret;
+}
+/*
 int
 flex_page_unmap(envid_t envid, void *va)
 {
