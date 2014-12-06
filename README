@@ -4,8 +4,8 @@ Final Project: JOS + FlexSC
 Dewei Chen (Andrew)
 12/6/14
 
-What I did
-----------
+Write-up
+-------
 I attached to JOS the core functionalities of FlexSC as discussed in the paper by Livio Soares. This includes flexsc_register(),
 flexsc_wait(), kernel level syscall threads, syscall pages, and user level wrapper functions for each system call that posts 
 corresponding syscall requests onto syscall pages. 
@@ -30,7 +30,7 @@ Syscall page and its entries are very similar to what is described in the paper.
 the arg fields go from arg[0] to arg[4]. There was no use for the num_args field but it was kept for consistency with the design proposed.
 An additional status, FSC_BLOCKED, was created to indicate that an syscall is blocked. This is needed due because it enables the same thread
 to continue executing system calls even when one blocks. Currently the syscall page is mapped to a fixed location in user and kernel space.
-However, it could be extended to any location as long as the correct va is passed to flexsc_register.
+However, it could be extended to any location memory as long as a valid page va is passed to flexsc_register.
 
 Finally, user level wrapper functions are created as an API for user applications programming. Since JOS does not have user threads yet, 
 after posting a syscall to the page, it currently just yields the process until the call is completed (for calls that have a return value or
@@ -41,10 +41,19 @@ notifications will enable truly asynchronous and event-based programming model t
 How to use
 ----------
 
-
-kern/flexsc.c
-kern/flexsc.h        -   
-lib/flex_syscall.c   -  Library of flex syscall functions
+FlexSC files:
+kern/flexsc.c        -  Core syscall thread functions
+kern/flexsc.h        -  Function interfaces, constants 
+lib/flex_syscall.c   -  User library of flex syscall functions
 inc/flexsc.h         -  FlexSC syscall page, entry structures, constants
-user/flexsc.c
-user/flexscipc.c
+user/flexsc.c        -  App demonstrating general flex system calls
+user/flexscipc.c     -  App demonstrating flex ipc system calls
+
+Other modifications:
+kern/env.c           -  Added env_create_flex to directly create a flex syscall thread. For debugging only.
+inc/env.h            -  Added fields to support syscall threads
+kern/syscall.c       -  Modified some system calls to handle when syscall thread is calling it instead of a user process.
+kern/trap.c          -  Added syscall thread handling code when it is interrupted.
+inc/lib.h            -  Added flex library system call functions
+
+To run demo files, simply type "make run-flexsc" or "make run-flexscipc".
