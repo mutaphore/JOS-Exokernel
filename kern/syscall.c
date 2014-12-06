@@ -389,7 +389,6 @@ sys_page_unmap(envid_t envid, void *va)
 static int
 sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
-   cprintf("DEBUG sys_ipc_try_send\n");
 	// LAB 4: Your code here.
 
    struct PageInfo *page;
@@ -559,7 +558,7 @@ flexsc_register(void *va)
    if ((r = scthread_spawn(curenv)) < 0)
       panic("Cannot spawn a syscall thread: %e", r);
 
-   cprintf("I'm syscall thread %08x\n", r);
+   cprintf("Spawned syscall thread %08x\n", r);
    scthread = &envs[ENVX(r)];
 
    // Set syscall page for process and its syscall thread

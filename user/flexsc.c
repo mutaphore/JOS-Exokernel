@@ -34,17 +34,25 @@ umain(int argc, char **argv)
    }
 */
    if ((who = fork()) != 0) {
+      // Parent
       if ((r = flexsc_register()) < 0)
          panic("Failed to register with FlexSC: %e");
+
       flexsc_wait();
+
       flex_cputs(test_str, strlen(test_str));
+      r = flex_getenvid();
+      cprintf("I'm the parent, my envid is %08x\n", r);
+
       // Parent send a value to child
-      while (flex_ipc_try_send(who, 0x888, (void *)UTOP, 0) == -E_IPC_NOT_RECV)
-         ;
-         //cprintf("Sending IPC to child %08x\n", who);
+      while (flex_ipc_try_send(who, 0x8888, (void *)UTOP, 0) == -E_IPC_NOT_RECV)
+         cprintf("Sending IPC to child %08x\n", who);
+      
+      cprintf("IPC sent!\n");
       return;
    }
-   // We are child
+
+   // Child
    if ((r = flexsc_register()) < 0)
       panic("Failed to register with FlexSC: %e");
    flexsc_wait();
@@ -52,12 +60,11 @@ umain(int argc, char **argv)
    r = flex_getenvid();
    cprintf("I'm the child, my envid is %08x\n", r);
 
-   while (1)
-      sys_yield();
-/*
    if (flex_ipc_recv((void *)UTOP) == 0)
-      cprintf("Received %08x via IPC!\n", thisenv->env_ipc_value);
+      cprintf("%08x Received %08x via IPC!\n", thisenv->env_id, thisenv->env_ipc_value);
  
-   flex_yield();
-*/
+   while (1) {
+      sys_yield();
+      //cprintf("%08x Received %08x via IPC!\n", thisenv->env_id, thisenv->env_ipc_value);
+   }
 }
