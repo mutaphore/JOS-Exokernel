@@ -20,10 +20,10 @@ umain(int argc, char **argv)
       cprintf("I'm the parent %08x\n", r); 
 
       // Send a value to child
-      while (flex_ipc_try_send(who, 0x8888, (void *)UTOP, 0) == -E_IPC_NOT_RECV)
+      while (flex_ipc_try_send(who, 0x1234, (void *)UTOP, 0) == -E_IPC_NOT_RECV)
          cprintf("Sending IPC to child %08x\n", who);
     
-      cprintf("IPC sent!\n");
+      cprintf("IPC completed!\n");
       return;
    }   
 

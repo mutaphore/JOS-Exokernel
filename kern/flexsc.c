@@ -97,6 +97,10 @@ int scthread_spawn(struct Env *parent)
    if ((r = page_insert(e->env_pgdir, page, addr, perm)) < 0)
       return r;
 
+   // The syscall thread is the parent of its parent. We need
+   // this in order to manipulate system structures
+   parent->env_parent_id = e->env_id;
+
    // Set env type for debugging
    e->env_type = ENV_TYPE_FLEX;
    // Copy the page fault handler from parent
