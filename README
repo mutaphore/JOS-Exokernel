@@ -1,0 +1,50 @@
+CS3250 Honors Operating Systems
+Final Project: JOS + FlexSC
+
+Dewei Chen (Andrew)
+12/6/14
+
+What I did
+----------
+I attached to JOS the core functionalities of FlexSC as discussed in the paper by Livio Soares. This includes flexsc_register(),
+flexsc_wait(), kernel level syscall threads, syscall pages, and user level wrapper functions for each system call that posts 
+corresponding syscall requests onto syscall pages. 
+
+Both flexsc_register() and flexsc_wait() are implemented as standard exception-based system calls, as suggested by the paper. When
+an user process wants to use the FlexSC exception-less system call facility, it must first call flexsc_register(). This will create
+a syscall page in the user process space and a corresponding map in the kernel space. Additionally, a kernel level syscall thread 
+will be spawned to serve that page for this particular user process. The syscall thread does not do work until the user calls 
+flexsc_wait(), indicating that it cannot proceed further without completion of system calls. This will block the user process. The 
+kernel thread will begin executing at scthread_task(), in which it will sequentially look at each syscall page entry and make the 
+designated system calls in ring 0. When all the syscall entries have been completed, the syscall thread will wake up the user process.
+If a system call is blocked, it will modify the status of the entry to FSC_BLOCKED and move to the next entry on the page.
+
+Syscall threads are implemented with the Env structure modified so that it will always run in ring 0. Each thread has additional information
+to keep track of the syscall page it is assigned to as well as the parent process that spawned it. When it runs, interrupt is enabled just 
+like any user process. Each syscall thread has its own stack to isolate its execution, in addition to sharing the same address space as
+the user process that initiated it. Since there is no privilege level change while running kernel threads, a stack switch does not occur. 
+The return location is saved based on the location of the trap frame pushed on to the kernel stack already. When a user process is killed, 
+the syscall thread linking to it will also be destroyed (given that it was spawned in the first place).
+
+Syscall page and its entries are very similar to what is described in the paper. Since JOS system calls only take a maximum of 5 arguments,
+the arg fields go from arg[0] to arg[4]. There was no use for the num_args field but it was kept for consistency with the design proposed.
+An additional status, FSC_BLOCKED, was created to indicate that an syscall is blocked. This is needed due because it enables the same thread
+to continue executing system calls even when one blocks. Currently the syscall page is mapped to a fixed location in user and kernel space.
+However, it could be extended to any location as long as the correct va is passed to flexsc_register.
+
+Finally, user level wrapper functions are created as an API for user applications programming. Since JOS does not have user threads yet, 
+after posting a syscall to the page, it currently just yields the process until the call is completed (for calls that have a return value or
+blocks). Flex syscalls like flex_cputs can be called by batching without waiting for a return. Adding a user level threading library and 
+notifications will enable truly asynchronous and event-based programming model to JOS combined with the FlexSC facility in place.
+
+
+How to use
+----------
+
+
+kern/flexsc.c
+kern/flexsc.h        -   
+lib/flex_syscall.c   -  Library of flex syscall functions
+inc/flexsc.h         -  FlexSC syscall page, entry structures, constants
+user/flexsc.c
+user/flexscipc.c
